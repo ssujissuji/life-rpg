@@ -4,6 +4,48 @@
 
 ---
 
+## [0.3.3] 2026-05-17 — 공통 CSS 토큰 전체 적용
+
+### Added
+- `index.css` `@theme`에 4개 색상 토큰 추가
+  - `--color-text-base: #e2e8f0` — 기본 텍스트
+  - `--color-text-sub: #6b7280` — 서브/힌트 텍스트
+  - `--color-border: #2a2a3a` — 카드 테두리, 구분선
+  - `--color-purple-dark: #4340a0` — 버튼 hover 퍼플 다크
+
+### Changed
+- 전체 소스 파일(`App.tsx`, `BottomNav.tsx`, `StatBar.tsx`, 모든 pages, `calendar.css`) raw hex 값을 Tailwind 토큰명 및 CSS 변수로 교체
+- `index.css` body 스타일 → `var(--color-bg-root)`, `var(--color-text-base)` 적용
+
+---
+
+## [0.3.2] 2026-05-17 — e2e 테스트 도입 + 버그 수정 + 스타일 토큰 정리
+
+### Added
+- Playwright e2e 테스트 도입 (`@playwright/test`, `playwright.config.ts`)
+- `e2e/calendar.spec.ts` — CalendarView 기본 렌더링 / hover 스타일 / 날짜 클릭 인터랙션 9개 케이스 (전체 통과)
+
+### Fixed
+- `CalendarView.toDateStr` 타임존 버그 — `toISOString()`(UTC) → `getFullYear/Month/Date()`(로컬) 변경. 한국(UTC+9)에서 오늘 날짜 비교 실패 가능성 제거
+- CalendarView hover 배경색 CSS specificity 버그 — `.react-calendar__tile:hover` → `.react-calendar__tile:enabled:hover`로 변경해 react-calendar 기본 CSS(specificity 0,3,0)와 동일 수준 맞춤. `!important` 없이 해결
+
+### Changed
+- `CalendarView` `<style>` 블록 hex 값 → CSS 변수(`var(--color-*)`) 로 교체
+- JSX 인라인 클래스 → 토큰명(`bg-bg-card`, `bg-purple-primary`) 적용
+- `CalendarView` 인라인 `<style>` 블록 → `src/styles/calendar.css`로 분리 (`src/styles/` 디렉토리 신설)
+
+---
+
+## [0.3.1] 2026-05-17 — CalendarView hover UI 개선
+
+### Changed
+- `CalendarView` 캘린더 날짜 타일 hover 스타일 변경
+  - 배경: `#1e1e2e` (너무 밝음) → `#181826` (미세하게 밝히기)
+  - 날짜 텍스트: hover 시 포인트 컬러 `#afa9ec` 적용
+  - 보더: inset box-shadow로 퍼플 계열 포인트 보더 추가 (인접 셀 영향 없음)
+
+---
+
 ## [0.3.0] 2026-05-17 — TypeScript 마이그레이션
 
 ### Changed

@@ -60,10 +60,49 @@
 
 ---
 
+---
+
+### [2026-05-17] CalendarView hover UI 개선
+
+**완료된 항목:**
+- [x] 캘린더 날짜 타일 hover 시 배경 미세하게 밝게 (#12121a → #181826)
+- [x] hover 시 날짜 텍스트에 포인트 컬러 (#afa9ec) 적용
+- [x] hover 시 inset box-shadow로 퍼플 포인트 보더 추가 (인접 셀 영향 없음)
+- [x] 전체적으로 hover가 튀지 않는 절제된 피드백으로 변경
+
+---
+
+---
+
+### [2026-05-17] e2e 테스트 도입 + 버그 수정 + 스타일 토큰 정리
+
+**완료된 항목:**
+- [x] Playwright 설치 (`@playwright/test`), `playwright.config.ts` 구성 (baseURL, webServer 자동 기동)
+- [x] `e2e/calendar.spec.ts` 작성 — 기본 렌더링, hover 스타일, 날짜 클릭 인터랙션 총 9개 케이스
+- [x] BUG-01 수정 — `toDateStr` UTC → 로컬 날짜(`getFullYear/Month/Date`) 변경
+- [x] BUG-02 수정 — hover 선택자 `.react-calendar__tile:hover` → `.react-calendar__tile:enabled:hover` (`!important` 없이 specificity로 해결)
+- [x] `<style>` 블록 hex 값 → `var(--color-*)` CSS 변수로 교체
+- [x] JSX 인라인 클래스 → 토큰명(`bg-bg-card`, `bg-purple-primary`) 적용
+- [x] e2e 테스트 9/9 전체 통과 확인
+- [x] CalendarView 인라인 `<style>` 블록 → `src/styles/calendar.css`로 분리
+
+---
+
+### [2026-05-17] 공통 CSS 토큰 정리 — 전체 파일 적용
+
+**완료된 항목:**
+- [x] `index.css` `@theme`에 4개 토큰 추가: `--color-text-base`, `--color-text-sub`, `--color-border`, `--color-purple-dark`
+- [x] `index.css` body 스타일 → `var(--color-*)` 변수 적용
+- [x] `src/styles/calendar.css` 잔여 hex 값 전체 토큰 변수로 교체
+- [x] `src/App.tsx`, `src/components/BottomNav.tsx`, `src/components/StatBar.tsx` 토큰 적용
+- [x] `src/pages/` 전체(Analysis, CharacterSheet, PatchResult, Settings, DailyLog, CalendarView) 토큰 적용
+- [x] e2e 테스트 9/9 통과 확인
+
+---
+
 ## 다음 작업 (Phase 1 마무리)
 
 - [ ] 실제 브라우저 UI 확인 및 레이아웃 이슈 수정
-- [ ] react-calendar 스타일 다크 테마 완성도 점검
 - [ ] 오늘 날짜 이미 기록 있을 때 DailyLog 초기값 정상 로드 확인
 
 ---

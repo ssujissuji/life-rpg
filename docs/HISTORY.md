@@ -6,6 +6,34 @@
 
 ## 2026-05-17
 
+### 공통 CSS 토큰 전체 적용
+
+- `index.css` `@theme`에 4개 토큰 추가: `--color-text-base(#e2e8f0)`, `--color-text-sub(#6b7280)`, `--color-border(#2a2a3a)`, `--color-purple-dark(#4340a0)`
+- `index.css` body 스타일 → CSS 변수 적용
+- `src/styles/calendar.css`, `App.tsx`, `BottomNav.tsx`, `StatBar.tsx`, 전체 pages raw hex 값을 토큰명(`text-text-sub`, `border-border`, `hover:bg-purple-dark` 등)으로 교체
+- 이후 코드베이스 전체에서 raw hex 없이 토큰으로만 색상 관리
+
+---
+
+### e2e 테스트 도입 + 버그 수정 + 스타일 토큰 정리
+
+- Playwright 설치 및 `playwright.config.ts` 구성 (webServer 자동 기동, baseURL)
+- `e2e/calendar.spec.ts` — 9개 케이스 작성 및 전체 통과 확인
+- BUG-01 수정: `CalendarView.toDateStr` — UTC 기반 `.toISOString()` → 로컬 날짜 `getFullYear/Month/Date()`로 변경. 한국(UTC+9) 환경에서 오늘 날짜 비교 실패 가능성 제거
+- BUG-02 수정: hover 선택자 `.react-calendar__tile:hover` → `.react-calendar__tile:enabled:hover`. specificity를 0,2,0 → 0,3,0으로 올려 react-calendar 기본 CSS와 동일 수준으로 맞춤. `!important` 없이 document 순서(body > head)로 우선순위 확보
+- `CalendarView` `<style>` 블록 hex 값 전체를 `var(--color-*)` CSS 변수로 교체
+- JSX 인라인 클래스 `bg-[#12121a]` → `bg-bg-card`, `bg-[#534ab7]` → `bg-purple-primary` 토큰명 적용
+- `CalendarView` 인라인 `<style>` 블록 → `src/styles/calendar.css`로 분리 (`src/styles/` 디렉토리 신설)
+
+---
+
+### CalendarView hover UI 개선
+
+- `src/pages/CalendarView.tsx` hover 스타일 변경: 배경 `#1e1e2e` → `#181826`, 날짜 텍스트 `#afa9ec` 포인트 컬러, inset box-shadow 퍼플 포인트 보더 추가
+- `src/vite-env.d.ts` 신규 생성 — `/// <reference types="vite/client" />` 추가로 CSS 사이드이펙트 임포트 TS 에러(2882) 해소
+
+---
+
 ### TypeScript 마이그레이션
 
 - TypeScript, @typescript-eslint 설치 / `tsconfig.json` (strict) 생성
