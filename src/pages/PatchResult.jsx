@@ -21,6 +21,16 @@ const ENCOURAGEMENTS = [
   '버그 투성이 현실에서도 넌 잘 버텼다.',
 ]
 
+function formatSpend(amount) {
+  if (!amount || amount === 0) return '0원'
+  const man = Math.floor(amount / 10000)
+  const rest = amount % 10000
+  const chun = Math.floor(rest / 1000)
+  if (man > 0 && chun > 0) return `${man}만 ${chun}천원`
+  if (man > 0) return `${man}만원`
+  return `${chun}천원`
+}
+
 function formatDateLabel(dateStr) {
   const d = new Date(dateStr)
   const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
@@ -142,7 +152,7 @@ export default function PatchResult() {
           <span className="text-[#6b7280]">배달</span>
           <span className="text-white">{patch.delivery}회</span>
           <span className="text-[#6b7280]">지출</span>
-          <span className="text-white">{['0원', '~3만원', '~7만원', '10만원+'][patch.spend]}</span>
+          <span className="text-white">{formatSpend(patch.spend)}</span>
         </div>
       </div>
 

@@ -6,6 +6,16 @@
 
 ## 2026-05-17
 
+### 지출 규모 UI 개선
+
+- `src/pages/DailyLog.jsx` — 지출 규모 입력 UI를 탭 버튼(인덱스 0~3)에서 금액 칩 누적 합산 방식으로 교체. 칩: 1천/5천/1만/3만/5만/10만/+직접입력. 합계 실시간 표시, 초기화 버튼 조건부 노출
+- `src/lib/stats.js` — `calcWallet`, `getStatusTags` spend 파라미터를 인덱스 → 실제 금액(원 단위)으로 처리하도록 수정. 통장출혈 기준: `>= 30000`
+- `src/pages/PatchResult.jsx` — `formatSpend()` 추가, 지출 표시를 만원/천원 한국어 단위로 변환
+- `PRD.md` — 지출 규모 입력 스펙, 데이터 구조(`spend` 필드), 로직 예시 업데이트
+- `docs/DESIGN.md` — 금액 누적 칩 컴포넌트 패턴 추가
+
+---
+
 ### Phase 1 MVP 구현
 
 **라우팅 & 레이아웃**

@@ -44,7 +44,7 @@
 | 식사 횟수        | 직접 입력 | 탭 버튼 (0끼 / 1끼 / 2끼 / 3끼 / 3끼+) | —                                |
 | 카페 방문        | 직접 입력 | +/− 카운터                             | 회 단위                          |
 | 배달 주문        | 직접 입력 | +/− 카운터                             | 회 단위                          |
-| 지출 규모        | 직접 입력 | 탭 버튼 (0원 / ~3만 / ~7만 / 10만+)    | —                                |
+| 지출 규모        | 직접 입력 | 금액 칩 선택 → 합산 (1천/5천/1만/3만/5만/10만/+) | 클릭마다 누적, 합계 실시간 표시 |
 | 오늘의 감정      | 직접 입력 | 이모지 선택 (8종)                      | 😊😐😴😤🥲🤯🔥💀                 |
 | 한 줄 메모       | 선택 입력 | 텍스트 인풋                            | 오늘의 특이사항                  |
 
@@ -212,18 +212,20 @@ function calcFocus(sleep, cafeCount, isMonday) {
   return Math.max(0, Math.min(100, focus));
 }
 
-// 지갑 계산
+// 지갑 계산 (spend = 실제 금액, 원 단위)
 function calcWallet(spend, cafeCount, deliveryCount) {
   let wallet = 100;
-  if (spend === 1) wallet -= 20;
-  if (spend === 2) wallet -= 45;
-  if (spend === 3) wallet -= 70;
+  if (spend > 0 && spend < 10000) wallet -= 10;
+  else if (spend < 30000) wallet -= 20;
+  else if (spend < 50000) wallet -= 45;
+  else if (spend < 100000) wallet -= 60;
+  else if (spend >= 100000) wallet -= 80;
   wallet -= cafeCount * 8;
   wallet -= deliveryCount * 10;
   return Math.max(0, Math.min(100, wallet));
 }
 
-// 상태 태그 계산
+// 상태 태그 계산 (spend = 실제 금액, 원 단위)
 function getStatusTags({
   sleep,
   cafeCount,
@@ -236,7 +238,7 @@ function getStatusTags({
   if (isMonday) tags.push('월요병');
   if (sleep < 6) tags.push('수면부족');
   if (cafeCount >= 2) tags.push('커피버프');
-  if (spend >= 2) tags.push('통장출혈');
+  if (spend >= 30000) tags.push('통장출혈');   // 3만원 이상
   if (deliveryCount >= 1) tags.push('배달의민족');
   if (sleep >= 8) tags.push('꿀잠달성');
   if (spend === 0 && cafeCount === 0) tags.push('무지출');
@@ -256,7 +258,7 @@ function getStatusTags({
   meal: 2,
   cafe: 1,
   delivery: 0,
-  spend: 1,          // 0=0원 / 1=~3만 / 2=~7만 / 3=10만+
+  spend: 53000,      // 실제 지출 금액 (원 단위), 0 = 무지출
   emoji: "😊",
   memo: "오늘은 그나마 괜찮았다",
   stats: {

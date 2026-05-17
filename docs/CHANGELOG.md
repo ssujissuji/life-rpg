@@ -4,6 +4,20 @@
 
 ---
 
+## [0.2.1] 2026-05-17 — 지출 규모 UI 개선
+
+### Changed
+- `DailyLog` 지출 규모 입력 방식: 탭 버튼(0원/~3만/~7만/10만+) → 금액 칩 누적 합산 (1천/5천/1만/3만/5만/10만/+직접입력)
+- `stats.js` `calcWallet`, `getStatusTags` — spend 값을 인덱스 대신 실제 금액(원)으로 처리
+  - 통장출혈 태그 기준: `spend >= 2` → `spend >= 30000`
+- `PatchResult` 지출 표시: 인덱스 배열 참조 → `formatSpend()` 한국어 금액 포맷
+
+### Added
+- `PatchResult.formatSpend()` — 원 단위 금액을 만원/천원 한국어로 표시
+- `DailyLog.formatSpend()` — 섹션 레이블 실시간 합계 표시용
+
+---
+
 ## [0.2.0] 2026-05-17 — Phase 1 MVP 화면 구현
 
 ### Added

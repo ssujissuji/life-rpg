@@ -28,9 +28,11 @@ export function calcSocial(meal, isWeekend) {
 
 export function calcWallet(spend, cafeCount, deliveryCount) {
   let wallet = 100;
-  if (spend === 1) wallet -= 20;
-  if (spend === 2) wallet -= 45;
-  if (spend === 3) wallet -= 70;
+  if (spend > 0 && spend < 10000) wallet -= 10;
+  else if (spend < 30000) wallet -= 20;
+  else if (spend < 50000) wallet -= 45;
+  else if (spend < 100000) wallet -= 60;
+  else if (spend >= 100000) wallet -= 80;
   wallet -= cafeCount * 8;
   wallet -= deliveryCount * 10;
   return Math.max(0, Math.min(100, wallet));
@@ -56,7 +58,7 @@ export function getStatusTags({ sleep, cafeCount, spend, deliveryCount, isMonday
   if (isMonday) tags.push('월요병');
   if (sleep < 6) tags.push('수면부족');
   if (cafeCount >= 2) tags.push('커피버프');
-  if (spend >= 2) tags.push('통장출혈');
+  if (spend >= 30000) tags.push('통장출혈');
   if (deliveryCount >= 1) tags.push('배달의민족');
   if (sleep >= 8) tags.push('꿀잠달성');
   if (spend === 0 && cafeCount === 0) tags.push('무지출');

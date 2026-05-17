@@ -142,6 +142,24 @@ PRD 8장 기반. 이 파일이 디자인의 단일 진실 공급원(SSOT)입니�
 </div>
 ```
 
+### 금액 누적 칩 (지출 규모)
+
+- 칩 클릭 시 금액이 합산되어 섹션 레이블에 실시간 표시
+- 칩 상태: 기본 `bg-[#1e1e2e] text-[#6b7280]`, hover `text-white`
+- 초기화 버튼: `text-[#f0997b]`, 지출 > 0일 때만 노출
+- +직접입력: 활성 시 `bg-[#534ab7] text-white`, 인라인 숫자 인풋 토글
+
+```jsx
+// 칩 버튼 (기본)
+<button className="px-3 py-1.5 rounded text-xs font-mono bg-[#1e1e2e] text-[#6b7280] hover:text-white hover:bg-[#2a2a3a] transition-colors">
+  +1만
+</button>
+// 초기화
+<button className="px-3 py-1.5 rounded text-xs font-mono bg-[#1e1e2e] text-[#f0997b] hover:bg-[#2a2a3a] transition-colors">
+  초기화
+</button>
+```
+
 ### 이모지 선택기
 
 - 8종 격자 배열 (4×2)

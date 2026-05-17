@@ -4,7 +4,24 @@ import useStore from '../store/useStore'
 
 const EMOJIS = ['😊', '😐', '😴', '😤', '🥲', '🤯', '🔥', '💀']
 const MEAL_OPTIONS = ['0끼', '1끼', '2끼', '3끼', '3끼+']
-const SPEND_OPTIONS = ['0원', '~3만', '~7만', '10만+']
+const SPEND_CHIPS = [
+  { label: '1천', value: 1000 },
+  { label: '5천', value: 5000 },
+  { label: '1만', value: 10000 },
+  { label: '3만', value: 30000 },
+  { label: '5만', value: 50000 },
+  { label: '10만', value: 100000 },
+]
+
+function formatSpend(amount) {
+  if (amount === 0) return '0원'
+  const man = Math.floor(amount / 10000)
+  const rest = amount % 10000
+  const chun = Math.floor(rest / 1000)
+  if (man > 0 && chun > 0) return `${man}만 ${chun}천원`
+  if (man > 0) return `${man}만원`
+  return `${chun}천원`
+}
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -85,6 +102,8 @@ export default function DailyLog() {
     emoji: existing?.emoji ?? '😊',
     memo: existing?.memo ?? '',
   })
+  const [customInput, setCustomInput] = useState('')
+  const [showCustom, setShowCustom] = useState(false)
 
   const set = (key) => (val) => setForm((f) => ({ ...f, [key]: val }))
 
@@ -150,8 +169,66 @@ export default function DailyLog() {
 
         {/* 지출 규모 */}
         <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-4">
-          <Section label="💸 지출 규모">
-            <TabButtons options={SPEND_OPTIONS} value={form.spend} onChange={set('spend')} />
+          <Section label={`💸 지출 규모 — 합계: ${formatSpend(form.spend)}`}>
+            <div className="flex gap-1.5 flex-wrap">
+              {SPEND_CHIPS.map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => set('spend')(form.spend + chip.value)}
+                  className="px-3 py-1.5 rounded text-xs font-mono bg-[#1e1e2e] text-[#6b7280] hover:text-white hover:bg-[#2a2a3a] transition-colors"
+                >
+                  +{chip.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setShowCustom((v) => !v)}
+                className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${
+                  showCustom
+                    ? 'bg-[#534ab7] text-white'
+                    : 'bg-[#1e1e2e] text-[#6b7280] hover:text-white'
+                }`}
+              >
+                +직접입력
+              </button>
+              {form.spend > 0 && (
+                <button
+                  type="button"
+                  onClick={() => set('spend')(0)}
+                  className="px-3 py-1.5 rounded text-xs font-mono bg-[#1e1e2e] text-[#f0997b] hover:bg-[#2a2a3a] transition-colors"
+                >
+                  초기화
+                </button>
+              )}
+            </div>
+            {showCustom && (
+              <div className="flex gap-2 items-center mt-1">
+                <input
+                  type="number"
+                  min={0}
+                  step={100}
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                  placeholder="금액 (원)"
+                  className="flex-1 bg-[#1e1e2e] text-white text-sm font-mono rounded-lg px-3 py-2 placeholder-[#6b7280] outline-none focus:ring-1 focus:ring-[#534ab7] transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const val = parseInt(customInput, 10)
+                    if (!isNaN(val) && val > 0) {
+                      set('spend')(form.spend + val)
+                    }
+                    setCustomInput('')
+                    setShowCustom(false)
+                  }}
+                  className="px-3 py-2 bg-[#534ab7] text-white text-xs font-mono rounded-lg hover:bg-[#4340a0] transition-colors"
+                >
+                  추가
+                </button>
+              </div>
+            )}
           </Section>
         </div>
 
