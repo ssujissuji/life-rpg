@@ -15,7 +15,7 @@ const tabs: Tab[] = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#12121a] border-t border-[#2a2a3a] flex">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-bg-card border-t border-border flex">
       {tabs.map((tab) => (
         <NavLink
           key={tab.to}
@@ -23,7 +23,7 @@ export default function BottomNav() {
           end={tab.to === '/'}
           className={({ isActive }) =>
             `flex-1 flex flex-col items-center gap-1 py-3 text-[11px] font-mono transition-colors ${
-              isActive ? 'text-[#afa9ec]' : 'text-[#6b7280]'
+              isActive ? 'text-purple-light' : 'text-text-sub'
             }`
           }
         >

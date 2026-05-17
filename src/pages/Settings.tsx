@@ -29,7 +29,7 @@ export default function Settings() {
       <div className="space-y-1">
         <button
           onClick={() => navigate('/')}
-          className="text-[#6b7280] text-xs font-mono hover:text-[#afa9ec] transition-colors"
+          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
         >
           ← 뒤로
         </button>
@@ -37,22 +37,22 @@ export default function Settings() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">
-        <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-4">
-          <div className="text-[#afa9ec] text-xs font-mono font-bold">캐릭터 정보</div>
+        <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
+          <div className="text-purple-light text-xs font-mono font-bold">캐릭터 정보</div>
 
           <div className="space-y-1.5">
-            <label className="text-[#6b7280] text-xs font-mono">캐릭터명</label>
+            <label className="text-text-sub text-xs font-mono">캐릭터명</label>
             <input
               type="text"
               value={form.name}
               onChange={set('name')}
               maxLength={20}
-              className="w-full bg-[#1e1e2e] text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-[#534ab7] transition-all"
+              className="w-full bg-bg-input text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-purple-primary transition-all"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[#6b7280] text-xs font-mono">클래스</label>
+            <label className="text-text-sub text-xs font-mono">클래스</label>
             <div className="flex gap-1.5 flex-wrap">
               {CLASS_OPTIONS.map((cls) => (
                 <button
@@ -61,8 +61,8 @@ export default function Settings() {
                   onClick={() => setForm((f) => ({ ...f, class: cls }))}
                   className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${
                     form.class === cls
-                      ? 'bg-[#534ab7] text-white'
-                      : 'bg-[#1e1e2e] text-[#6b7280] hover:text-white'
+                      ? 'bg-purple-primary text-white'
+                      : 'bg-bg-input text-text-sub hover:text-white'
                   }`}
                 >
                   {cls}
@@ -75,26 +75,26 @@ export default function Settings() {
               onChange={set('class')}
               placeholder="직접 입력..."
               maxLength={10}
-              className="w-full bg-[#1e1e2e] text-white text-sm font-mono rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-[#534ab7] transition-all placeholder-[#6b7280]"
+              className="w-full bg-bg-input text-white text-sm font-mono rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-purple-primary transition-all placeholder-text-sub"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[#6b7280] text-xs font-mono">출생연도 (레벨 계산용)</label>
+            <label className="text-text-sub text-xs font-mono">출생연도 (레벨 계산용)</label>
             <input
               type="number"
               value={form.birthYear}
               onChange={set('birthYear')}
               min={1950}
               max={new Date().getFullYear()}
-              className="w-full bg-[#1e1e2e] text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-[#534ab7] transition-all"
+              className="w-full bg-bg-input text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-purple-primary transition-all"
             />
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-[#534ab7] hover:bg-[#4340a0] text-white font-mono text-sm py-3 rounded-lg transition-colors"
+          className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
         >
           {saved ? '✓ 저장됨' : '저장하기'}
         </button>

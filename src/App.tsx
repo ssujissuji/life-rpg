@@ -10,7 +10,7 @@ import Settings from './pages/Settings'
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="max-w-[430px] mx-auto min-h-svh bg-[#0f0f13] relative">
+      <div className="max-w-[430px] mx-auto min-h-svh bg-bg-root relative">
         <Routes>
           <Route path="/" element={<CharacterSheet />} />
           <Route path="/daily" element={<DailyLog />} />

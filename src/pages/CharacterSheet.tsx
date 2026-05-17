@@ -87,20 +87,20 @@ export default function CharacterSheet() {
 
   return (
     <div className="px-4 pt-6 pb-28 space-y-4">
-      <div className="text-[#6b7280] text-xs font-mono">
+      <div className="text-text-sub text-xs font-mono">
         현생 RPG v{new Date().toISOString().slice(0, 10).replace(/-/g, '.')}
       </div>
 
       {/* 캐릭터 프로필 */}
-      <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-3">
+      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="text-white font-mono font-bold text-base">{character.name}</div>
-            <div className="text-[#6b7280] text-xs font-mono">{character.class}</div>
+            <div className="text-text-sub text-xs font-mono">{character.class}</div>
           </div>
           <button
             onClick={() => navigate('/settings')}
-            className="text-[#6b7280] text-xs font-mono hover:text-[#afa9ec] transition-colors"
+            className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
           >
             설정 →
           </button>
@@ -108,13 +108,13 @@ export default function CharacterSheet() {
 
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-sm font-mono">
-            <span className="text-[#afa9ec]">Lv.</span>
+            <span className="text-purple-light">Lv.</span>
             <span className="text-white font-bold">{age}</span>
-            <span className="text-[#6b7280] text-xs">다음 레벨까지 {daysLeft}일</span>
+            <span className="text-text-sub text-xs">다음 레벨까지 {daysLeft}일</span>
           </div>
-          <div className="w-full bg-[#1e1e2e] rounded-full h-1.5">
+          <div className="w-full bg-bg-input rounded-full h-1.5">
             <div
-              className="bg-[#534ab7] h-1.5 rounded-full transition-all"
+              className="bg-purple-primary h-1.5 rounded-full transition-all"
               style={{ width: `${((365 - daysLeft) / 365) * 100}%` }}
             />
           </div>
@@ -127,7 +127,7 @@ export default function CharacterSheet() {
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs px-2 py-0.5 rounded-full bg-[#1e1e2e] text-[#afa9ec] border border-[#2a2a3a] font-mono"
+              className="text-xs px-2 py-0.5 rounded-full bg-bg-input text-purple-light border border-border font-mono"
             >
               {tag}
             </span>
@@ -136,10 +136,10 @@ export default function CharacterSheet() {
       )}
 
       {/* 기본 스탯 */}
-      <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-3">
-        <div className="text-[#afa9ec] text-xs font-mono font-bold">
+      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+        <div className="text-purple-light text-xs font-mono font-bold">
           기본 스탯
-          <span className="text-[#6b7280] font-normal ml-2">
+          <span className="text-text-sub font-normal ml-2">
             {recentEntries.length > 0 ? `최근 ${recentEntries.length}일 평균` : '기록 없음'}
           </span>
         </div>
@@ -150,15 +150,15 @@ export default function CharacterSheet() {
             ))}
           </div>
         ) : (
-          <div className="text-[#6b7280] text-xs font-mono py-2">
+          <div className="text-text-sub text-xs font-mono py-2">
             패치노트를 작성하면 스탯이 쌓입니다.
           </div>
         )}
       </div>
 
       {/* 특수스킬 */}
-      <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-3">
-        <div className="text-[#afa9ec] text-xs font-mono font-bold">특수스킬</div>
+      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+        <div className="text-purple-light text-xs font-mono font-bold">특수스킬</div>
         <div className="space-y-3">
           {SKILLS.map((sk) => {
             const data = skills[sk.key]
@@ -170,10 +170,10 @@ export default function CharacterSheet() {
                 <div className="flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-1.5">
                     <span>{sk.icon}</span>
-                    <span className="text-[#afa9ec]">{sk.label}</span>
+                    <span className="text-purple-light">{sk.label}</span>
                     <span className="text-white">Lv.{data.level}</span>
                   </div>
-                  <span className="text-[#6b7280]">
+                  <span className="text-text-sub">
                     {toMax > 0 ? `만렙까지 ${toMax}${sk.unit}` : '🎉 만렙!'}
                   </span>
                 </div>
@@ -181,7 +181,7 @@ export default function CharacterSheet() {
                   {Array.from({ length: 10 }).map((_, i) => (
                     <div
                       key={i}
-                      className={`flex-1 h-2 rounded-sm ${i < filled ? 'bg-[#534ab7]' : 'bg-[#1e1e2e]'}`}
+                      className={`flex-1 h-2 rounded-sm ${i < filled ? 'bg-purple-primary' : 'bg-bg-input'}`}
                     />
                   ))}
                 </div>
@@ -194,7 +194,7 @@ export default function CharacterSheet() {
       {/* 패치노트 작성 버튼 */}
       <button
         onClick={() => navigate('/daily')}
-        className="w-full bg-[#534ab7] hover:bg-[#4340a0] text-white font-mono text-sm py-3 rounded-lg transition-colors"
+        className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
       >
         {todayPatch ? '오늘 패치노트 수정하기' : '📋 오늘의 패치노트 작성'}
       </button>

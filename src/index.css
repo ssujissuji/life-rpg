@@ -5,10 +5,14 @@
   --color-bg-card: #12121a;
   --color-bg-input: #1e1e2e;
   --color-purple-primary: #534ab7;
+  --color-purple-dark: #4340a0;
   --color-purple-light: #afa9ec;
   --color-danger: #f0997b;
   --color-warning: #ef9f27;
   --color-success: #5dcaa5;
+  --color-text-base: #e2e8f0;
+  --color-text-sub: #6b7280;
+  --color-border: #2a2a3a;
   --font-mono: ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
 }
 
@@ -18,8 +22,8 @@
 
 body {
   margin: 0;
-  background-color: #0f0f13;
-  color: #e2e8f0;
+  background-color: var(--color-bg-root);
+  color: var(--color-text-base);
   font-family: ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
   -webkit-font-smoothing: antialiased;
 }

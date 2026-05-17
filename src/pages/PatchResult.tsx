@@ -56,10 +56,10 @@ export default function PatchResult() {
   if (!patch || !date) {
     return (
       <div className="px-4 pt-6 pb-28 text-center space-y-4">
-        <div className="text-[#6b7280] font-mono text-sm">해당 날짜의 기록이 없습니다.</div>
+        <div className="text-text-sub font-mono text-sm">해당 날짜의 기록이 없습니다.</div>
         <button
           onClick={() => navigate('/daily')}
-          className="bg-[#534ab7] text-white font-mono text-sm px-4 py-2 rounded-lg"
+          className="bg-purple-primary text-white font-mono text-sm px-4 py-2 rounded-lg"
         >
           패치노트 작성하기
         </button>
@@ -86,14 +86,14 @@ export default function PatchResult() {
       <div className="space-y-1">
         <button
           onClick={() => navigate('/')}
-          className="text-[#6b7280] text-xs font-mono hover:text-[#afa9ec] transition-colors"
+          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
         >
           ← 홈으로
         </button>
       </div>
 
       {/* 결과 카드 */}
-      <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-4">
+      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-white font-mono font-bold text-sm">
@@ -101,14 +101,14 @@ export default function PatchResult() {
             </span>
             <span className="text-xl">{patch.emoji}</span>
           </div>
-          <div className="text-[#6b7280] text-xs font-mono">상태: {statusSummary}</div>
+          <div className="text-text-sub text-xs font-mono">상태: {statusSummary}</div>
         </div>
 
-        <div className="border-t border-[#2a2a3a]" />
+        <div className="border-t border-border" />
 
         {/* 능력치 */}
         <div className="space-y-2">
-          <div className="text-[#afa9ec] text-xs font-mono font-bold">[능력치 변화]</div>
+          <div className="text-purple-light text-xs font-mono font-bold">[능력치 변화]</div>
           {STATS.map((s) => (
             <StatBar key={s.key} icon={s.icon} label={s.label} value={patch.stats[s.key]} />
           ))}
@@ -117,12 +117,12 @@ export default function PatchResult() {
         {/* 태그 */}
         {tags.length > 0 && (
           <>
-            <div className="border-t border-[#2a2a3a]" />
+            <div className="border-t border-border" />
             <div className="flex flex-wrap gap-1.5">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs px-2 py-0.5 rounded-full bg-[#1e1e2e] text-[#afa9ec] border border-[#2a2a3a] font-mono"
+                  className="text-xs px-2 py-0.5 rounded-full bg-bg-input text-purple-light border border-border font-mono"
                 >
                   {tag}
                 </span>
@@ -134,38 +134,38 @@ export default function PatchResult() {
         {/* 메모 */}
         {patch.memo && (
           <>
-            <div className="border-t border-[#2a2a3a]" />
-            <div className="text-[#e2e8f0] text-xs font-mono italic">"{patch.memo}"</div>
+            <div className="border-t border-border" />
+            <div className="text-text-base text-xs font-mono italic">"{patch.memo}"</div>
           </>
         )}
 
-        <div className="border-t border-[#2a2a3a]" />
+        <div className="border-t border-border" />
 
-        <div className="text-[#5dcaa5] text-xs font-mono text-center py-1">
+        <div className="text-success text-xs font-mono text-center py-1">
           "{encouragement}"
         </div>
       </div>
 
       {/* 기록 요약 */}
-      <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4">
-        <div className="text-[#afa9ec] text-xs font-mono font-bold mb-3">[오늘의 기록]</div>
+      <div className="bg-bg-card border border-border rounded-lg p-4">
+        <div className="text-purple-light text-xs font-mono font-bold mb-3">[오늘의 기록]</div>
         <div className="grid grid-cols-2 gap-y-2 text-xs font-mono">
-          <span className="text-[#6b7280]">수면</span>
+          <span className="text-text-sub">수면</span>
           <span className="text-white">{patch.sleep}시간</span>
-          <span className="text-[#6b7280]">식사</span>
+          <span className="text-text-sub">식사</span>
           <span className="text-white">{MEAL_LABELS[patch.meal]}</span>
-          <span className="text-[#6b7280]">카페</span>
+          <span className="text-text-sub">카페</span>
           <span className="text-white">{patch.cafe}회</span>
-          <span className="text-[#6b7280]">배달</span>
+          <span className="text-text-sub">배달</span>
           <span className="text-white">{patch.delivery}회</span>
-          <span className="text-[#6b7280]">지출</span>
+          <span className="text-text-sub">지출</span>
           <span className="text-white">{formatSpend(patch.spend)}</span>
         </div>
       </div>
 
       <button
         onClick={() => navigate('/daily')}
-        className="w-full border border-[#2a2a3a] text-[#afa9ec] font-mono text-sm py-3 rounded-lg hover:bg-[#12121a] transition-colors"
+        className="w-full border border-border text-purple-light font-mono text-sm py-3 rounded-lg hover:bg-bg-card transition-colors"
       >
         수정하기
       </button>

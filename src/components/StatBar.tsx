@@ -7,17 +7,17 @@ interface StatBarProps {
 export default function StatBar({ icon, label, value }: StatBarProps) {
   const filled = Math.round((value / 100) * 8)
   const color =
-    value >= 70 ? 'bg-[#5dcaa5]' : value >= 40 ? 'bg-[#ef9f27]' : 'bg-[#f0997b]'
+    value >= 70 ? 'bg-success' : value >= 40 ? 'bg-warning' : 'bg-danger'
 
   return (
     <div className="flex items-center gap-2 text-xs font-mono">
       <span className="w-4 text-center">{icon}</span>
-      <span className="w-14 text-[#afa9ec]">{label}</span>
+      <span className="w-14 text-purple-light">{label}</span>
       <div className="flex gap-px">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className={`w-4 h-3 rounded-sm ${i < filled ? color : 'bg-[#1e1e2e]'}`}
+            className={`w-4 h-3 rounded-sm ${i < filled ? color : 'bg-bg-input'}`}
           />
         ))}
       </div>
