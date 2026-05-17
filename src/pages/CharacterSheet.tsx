@@ -35,7 +35,8 @@ const SKILLS: SkillConfig[] = [
 ]
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function getAge(birthYear: number): number {
@@ -88,7 +89,7 @@ export default function CharacterSheet() {
   return (
     <div className="px-4 pt-6 pb-28 space-y-4">
       <div className="text-text-sub text-xs font-mono">
-        현생 RPG v{new Date().toISOString().slice(0, 10).replace(/-/g, '.')}
+        현생 RPG v{today().replace(/-/g, '.')}
       </div>
 
       {/* 캐릭터 프로필 */}

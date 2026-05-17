@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import type { PatchFormData } from '../types'
@@ -25,11 +25,12 @@ function formatSpend(amount: number): string {
 }
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function formatDateLabel(dateStr: string): string {
-  const d = new Date(dateStr)
+  const d = new Date(dateStr + 'T00:00:00')
   const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
   const version = dateStr.replace(/-/g, '.')
   return `v${version} (${days[d.getDay()]})`
@@ -93,7 +94,7 @@ function TabButtons({ options, value, onChange }: TabButtonsProps) {
 
 interface SectionProps {
   label: string
-  children: React.ReactNode
+  children: ReactNode
 }
 
 function Section({ label, children }: SectionProps) {
@@ -129,7 +130,7 @@ export default function DailyLog() {
     (val: PatchFormData[K]) =>
       setForm((f) => ({ ...f, [key]: val }))
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
     savePatchEntry(date, form)
     navigate(`/result/${date}`)

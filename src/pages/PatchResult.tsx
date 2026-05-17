@@ -41,7 +41,7 @@ function formatSpend(amount: number): string {
 }
 
 function formatDateLabel(dateStr: string): string {
-  const d = new Date(dateStr)
+  const d = new Date(dateStr + 'T00:00:00')
   const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
   return `v${dateStr.replace(/-/g, '.')} (${days[d.getDay()]})`
 }
@@ -72,8 +72,8 @@ export default function PatchResult() {
     cafeCount: patch.cafe,
     spend: patch.spend,
     deliveryCount: patch.delivery,
-    isMonday: new Date(date).getDay() === 1,
-    isWeekend: [0, 6].includes(new Date(date).getDay()),
+    isMonday: new Date(date + 'T00:00:00').getDay() === 1,
+    isWeekend: [0, 6].includes(new Date(date + 'T00:00:00').getDay()),
   })
 
   const encouragement =
