@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 1 — MVP
+## 현재 Phase: Phase 1 — 완료 ✓ / 다음: Phase 2
 
 ---
 
@@ -100,10 +100,23 @@
 
 ---
 
+### [2026-05-17] Phase 1 마무리 — UTC 버그 수정 + e2e 전체 확장
+
+**완료된 항목:**
+- [x] BUG-03 수정 — `DailyLog.tsx` / `CharacterSheet.tsx` `today()` UTC → 로컬 날짜 변환
+- [x] BUG-04 수정 — `DailyLog.tsx` / `PatchResult.tsx` `formatDateLabel`, `isMonday`/`isWeekend` 날짜 파싱 로컬 기준(`T00:00:00`)으로 수정
+- [x] 오늘 날짜 기록 있을 때 DailyLog 초기값 정상 로드 확인 (e2e 검증 포함)
+- [x] `e2e/character-sheet.spec.ts` 추가 — 기본 렌더링, 네비게이션, 기록 있을 때 총 6개 케이스
+- [x] `e2e/daily-log.spec.ts` 추가 — 기본 렌더링, 인터랙션, 기존 기록 초기값 로드 총 8개 케이스
+- [x] `e2e/patch-result.spec.ts` 추가 — 기록 없을 때/있을 때 총 8개 케이스
+- [x] e2e 테스트 35/35 전체 통과 확인
+
+---
+
 ## 다음 작업 (Phase 1 마무리)
 
-- [ ] 실제 브라우저 UI 확인 및 레이아웃 이슈 수정
-- [ ] 오늘 날짜 이미 기록 있을 때 DailyLog 초기값 정상 로드 확인
+- [x] 실제 브라우저 UI 확인 및 레이아웃 이슈 수정 (e2e 35/35 통과로 대체 검증)
+- [x] 오늘 날짜 이미 기록 있을 때 DailyLog 초기값 정상 로드 확인
 
 ---
 
