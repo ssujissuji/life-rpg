@@ -4,6 +4,22 @@
 
 ---
 
+## [0.3.0] 2026-05-17 — TypeScript 마이그레이션
+
+### Changed
+- 프로젝트 전체를 JavaScript → TypeScript로 전환
+  - `.jsx` → `.tsx`, `.js` → `.ts` 전체 확장자 변경
+  - `vite.config.js` → `vite.config.ts`
+- ESLint 설정에 `@typescript-eslint` 파서 및 플러그인 적용
+
+### Added
+- `typescript`, `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser` devDependencies 추가
+- `tsconfig.json` — strict 모드 활성화
+- `src/types.ts` — 프로젝트 공용 타입 (Stats, PatchEntry, PatchFormData, Character, SkillData, Skills, PatchRecord)
+- 각 컴포넌트/페이지 props 인터페이스, 함수 파라미터·반환 타입 명시
+
+---
+
 ## [0.2.1] 2026-05-17 — 지출 규모 UI 개선
 
 ### Changed

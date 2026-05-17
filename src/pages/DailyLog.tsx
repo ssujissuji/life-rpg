@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
+import type { PatchFormData } from '../types'
 
 const EMOJIS = ['😊', '😐', '😴', '😤', '🥲', '🤯', '🔥', '💀']
 const MEAL_OPTIONS = ['0끼', '1끼', '2끼', '3끼', '3끼+']
@@ -13,7 +14,7 @@ const SPEND_CHIPS = [
   { label: '10만', value: 100000 },
 ]
 
-function formatSpend(amount) {
+function formatSpend(amount: number): string {
   if (amount === 0) return '0원'
   const man = Math.floor(amount / 10000)
   const rest = amount % 10000
@@ -23,18 +24,25 @@ function formatSpend(amount) {
   return `${chun}천원`
 }
 
-function today() {
+function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-function formatDateLabel(dateStr) {
+function formatDateLabel(dateStr: string): string {
   const d = new Date(dateStr)
   const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
   const version = dateStr.replace(/-/g, '.')
   return `v${version} (${days[d.getDay()]})`
 }
 
-function Counter({ value, onChange, min = 0, max = 10 }) {
+interface CounterProps {
+  value: number
+  onChange: (v: number) => void
+  min?: number
+  max?: number
+}
+
+function Counter({ value, onChange, min = 0, max = 10 }: CounterProps) {
   return (
     <div className="flex items-center gap-3">
       <button
@@ -56,7 +64,13 @@ function Counter({ value, onChange, min = 0, max = 10 }) {
   )
 }
 
-function TabButtons({ options, value, onChange }) {
+interface TabButtonsProps {
+  options: string[]
+  value: number
+  onChange: (i: number) => void
+}
+
+function TabButtons({ options, value, onChange }: TabButtonsProps) {
   return (
     <div className="flex gap-1.5 flex-wrap">
       {options.map((opt, i) => (
@@ -77,7 +91,12 @@ function TabButtons({ options, value, onChange }) {
   )
 }
 
-function Section({ label, children }) {
+interface SectionProps {
+  label: string
+  children: React.ReactNode
+}
+
+function Section({ label, children }: SectionProps) {
   return (
     <div className="space-y-2">
       <div className="text-[#afa9ec] text-xs font-mono font-bold">{label}</div>
@@ -93,7 +112,7 @@ export default function DailyLog() {
   const date = today()
   const existing = getPatch(date)
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<PatchFormData>({
     sleep: existing?.sleep ?? 7,
     meal: existing?.meal ?? 2,
     cafe: existing?.cafe ?? 0,
@@ -105,9 +124,12 @@ export default function DailyLog() {
   const [customInput, setCustomInput] = useState('')
   const [showCustom, setShowCustom] = useState(false)
 
-  const set = (key) => (val) => setForm((f) => ({ ...f, [key]: val }))
+  const set =
+    <K extends keyof PatchFormData>(key: K) =>
+    (val: PatchFormData[K]) =>
+      setForm((f) => ({ ...f, [key]: val }))
 
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     savePatchEntry(date, form)
     navigate(`/result/${date}`)

@@ -4,26 +4,25 @@ import Calendar from 'react-calendar'
 import useStore from '../store/useStore'
 import 'react-calendar/dist/Calendar.css'
 
-function toDateStr(d) {
+function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 
 export default function CalendarView() {
   const navigate = useNavigate()
   const { patches } = useStore()
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState<string | null>(null)
 
-  function handleDayClick(date) {
+  function handleDayClick(date: Date) {
     const dateStr = toDateStr(date)
-    const patch = patches[dateStr]
-    if (patch) {
+    if (patches[dateStr]) {
       navigate(`/result/${dateStr}`)
     } else {
       setSelected(dateStr)
     }
   }
 
-  function tileContent({ date, view }) {
+  function tileContent({ date, view }: { date: Date; view: string }) {
     if (view !== 'month') return null
     const dateStr = toDateStr(date)
     const patch = patches[dateStr]
@@ -35,10 +34,9 @@ export default function CalendarView() {
     )
   }
 
-  function tileClassName({ date, view }) {
+  function tileClassName({ date, view }: { date: Date; view: string }) {
     if (view !== 'month') return ''
-    const dateStr = toDateStr(date)
-    return patches[dateStr] ? 'has-patch' : ''
+    return patches[toDateStr(date)] ? 'has-patch' : ''
   }
 
   const recordedDays = Object.keys(patches).length
@@ -50,7 +48,6 @@ export default function CalendarView() {
         <div className="text-[#6b7280] text-xs font-mono">기록된 날짜: {recordedDays}일</div>
       </div>
 
-      {/* 캘린더 */}
       <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg overflow-hidden">
         <style>{`
           .react-calendar {
@@ -131,11 +128,10 @@ export default function CalendarView() {
           tileContent={tileContent}
           tileClassName={tileClassName}
           locale="ko-KR"
-          formatDay={(_, date) => date.getDate()}
+          formatDay={(_locale, date) => String(date.getDate())}
         />
       </div>
 
-      {/* 안내 */}
       {selected && !patches[selected] && (
         <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-3">
           <div className="text-[#6b7280] text-xs font-mono">{selected} — 기록 없음</div>
@@ -150,7 +146,6 @@ export default function CalendarView() {
         </div>
       )}
 
-      {/* 범례 */}
       <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4">
         <div className="text-[#6b7280] text-xs font-mono">
           기록된 날짜를 클릭하면 패치노트를 확인할 수 있습니다.

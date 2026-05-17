@@ -6,6 +6,20 @@
 
 ## 2026-05-17
 
+### TypeScript 마이그레이션
+
+- TypeScript, @typescript-eslint 설치 / `tsconfig.json` (strict) 생성
+- `src/types.ts` 신규 — Stats, PatchEntry, PatchFormData, Character, SkillData, Skills, PatchRecord 공용 타입 정의
+- `src/lib/storage.ts` — 전체 함수에 파라미터·반환 타입 명시
+- `src/lib/stats.ts` — 각 calc 함수, getStatusTags, StatusTagsParams 인터페이스 타입 추가
+- `src/store/useStore.ts` — StoreState 인터페이스 정의, Zustand create<StoreState> 적용
+- 컴포넌트: `StatBar.tsx` (StatBarProps), `BottomNav.tsx` (Tab 인터페이스)
+- 페이지: `CharacterSheet.tsx` (StatConfig, SkillConfig), `DailyLog.tsx` (CounterProps, TabButtonsProps, SectionProps), `PatchResult.tsx` (StatConfig, useParams 제네릭), `CalendarView.tsx`, `Settings.tsx` 전체 타입 명시
+- `vite.config.ts` 변환, `eslint.config.js` TypeScript 파서 적용
+- 구 `.js/.jsx` 파일 전체 삭제
+
+---
+
 ### 지출 규모 UI 개선
 
 - `src/pages/DailyLog.jsx` — 지출 규모 입력 UI를 탭 버튼(인덱스 0~3)에서 금액 칩 누적 합산 방식으로 교체. 칩: 1천/5천/1만/3만/5만/10만/+직접입력. 합계 실시간 표시, 초기화 버튼 조건부 노출

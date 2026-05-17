@@ -9,7 +9,7 @@
 - **앱명:** 현생 RPG
 - **컨셉:** 하루를 패치노트로 기록하고, 인생을 RPG 캐릭터 시트로 보는 앱
 - **PRD:** `/PRD.md` 참고
-- **기술스택:** React + Vite, Tailwind CSS v4, Zustand, React Router v6, react-calendar, Recharts
+- **기술스택:** React + Vite + TypeScript, Tailwind CSS v4, Zustand, React Router v6, react-calendar, Recharts
 
 ---
 
@@ -32,7 +32,9 @@
 - localStorage 접근은 반드시 `src/lib/storage.js` 헬퍼를 통해서만
 - 능력치 계산 로직은 반드시 `src/lib/stats.js` 에 위치
 - Tailwind 클래스는 인라인으로 작성 (별도 CSS 파일 최소화)
-- 컴포넌트는 `.jsx`, 유틸/스토어는 `.js` 확장자 사용
+- 컴포넌트는 `.tsx`, 유틸/스토어는 `.ts` 확장자 사용
+- 공용 타입은 `src/types.ts` 에 정의, 컴포넌트·페이지에서 import해서 사용
+- `any` 타입 사용 금지 — 불명확한 경우 unknown 또는 명시적 타입 정의
 - 불필요한 주석, docstring 추가하지 않음
 - 한 컴포넌트에 너무 많은 역할 부여하지 않음 (단일 책임)
 

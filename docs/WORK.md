@@ -31,6 +31,23 @@
 
 ---
 
+### [2026-05-17] TypeScript 마이그레이션
+
+**완료된 항목:**
+- [x] TypeScript, @typescript-eslint 설치
+- [x] `tsconfig.json` 생성 (strict 모드)
+- [x] `src/types.ts` — 공용 타입 정의 (Stats, PatchEntry, PatchFormData, Character, Skills 등)
+- [x] `src/lib/storage.js` → `storage.ts` (타입 추가)
+- [x] `src/lib/stats.js` → `stats.ts` (타입 추가)
+- [x] `src/store/useStore.js` → `useStore.ts` (StoreState 인터페이스 정의)
+- [x] 컴포넌트/페이지 전체 `.jsx` → `.tsx` 변환 (props 타입 명시)
+- [x] `vite.config.js` → `vite.config.ts`
+- [x] `eslint.config.js` TypeScript 파서 적용
+- [x] `index.html` 엔트리 포인트 `main.jsx` → `main.tsx`
+- [x] PRD.md, CLAUDE.md, docs 전체 스택 정보 업데이트
+
+---
+
 ### [2026-05-17] 지출 규모 UI 개선
 
 **완료된 항목:**

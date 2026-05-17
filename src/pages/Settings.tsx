@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
+import type { Character } from '../types'
 
 const CLASS_OPTIONS = ['취준생', '직장인', '프리랜서', '학생', '백수', '사회인']
 
@@ -8,12 +9,15 @@ export default function Settings() {
   const navigate = useNavigate()
   const { character, setCharacter } = useStore()
 
-  const [form, setForm] = useState({ ...character })
+  const [form, setForm] = useState<Character>({ ...character })
   const [saved, setSaved] = useState(false)
 
-  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+  const set =
+    (key: keyof Character) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }))
 
-  function handleSave(e) {
+  function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setCharacter({ ...form, birthYear: Number(form.birthYear) })
     setSaved(true)

@@ -2,8 +2,23 @@ import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import { getStatusTags } from '../lib/stats'
+import type { Stats } from '../types'
 
-const STATS = [
+interface StatConfig {
+  icon: string
+  label: string
+  key: keyof Stats
+}
+
+interface SkillConfig {
+  icon: string
+  label: string
+  key: 'pig' | 'poor' | 'cafe' | 'sleep'
+  max: number
+  unit: string
+}
+
+const STATS: StatConfig[] = [
   { icon: '❤️', label: '체력', key: 'hp' },
   { icon: '🧠', label: '집중력', key: 'focus' },
   { icon: '💬', label: '사회성', key: 'social' },
@@ -12,28 +27,27 @@ const STATS = [
   { icon: '😴', label: '수면질', key: 'sleepQ' },
 ]
 
-const SKILLS = [
+const SKILLS: SkillConfig[] = [
   { icon: '🐷', label: '돼지력', key: 'pig', max: 50, unit: '회' },
   { icon: '🪙', label: '거지력', key: 'poor', max: 30, unit: '일' },
   { icon: '☕', label: '각성력', key: 'cafe', max: 100, unit: '회' },
   { icon: '🛌', label: '숙면력', key: 'sleep', max: 30, unit: '회' },
 ]
 
-function today() {
+function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-function getAge(birthYear) {
+function getAge(birthYear: number): number {
   return new Date().getFullYear() - birthYear
 }
 
-function getLevelProgress(birthYear) {
+function getLevelProgress(birthYear: number): number {
   const birth = new Date(birthYear, 0, 1)
   const now = new Date()
   const nextBirthday = new Date(now.getFullYear(), birth.getMonth(), birth.getDate())
   if (nextBirthday <= now) nextBirthday.setFullYear(nextBirthday.getFullYear() + 1)
-  const daysLeft = Math.ceil((nextBirthday - now) / (1000 * 60 * 60 * 24))
-  return daysLeft
+  return Math.ceil((nextBirthday.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 export default function CharacterSheet() {
@@ -41,13 +55,12 @@ export default function CharacterSheet() {
   const { character, patches, skills } = useStore()
 
   const todayPatch = patches[today()]
-  const stats = todayPatch?.stats ?? null
 
   const recentEntries = Object.values(patches)
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 7)
 
-  const avgStats =
+  const avgStats: Stats | null =
     recentEntries.length > 0
       ? STATS.reduce((acc, s) => {
           acc[s.key] = Math.round(
@@ -55,7 +68,7 @@ export default function CharacterSheet() {
               recentEntries.length
           )
           return acc
-        }, {})
+        }, {} as Stats)
       : null
 
   const tags = todayPatch
@@ -74,8 +87,9 @@ export default function CharacterSheet() {
 
   return (
     <div className="px-4 pt-6 pb-28 space-y-4">
-      {/* 헤더 */}
-      <div className="text-[#6b7280] text-xs font-mono">현생 RPG v{new Date().toISOString().slice(0, 10).replace(/-/g, '.')}</div>
+      <div className="text-[#6b7280] text-xs font-mono">
+        현생 RPG v{new Date().toISOString().slice(0, 10).replace(/-/g, '.')}
+      </div>
 
       {/* 캐릭터 프로필 */}
       <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-3">

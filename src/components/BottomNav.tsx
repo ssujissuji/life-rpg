@@ -1,6 +1,12 @@
 import { NavLink } from 'react-router-dom'
 
-const tabs = [
+interface Tab {
+  to: string
+  label: string
+  icon: string
+}
+
+const tabs: Tab[] = [
   { to: '/', label: '캐릭터', icon: '⚔️' },
   { to: '/daily', label: '패치노트', icon: '📋' },
   { to: '/calendar', label: '캘린더', icon: '📅' },

@@ -1,4 +1,10 @@
-export default function StatBar({ icon, label, value }) {
+interface StatBarProps {
+  icon: string
+  label: string
+  value: number
+}
+
+export default function StatBar({ icon, label, value }: StatBarProps) {
   const filled = Math.round((value / 100) * 8)
   const color =
     value >= 70 ? 'bg-[#5dcaa5]' : value >= 40 ? 'bg-[#ef9f27]' : 'bg-[#f0997b]'

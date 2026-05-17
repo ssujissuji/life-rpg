@@ -2,8 +2,15 @@ import { useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import { getStatusTags } from '../lib/stats'
+import type { Stats } from '../types'
 
-const STATS = [
+interface StatConfig {
+  icon: string
+  label: string
+  key: keyof Stats
+}
+
+const STATS: StatConfig[] = [
   { icon: '❤️', label: '체력', key: 'hp' },
   { icon: '🧠', label: '집중력', key: 'focus' },
   { icon: '💬', label: '사회성', key: 'social' },
@@ -21,7 +28,9 @@ const ENCOURAGEMENTS = [
   '버그 투성이 현실에서도 넌 잘 버텼다.',
 ]
 
-function formatSpend(amount) {
+const MEAL_LABELS = ['0끼', '1끼', '2끼', '3끼', '3끼+']
+
+function formatSpend(amount: number): string {
   if (!amount || amount === 0) return '0원'
   const man = Math.floor(amount / 10000)
   const rest = amount % 10000
@@ -31,20 +40,20 @@ function formatSpend(amount) {
   return `${chun}천원`
 }
 
-function formatDateLabel(dateStr) {
+function formatDateLabel(dateStr: string): string {
   const d = new Date(dateStr)
   const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
   return `v${dateStr.replace(/-/g, '.')} (${days[d.getDay()]})`
 }
 
 export default function PatchResult() {
-  const { date } = useParams()
+  const { date } = useParams<{ date: string }>()
   const navigate = useNavigate()
   const { getPatch } = useStore()
 
-  const patch = getPatch(date)
+  const patch = date ? getPatch(date) : null
 
-  if (!patch) {
+  if (!patch || !date) {
     return (
       <div className="px-4 pt-6 pb-28 text-center space-y-4">
         <div className="text-[#6b7280] font-mono text-sm">해당 날짜의 기록이 없습니다.</div>
@@ -85,7 +94,6 @@ export default function PatchResult() {
 
       {/* 결과 카드 */}
       <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4 space-y-4">
-        {/* 제목 */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-white font-mono font-bold text-sm">
@@ -133,20 +141,19 @@ export default function PatchResult() {
 
         <div className="border-t border-[#2a2a3a]" />
 
-        {/* 응원 메시지 */}
         <div className="text-[#5dcaa5] text-xs font-mono text-center py-1">
           "{encouragement}"
         </div>
       </div>
 
-      {/* 입력 데이터 요약 */}
+      {/* 기록 요약 */}
       <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4">
         <div className="text-[#afa9ec] text-xs font-mono font-bold mb-3">[오늘의 기록]</div>
         <div className="grid grid-cols-2 gap-y-2 text-xs font-mono">
           <span className="text-[#6b7280]">수면</span>
           <span className="text-white">{patch.sleep}시간</span>
           <span className="text-[#6b7280]">식사</span>
-          <span className="text-white">{['0끼', '1끼', '2끼', '3끼', '3끼+'][patch.meal]}</span>
+          <span className="text-white">{MEAL_LABELS[patch.meal]}</span>
           <span className="text-[#6b7280]">카페</span>
           <span className="text-white">{patch.cafe}회</span>
           <span className="text-[#6b7280]">배달</span>
@@ -156,7 +163,6 @@ export default function PatchResult() {
         </div>
       </div>
 
-      {/* 액션 버튼 */}
       <button
         onClick={() => navigate('/daily')}
         className="w-full border border-[#2a2a3a] text-[#afa9ec] font-mono text-sm py-3 rounded-lg hover:bg-[#12121a] transition-colors"
