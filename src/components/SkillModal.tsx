@@ -1,14 +1,4 @@
-import type { SkillData } from '../types'
-
-export interface SkillConfig {
-  icon: string
-  label: string
-  key: 'pig' | 'poor' | 'cafe' | 'sleep'
-  max: number
-  unit: string
-  description: string
-  condition: string
-}
+import type { SkillConfig, SkillData } from '../types'
 
 interface SkillModalProps {
   skill: SkillConfig

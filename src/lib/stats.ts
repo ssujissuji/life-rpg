@@ -28,11 +28,12 @@ export function calcSocial(meal: number, isWeekend: boolean): number {
 
 export function calcWallet(spend: number, cafeCount: number, deliveryCount: number): number {
   let wallet = 100
-  if (spend > 0 && spend < 10000) wallet -= 10
+  if (spend <= 0) wallet -= 0
+  else if (spend < 10000) wallet -= 10
   else if (spend < 30000) wallet -= 20
   else if (spend < 50000) wallet -= 45
   else if (spend < 100000) wallet -= 60
-  else if (spend >= 100000) wallet -= 80
+  else wallet -= 80
   wallet -= cafeCount * 8
   wallet -= deliveryCount * 10
   return Math.max(0, Math.min(100, wallet))
@@ -99,7 +100,7 @@ export function calcStats(entry: PatchFormData & { date: string }): Stats {
 }
 
 export function formatSpend(amount: number): string {
-  if (!amount || amount === 0) return '0원'
+  if (amount <= 0) return '0원'
   const man = Math.floor(amount / 10000)
   const rest = amount % 10000
   const chun = Math.floor(rest / 1000)

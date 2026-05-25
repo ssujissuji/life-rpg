@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
@@ -57,24 +57,29 @@ export default function PatchResult() {
   const location = useLocation()
   const { getPatch } = useStore()
 
-  const [toastQueue, setToastQueue] = useState<SkillToast[]>(() => {
-    if (!(location.state as { fromSave?: boolean } | null)?.fromSave) return []
+  const fromSave = !!(location.state as { fromSave?: boolean } | null)?.fromSave
+
+  const newlyMaxed = useMemo<(keyof Skills)[]>(() => {
+    if (!fromSave) return []
     const { skills } = useStore.getState()
     const prevMaxed = new Set(loadMaxedSkills())
-    const newlyMaxed = (Object.keys(SKILL_META) as (keyof Skills)[]).filter(
+    return (Object.keys(SKILL_META) as (keyof Skills)[]).filter(
       (key) => skills[key].level >= 10 && !prevMaxed.has(key),
     )
-    if (newlyMaxed.length > 0) {
-      saveMaxedSkills([...prevMaxed, ...newlyMaxed])
-    }
-    return newlyMaxed.map((key) => {
+  }, [fromSave])
+
+  const [toastQueue, setToastQueue] = useState<SkillToast[]>(() =>
+    newlyMaxed.map((key) => {
       const meta = SKILL_META[key]
-      return {
-        message: `${meta.icon} ${meta.label} — 만렙 달성!`,
-        subMessage: meta.title,
-      }
-    })
-  })
+      return { message: `${meta.icon} ${meta.label} — 만렙 달성!`, subMessage: meta.title }
+    }),
+  )
+
+  useEffect(() => {
+    if (newlyMaxed.length === 0) return
+    const prevMaxed = loadMaxedSkills()
+    saveMaxedSkills([...new Set([...prevMaxed, ...newlyMaxed])])
+  }, [newlyMaxed])
 
   const currentToast = toastQueue[0] ?? null
   const handleToastClose = useCallback(() => setToastQueue((prev) => prev.slice(1)), [])
