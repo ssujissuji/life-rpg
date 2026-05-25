@@ -2,6 +2,7 @@ import type { PatchEntry, Character, PatchRecord } from '../types'
 
 const PATCH_PREFIX = 'patch_'
 const CHARACTER_KEY = 'character'
+const SKILL_MAXED_KEY = 'skill_maxed'
 
 export function savePatch(date: string, data: PatchEntry): void {
   localStorage.setItem(`${PATCH_PREFIX}${date}`, JSON.stringify(data))
@@ -33,6 +34,20 @@ export function loadCharacter(): Character {
   return raw
     ? (JSON.parse(raw) as Character)
     : { name: '모험가', class: '사회인', birthYear: 2000 }
+}
+
+export function loadMaxedSkills(): string[] {
+  const raw = localStorage.getItem(SKILL_MAXED_KEY)
+  if (!raw) return []
+  try {
+    return JSON.parse(raw) as string[]
+  } catch {
+    return []
+  }
+}
+
+export function saveMaxedSkills(skills: string[]): void {
+  localStorage.setItem(SKILL_MAXED_KEY, JSON.stringify(skills))
 }
 
 export function clearAll(): void {

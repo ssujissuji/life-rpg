@@ -4,6 +4,24 @@
 
 ---
 
+## [Unreleased]
+
+### Added
+- `PatchResult` 페이지 — DailyLog 저장/수정 후 진입 시 특수스킬 만렙 달성 토스트 이펙트
+  - 트리거: `DailyLog`에서 저장 후 navigate 시 `{ state: { fromSave: true } }` 전달, `PatchResult`에서 `useLocation`으로 확인. 캘린더 등 직접 조회 시 미발동
+  - 만렙(Lv.MAX) 달성한 스킬별 순차 토스트 표시 (스킬명 + "만렙 달성!" + 특수 칭호 언락 메시지)
+  - 스킬 데이터는 `useStore`의 `skills` 직접 참조 (`loadAllPatches` 재호출 없음)
+- `src/components/Toast.tsx` — 공용 토스트 컴포넌트 신설
+
+### Fixed
+- `Toast.tsx` `onClose` 콜백 무한루프 버그 — `useRef` 패턴으로 안정화
+
+### Changed
+- `PatchResult.tsx` — `fromSave` 플래그 방식으로 만렙 체크 진입점 단일화, `useStore.skills` 직접 사용, `SKILL_META` 타입 보강, spread 패턴 정리
+- `DailyLog.tsx` — 저장 후 navigate 시 `{ state: { fromSave: true } }` 추가
+
+---
+
 ## [0.3.3] 2026-05-17 — 공통 CSS 토큰 전체 적용
 
 ### Added

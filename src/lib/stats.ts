@@ -98,6 +98,16 @@ export function calcStats(entry: PatchFormData & { date: string }): Stats {
   }
 }
 
+export function formatSpend(amount: number): string {
+  if (!amount || amount === 0) return '0원'
+  const man = Math.floor(amount / 10000)
+  const rest = amount % 10000
+  const chun = Math.floor(rest / 1000)
+  if (man > 0 && chun > 0) return `${man}만 ${chun}천원`
+  if (man > 0) return `${man}만원`
+  return `${chun}천원`
+}
+
 export function calcSkills(allEntries: PatchRecord): Skills {
   const entries = Object.values(allEntries)
 
@@ -107,9 +117,9 @@ export function calcSkills(allEntries: PatchRecord): Skills {
   const sleepCount = entries.filter((e) => e.sleep >= 8).length
 
   return {
-    pig: { count: pigCount, max: 50, level: Math.floor((pigCount / 50) * 10) },
-    poor: { count: poorCount, max: 30, level: Math.floor((poorCount / 30) * 10) },
-    cafe: { count: cafeCount, max: 100, level: Math.floor((cafeCount / 100) * 10) },
-    sleep: { count: sleepCount, max: 30, level: Math.floor((sleepCount / 30) * 10) },
+    pig: { count: pigCount, max: 50, level: Math.min(Math.floor((pigCount / 50) * 10), 10) },
+    poor: { count: poorCount, max: 30, level: Math.min(Math.floor((poorCount / 30) * 10), 10) },
+    cafe: { count: cafeCount, max: 100, level: Math.min(Math.floor((cafeCount / 100) * 10), 10) },
+    sleep: { count: sleepCount, max: 30, level: Math.min(Math.floor((sleepCount / 30) * 10), 10) },
   }
 }

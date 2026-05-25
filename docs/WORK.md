@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 1 — 완료 ✓ / 다음: Phase 2
+## 현재 Phase: Phase 2 — 특수스킬 상세 모달 대기 중
 
 ---
 
@@ -100,6 +100,16 @@
 
 ---
 
+### [2026-05-25] Phase 2 — 만렙 달성 토스트 이펙트
+
+**완료된 항목:**
+- [x] `src/lib/storage.ts` — `loadMaxedSkills()`, `saveMaxedSkills()` 추가 (`skill_maxed` 키)
+- [x] `src/components/Toast.tsx` — 공용 토스트 컴포넌트 신설 (`onClose` `useRef` 패턴으로 무한루프 방지)
+- [x] `src/pages/PatchResult.tsx` — 만렙 감지 + 토스트 큐 로직 추가, `fromSave` 플래그 기반 트리거, `SKILL_META` 타입 `Record<keyof Skills, ...>`로 보강
+- [x] `src/pages/DailyLog.tsx` — 저장 후 `navigate(`/result/${date}`, { state: { fromSave: true } })` 추가
+
+---
+
 ### [2026-05-17] Phase 1 마무리 — UTC 버그 수정 + e2e 전체 확장
 
 **완료된 항목:**
@@ -120,11 +130,20 @@
 
 ---
 
+### [2026-05-25] Phase 2 — 특수스킬 상세 모달
+
+**완료된 항목:**
+- [x] `src/components/SkillModal.tsx` — 바텀 시트 스타일 모달 신설 (아이콘/이름/설명, Lv/10, 10칸 프로그레스바, 만렙 조건 박스, 현재 달성/남은 수, 만렙 시 특별 메시지)
+- [x] `src/pages/CharacterSheet.tsx` — `SKILLS` 배열에 `description`/`condition` 필드 추가, 스킬 행 → `<button>` 변환 (클릭 시 모달 오픈), `selectedSkill` state + SkillModal 렌더링
+- [x] `text-status-good` → `text-success`, `bg-status-good` → `bg-success` 잘못된 토큰 수정
+
+---
+
 ## 대기 중인 작업 (다음 Phase)
 
 ### Phase 2
-- 캐릭터 시트 고도화 (만렙 달성 이펙트)
-- 특수스킬 상세 모달
+- [x] 특수스킬 만렙 달성 토스트 이펙트
+- [x] 특수스킬 상세 모달
 
 ### Phase 3
 - 주간/월간 리포트 화면
