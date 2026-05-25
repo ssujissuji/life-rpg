@@ -6,6 +6,37 @@
 
 ## 2026-05-25
 
+### Phase 2 후속 — 리뷰 수정 + 테스트 추가 + calcWallet 버그 수정
+
+**storage.ts**
+- `loadPatch`: `JSON.parse` 실패 시 null 반환 (try-catch 추가)
+- `loadAllPatches`: 손상된 키는 건너뛰고 정상 키만 반환 (try-catch 추가)
+
+**PatchResult.tsx**
+- `useState` 초기화 함수 내 `saveMaxedSkills` 호출 제거. `useMemo`(순수 계산)와 `useEffect`(localStorage 쓰기)로 분리하여 React Strict Mode 이중 실행 시 토스트 큐 오염 방지
+
+**types.ts**
+- `SkillConfig` 인터페이스 추가, `key` 타입을 `keyof Skills`로 지정
+- `SkillModal.tsx`, `CharacterSheet.tsx`의 `SkillConfig` import 경로를 `src/types.ts`로 통일
+
+**CharacterSheet.tsx**
+- `getStatusTags` 호출 시 `new Date().getDay()` → `new Date(todayPatch.date + 'T00:00:00').getDay()` 변경 (로컬 날짜 파싱 일관성 확보)
+
+**stats.ts**
+- `formatSpend` 조건식 `!amount || amount === 0` → `amount <= 0` 정리
+
+**BUG-05 수정: calcWallet spend=0 fallthrough**
+- 원인: `spend=0`일 때 `else if (spend < 30000)` 분기로 진입해 wallet `-20` 패널티가 적용됨
+- 해결: `spend <= 0` 조건을 가장 먼저 검사해 페널티 없이 wallet 100 유지
+
+**테스트 추가**
+- `src/lib/stats.test.ts` 신규 — vitest 단위 테스트 67개 (calcHP/Focus/Social/Wallet/Outdoor/SleepQ/getStatusTags/formatSpend/calcStats)
+- `src/lib/storage.test.ts` 신규 — vitest 단위 테스트 14개 (loadPatch/loadAllPatches 손상 JSON 방어 포함)
+- `package.json`, `vite.config.ts` — vitest 설정 추가 (environment: jsdom)
+- `e2e/patch-result.spec.ts` — fromSave 토스트 표시/미표시/큐 순차 케이스 3개 추가 (총 38개)
+
+---
+
 ### Phase 2 — 만렙 달성 토스트 이펙트
 
 - `src/lib/storage.ts` — `loadMaxedSkills()`, `saveMaxedSkills()` 추가. localStorage `skill_maxed` 키로 만렙 달성 기록을 저장해 재트리거 방지
