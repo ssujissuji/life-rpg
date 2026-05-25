@@ -42,3 +42,13 @@ export interface Skills {
 }
 
 export type PatchRecord = Record<string, PatchEntry>
+
+export interface SkillConfig {
+  icon: string
+  label: string
+  key: keyof Skills
+  max: number
+  unit: string
+  description: string
+  condition: string
+}

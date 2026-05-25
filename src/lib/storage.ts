@@ -10,7 +10,12 @@ export function savePatch(date: string, data: PatchEntry): void {
 
 export function loadPatch(date: string): PatchEntry | null {
   const raw = localStorage.getItem(`${PATCH_PREFIX}${date}`)
-  return raw ? (JSON.parse(raw) as PatchEntry) : null
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as PatchEntry
+  } catch {
+    return null
+  }
 }
 
 export function loadAllPatches(): PatchRecord {
@@ -19,7 +24,13 @@ export function loadAllPatches(): PatchRecord {
     const key = localStorage.key(i)!
     if (key.startsWith(PATCH_PREFIX)) {
       const date = key.replace(PATCH_PREFIX, '')
-      result[date] = JSON.parse(localStorage.getItem(key)!) as PatchEntry
+      const raw = localStorage.getItem(key)
+      if (!raw) continue
+      try {
+        result[date] = JSON.parse(raw) as PatchEntry
+      } catch {
+        continue
+      }
     }
   }
   return result

@@ -145,6 +145,19 @@
 - [x] 특수스킬 만렙 달성 토스트 이펙트
 - [x] 특수스킬 상세 모달
 
+### Phase 2 후속 — 리뷰 수정사항
+
+**[BLOCK] 수정 필수**
+- [ ] `PatchResult.tsx` — useState 초기화 함수 내 saveMaxedSkills(localStorage 쓰기) 제거, useEffect로 분리
+- [ ] `storage.ts` — loadPatch, loadAllPatches의 JSON.parse에 try-catch 추가
+
+**[WARN] 수정 권장**
+- [ ] `CharacterSheet.tsx:76` — getStatusTags 호출 시 `new Date().getDay()` → `new Date(todayPatch.date + 'T00:00:00').getDay()`로 변경
+- [ ] `SkillModal.tsx` — SkillConfig 타입을 src/types.ts로 이동, key 타입을 `keyof Skills`로 변경
+- [ ] `PatchResult.tsx` — loadMaxedSkills/saveMaxedSkills 직접 호출 → useStore 액션으로 감싸기
+- [ ] `stats.ts:101` — `!amount || amount === 0` → `amount <= 0`으로 정리
+- [ ] `CharacterSheet.tsx` — today() 함수 중복 정의 (DailyLog.tsx에도 동일 함수 존재), 공용 유틸로 분리
+
 ### Phase 3
 - 주간/월간 리포트 화면
 - Recharts 스탯 그래프

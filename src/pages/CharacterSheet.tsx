@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
-import SkillModal, { type SkillConfig } from '../components/SkillModal'
+import SkillModal from '../components/SkillModal'
 import { getStatusTags } from '../lib/stats'
-import type { Stats } from '../types'
+import type { SkillConfig, Stats } from '../types'
 
 interface StatConfig {
   icon: string
@@ -73,8 +73,8 @@ export default function CharacterSheet() {
         cafeCount: todayPatch.cafe,
         spend: todayPatch.spend,
         deliveryCount: todayPatch.delivery,
-        isMonday: new Date().getDay() === 1,
-        isWeekend: [0, 6].includes(new Date().getDay()),
+        isMonday: new Date(todayPatch.date + 'T00:00:00').getDay() === 1,
+        isWeekend: [0, 6].includes(new Date(todayPatch.date + 'T00:00:00').getDay()),
       })
     : []
 

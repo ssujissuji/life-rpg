@@ -99,7 +99,7 @@ export function calcStats(entry: PatchFormData & { date: string }): Stats {
 }
 
 export function formatSpend(amount: number): string {
-  if (!amount || amount === 0) return '0원'
+  if (amount <= 0) return '0원'
   const man = Math.floor(amount / 10000)
   const rest = amount % 10000
   const chun = Math.floor(rest / 1000)
