@@ -56,17 +56,17 @@ export default function PatchResult() {
   const navigate = useNavigate()
   const location = useLocation()
   const { getPatch } = useStore()
+  const skills = useStore((s) => s.skills)
 
   const fromSave = !!(location.state as { fromSave?: boolean } | null)?.fromSave
 
   const newlyMaxed = useMemo<(keyof Skills)[]>(() => {
     if (!fromSave) return []
-    const { skills } = useStore.getState()
     const prevMaxed = new Set(loadMaxedSkills())
     return (Object.keys(SKILL_META) as (keyof Skills)[]).filter(
       (key) => skills[key].level >= 10 && !prevMaxed.has(key),
     )
-  }, [fromSave])
+  }, [fromSave, skills])
 
   const [toastQueue, setToastQueue] = useState<SkillToast[]>(() =>
     newlyMaxed.map((key) => {

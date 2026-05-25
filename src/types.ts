@@ -43,6 +43,8 @@ export interface Skills {
 
 export type PatchRecord = Record<string, PatchEntry>
 
+export type DayStat = { date: string; totalStat: number }
+
 export interface SkillConfig {
   icon: string
   label: string
@@ -51,4 +53,41 @@ export interface SkillConfig {
   unit: string
   description: string
   condition: string
+}
+
+export type WeeklyVerdict = 'good' | 'survival' | 'struggle'
+
+export interface WeeklyReport {
+  weekStart: string
+  weekEnd: string
+  attendanceCount: number
+  totalDays: number
+  mvpStat: { key: keyof Stats; label: string; avg: number } | null
+  dangerStat: { key: keyof Stats; label: string; avg: number } | null
+  skillGrowth: { skillKey: keyof Skills; label: string; before: number; after: number }[]
+  verdict: WeeklyVerdict
+  summaryMessage: string
+}
+
+export interface MonthlyReport {
+  year: number
+  month: number
+  attendanceCount: number
+  totalDays: number
+  avgSleep: number
+  totalSpend: number
+  bestDay: DayStat | null
+  worstDay: DayStat | null
+  skillSnapshot: Skills
+  predictionMessage: string
+}
+
+export interface StatChartPoint {
+  date: string
+  hp: number
+  focus: number
+  social: number
+  wallet: number
+  outdoor: number
+  sleepQ: number
 }

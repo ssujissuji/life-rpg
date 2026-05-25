@@ -1,4 +1,4 @@
-import type { PatchFormData, Stats, Skills, PatchRecord } from '../types'
+import type { PatchFormData, Stats, Skills, PatchRecord, WeeklyReport, WeeklyVerdict, MonthlyReport, StatChartPoint, DayStat } from '../types'
 
 export function calcHP(sleep: number, meal: number, isWeekend: boolean): number {
   let hp = 100
@@ -123,4 +123,235 @@ export function calcSkills(allEntries: PatchRecord): Skills {
     cafe: { count: cafeCount, max: 100, level: Math.min(Math.floor((cafeCount / 100) * 10), 10) },
     sleep: { count: sleepCount, max: 30, level: Math.min(Math.floor((sleepCount / 30) * 10), 10) },
   }
+}
+
+const STAT_LABELS: Record<keyof Stats, string> = {
+  hp: '체력',
+  focus: '집중력',
+  social: '사회성',
+  wallet: '지갑',
+  outdoor: '외출의지',
+  sleepQ: '수면질',
+}
+
+const SKILL_LABELS: Record<keyof Skills, string> = {
+  pig: '돼지력',
+  poor: '거지력',
+  cafe: '각성력',
+  sleep: '숙면력',
+}
+
+function dateToStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+export function getWeekBounds(today: string): { weekStart: string; weekEnd: string } {
+  const d = new Date(today + 'T00:00:00')
+  const day = d.getDay()
+  const diffToMonday = day === 0 ? -6 : 1 - day
+  const monday = new Date(d)
+  monday.setDate(d.getDate() + diffToMonday)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  return { weekStart: dateToStr(monday), weekEnd: dateToStr(sunday) }
+}
+
+export function getMonthBounds(today: string): { monthStart: string; monthEnd: string } {
+  const d = new Date(today + 'T00:00:00')
+  const year = d.getFullYear()
+  const month = d.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const lastDay = new Date(year, month + 1, 0)
+  return { monthStart: dateToStr(firstDay), monthEnd: dateToStr(lastDay) }
+}
+
+function filterEntriesByRange(patches: PatchRecord, from: string, to: string): PatchRecord {
+  const result: PatchRecord = {}
+  for (const [date, entry] of Object.entries(patches)) {
+    if (date >= from && date <= to) {
+      result[date] = entry
+    }
+  }
+  return result
+}
+
+function filterEntriesBefore(patches: PatchRecord, before: string): PatchRecord {
+  const result: PatchRecord = {}
+  for (const [date, entry] of Object.entries(patches)) {
+    if (date < before) {
+      result[date] = entry
+    }
+  }
+  return result
+}
+
+function topTagByFrequency(entries: PatchRecord): { tag: string; count: number } | null {
+  const freq: Record<string, number> = {}
+  for (const entry of Object.values(entries)) {
+    for (const tag of entry.tags) {
+      freq[tag] = (freq[tag] ?? 0) + 1
+    }
+  }
+  const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1])
+  if (sorted.length === 0) return null
+  return { tag: sorted[0][0], count: sorted[0][1] }
+}
+
+export function calcWeeklyReport(patches: PatchRecord, today: string): WeeklyReport {
+  const { weekStart, weekEnd } = getWeekBounds(today)
+  const weekEntries = filterEntriesByRange(patches, weekStart, weekEnd)
+  const weekValues = Object.values(weekEntries)
+  const attendanceCount = weekValues.length
+  const totalDays = 7
+
+  if (attendanceCount === 0) {
+    return {
+      weekStart,
+      weekEnd,
+      attendanceCount: 0,
+      totalDays,
+      mvpStat: null,
+      dangerStat: null,
+      skillGrowth: [],
+      verdict: 'struggle',
+      summaryMessage: '이번 주 기록이 없다.',
+    }
+  }
+
+  const statKeys: (keyof Stats)[] = ['hp', 'focus', 'social', 'wallet', 'outdoor', 'sleepQ']
+  const statAvgs = statKeys.map((key) => ({
+    key,
+    label: STAT_LABELS[key],
+    avg: Math.round(weekValues.reduce((sum, e) => sum + (e.stats?.[key] ?? 0), 0) / attendanceCount),
+  }))
+
+  const sorted = [...statAvgs].sort((a, b) => b.avg - a.avg)
+  const mvpStat = sorted[0]
+  const lastStat = sorted[sorted.length - 1]
+  const finalDangerStat = lastStat.key === mvpStat.key ? null : lastStat
+
+  const beforeEntries = filterEntriesBefore(patches, weekStart)
+  const skillsBefore = calcSkills(beforeEntries)
+  const skillsAfter = calcSkills({ ...beforeEntries, ...weekEntries })
+  const skillKeys: (keyof Skills)[] = ['pig', 'poor', 'cafe', 'sleep']
+  const skillGrowth = skillKeys
+    .filter((k) => skillsAfter[k].level > skillsBefore[k].level)
+    .map((k) => ({
+      skillKey: k,
+      label: SKILL_LABELS[k],
+      before: skillsBefore[k].level,
+      after: skillsAfter[k].level,
+    }))
+
+  const topTag = topTagByFrequency(weekEntries)
+  let summaryMessage = '이번 주도 잘 살아냈다!'
+  if (topTag) {
+    const { tag, count: n } = topTag
+    if (tag === '수면부족') summaryMessage = `이번 주 너는 수면부족 상태로 ${n}일을 버텼다.`
+    else if (tag === '통장출혈') summaryMessage = `이번 주 지갑이 많이 힘들었다. ${n}일이나 통장출혈이었어.`
+    else if (tag === '무지출') summaryMessage = `이번 주는 절약의 왕! ${n}일이나 무지출이었다.`
+    else if (tag === '꿀잠달성') summaryMessage = `이번 주 수면 상태 최고. ${n}일이나 꿀잠달성!`
+    else if (tag === '월요병') summaryMessage = '월요병으로 시작했지만 어떻게든 버텼다.'
+  }
+
+  const avgHP = statAvgs.find((s) => s.key === 'hp')?.avg ?? 0
+  let verdict: WeeklyVerdict = 'struggle'
+  if (attendanceCount >= 5 && avgHP >= 70) verdict = 'good'
+  else if (attendanceCount >= 3 && avgHP >= 40) verdict = 'survival'
+
+  return {
+    weekStart,
+    weekEnd,
+    attendanceCount,
+    totalDays,
+    mvpStat,
+    dangerStat: finalDangerStat,
+    skillGrowth,
+    verdict,
+    summaryMessage,
+  }
+}
+
+export function calcMonthlyReport(patches: PatchRecord, today: string): MonthlyReport {
+  const { monthStart, monthEnd } = getMonthBounds(today)
+  const d = new Date(today + 'T00:00:00')
+  const year = d.getFullYear()
+  const month = d.getMonth() + 1
+
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0)
+  const totalDays = lastDay.getDate()
+
+  const monthEntries = filterEntriesByRange(patches, monthStart, monthEnd)
+  const monthValues = Object.values(monthEntries)
+  const attendanceCount = monthValues.length
+
+  if (attendanceCount === 0) {
+    return {
+      year,
+      month,
+      attendanceCount: 0,
+      totalDays,
+      avgSleep: 0,
+      totalSpend: 0,
+      bestDay: null,
+      worstDay: null,
+      skillSnapshot: calcSkills(patches),
+      predictionMessage: '다음 달도 현생 파이팅!',
+    }
+  }
+
+  const avgSleep =
+    Math.round((monthValues.reduce((sum, e) => sum + e.sleep, 0) / attendanceCount) * 10) / 10
+  const totalSpend = monthValues.reduce((sum, e) => sum + e.spend, 0)
+
+  const dayStats: DayStat[] = Object.entries(monthEntries)
+    .map(([date, entry]) => ({
+      date,
+      totalStat: Object.values(entry.stats).reduce((sum, v) => sum + v, 0),
+    }))
+
+  const bestDay = dayStats.reduce((best, cur) => (cur.totalStat > best.totalStat ? cur : best), dayStats[0])
+  const worstDay = dayStats.reduce((worst, cur) => (cur.totalStat < worst.totalStat ? cur : worst), dayStats[0])
+
+  const topTag = topTagByFrequency(monthEntries)
+  let predictionMessage = '다음 달도 현생 파이팅!'
+  if (topTag) {
+    const { tag } = topTag
+    if (tag === '수면부족') predictionMessage = '다음 달엔 좀 더 자봐요.'
+    else if (tag === '통장출혈') predictionMessage = '다음 달 지갑이 걱정됩니다.'
+    else if (tag === '무지출') predictionMessage = '다음 달도 절약 기대해봐요!'
+    else if (tag === '꿀잠달성') predictionMessage = '다음 달도 꿀잠 유지해봐요!'
+  }
+
+  return {
+    year,
+    month,
+    attendanceCount,
+    totalDays,
+    avgSleep,
+    totalSpend,
+    bestDay,
+    worstDay,
+    skillSnapshot: calcSkills(patches),
+    predictionMessage,
+  }
+}
+
+export function calcStatTrend(patches: PatchRecord, dateRange: string[]): StatChartPoint[] {
+  return dateRange
+    .filter((date) => patches[date] !== undefined)
+    .map((date) => {
+      const entry = patches[date]
+      const mm = date.slice(5, 7)
+      const dd = date.slice(8, 10)
+      return {
+        date: `${mm}/${dd}`,
+        hp: entry.stats.hp,
+        focus: entry.stats.focus,
+        social: entry.stats.social,
+        wallet: entry.stats.wallet,
+        outdoor: entry.stats.outdoor,
+        sleepQ: entry.stats.sleepQ,
+      }
+    })
 }

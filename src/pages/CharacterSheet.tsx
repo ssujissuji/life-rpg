@@ -4,6 +4,7 @@ import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import SkillModal from '../components/SkillModal'
 import { getStatusTags } from '../lib/stats'
+import { today } from '../lib/date'
 import type { SkillConfig, Stats } from '../types'
 
 interface StatConfig {
@@ -27,11 +28,6 @@ const SKILLS: SkillConfig[] = [
   { icon: '☕', label: '각성력', key: 'cafe', max: 100, unit: '회', description: '커피 없이 못 삼', condition: '카페 방문 100회 누적' },
   { icon: '🛌', label: '숙면력', key: 'sleep', max: 30, unit: '회', description: '꿀잠 마스터', condition: '8시간 이상 수면 30회 누적' },
 ]
-
-function today(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
 
 function getAge(birthYear: number): number {
   return new Date().getFullYear() - birthYear
