@@ -42,9 +42,12 @@ export function saveCharacter(data: Character): void {
 
 export function loadCharacter(): Character {
   const raw = localStorage.getItem(CHARACTER_KEY)
-  return raw
-    ? (JSON.parse(raw) as Character)
-    : { name: '모험가', class: '사회인', birthYear: 2000 }
+  if (!raw) return { name: '모험가', class: '사회인', birthYear: 2000 }
+  try {
+    return JSON.parse(raw) as Character
+  } catch {
+    return { name: '모험가', class: '사회인', birthYear: 2000 }
+  }
 }
 
 export function loadMaxedSkills(): string[] {

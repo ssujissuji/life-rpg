@@ -214,3 +214,74 @@
 - [x] `src/lib/holidays.test.ts` — vitest 단위 테스트 11개 신규
 - [x] `src/lib/stats.test.ts` — 공휴일 통합 테스트 7개 추가 (전체 157개 통과)
 - [x] `e2e/daily-log.spec.ts` — 날씨 API 키 없을 때 Pill 미표시 케이스 추가
+
+---
+
+## 코드 리뷰 수정 사항 (완료)
+
+> 2026-05-25 코드 리뷰에서 식별된 항목.
+
+### BLOCK — 즉시 수정 필요
+
+- [x] **`src/pages/PatchResult.tsx` L133-140** — `getStatusTags` 재계산 제거, `patch.tags` 직접 사용으로 변경
+  - 저장된 태그와 렌더링 시 재계산 태그가 불일치할 수 있음 (isHoliday 미전달 등)
+
+- [x] **`src/pages/CharacterSheet.tsx` L66-75** — `getStatusTags` 재계산 제거, `todayPatch.tags` 직접 사용으로 변경
+  - 실제 버그: 공휴일(평일)에 작성한 패치노트의 태그가 저장 시와 다르게 표시됨 (isHoliday 누락)
+
+### WARN — 수정 권장
+
+- [x] **`src/lib/storage.ts` L44-47** — `loadCharacter` JSON.parse에 try-catch 추가
+  - 손상된 character 데이터 시 앱 진입 화이트스크린 가능. `storage.test.ts`에 방어 테스트 함께 추가
+
+- [x] **`src/pages/PatchResult.tsx` L93, L108** — `loadMaxedSkills`/`saveMaxedSkills` 직접 import 제거
+  - 책임 분리 위반. useStore에 skill_maxed 관련 상태·액션 추가 후 컴포넌트에서 스토어 액션 사용 (이전 이월 항목과 동일)
+
+- [x] **`src/styles/calendar.css` L66** — `#181826` 하드코딩 컬러를 토큰으로 교체
+  - DESIGN.md 팔레트에 미등록된 임의 컬러. `var(--color-bg-input)` 등 인접 토큰으로 대체 또는 `@theme`에 등록
+
+- [x] **`src/pages/PatchResult.tsx` / `src/pages/CharacterSheet.tsx`** — `StatConfig` 인터페이스 중복 정의 제거
+  - `src/types.ts`로 통합 후 각 파일에서 import
+
+- [x] **`src/pages/DailyLog.tsx` / `src/pages/PatchResult.tsx`** — `formatDateLabel` 함수 중복 제거
+  - `src/lib/date.ts`로 이동 후 import
+
+---
+
+### [2026-05-25] 캘린더에서 과거 날짜 패치노트 작성 기능
+
+**완료된 항목:**
+- [x] `src/App.tsx` — `/daily/:date` 동적 라우트 추가 (기존 `/daily` 유지)
+- [x] `src/pages/DailyLog.tsx` — `useParams`로 날짜 수신, `isToday`/`isFuture` 분기 처리. 과거 날짜 시 날씨/공기질 미저장, 미래 날짜 저장 비활성화
+- [x] `src/pages/CalendarView.tsx` — 기록 없는 과거/오늘 날짜에 "패치노트 작성하기" 버튼 표시. 미래 날짜는 안내 텍스트만 표시. `today()` import로 날짜 비교 통일
+- [x] `src/pages/PatchResult.tsx` — "수정하기" 버튼 경로를 `/daily/${date}`로 수정
+
+---
+
+### [2026-05-25] 코드 리뷰 수정사항 반영
+
+**완료된 항목:**
+- [x] `src/pages/PatchResult.tsx` — `getStatusTags` 재계산 블록 제거, `patch.tags` 직접 사용. `isHoliday`/`getStatusTags` import 제거
+- [x] `src/pages/CharacterSheet.tsx` — `getStatusTags` 재계산 블록 제거, `todayPatch?.tags ?? []` 직접 사용. `getStatusTags` import 제거
+- [x] `src/lib/storage.ts` — `loadCharacter` JSON.parse에 try-catch 추가, 기본값 반환
+- [x] `src/lib/storage.test.ts` — 손상된 JSON / 빈 localStorage 방어 테스트 추가 (총 159개 통과)
+- [x] `src/store/useStore.ts` — `getMaxedSkills()`, `markSkillsMaxed(keys)` 액션 추가
+- [x] `src/pages/PatchResult.tsx` — `loadMaxedSkills`/`saveMaxedSkills` 직접 import 제거, useStore 액션으로 교체
+- [x] `src/styles/calendar.css` — `#181826` 하드코딩 → `var(--color-bg-input)` 토큰으로 교체
+- [x] `src/types.ts` — `StatConfig` 인터페이스 export 추가
+- [x] `src/pages/PatchResult.tsx`, `src/pages/CharacterSheet.tsx` — 로컬 `StatConfig` 선언 제거, `types.ts` import로 통일
+- [x] `src/lib/date.ts` — `formatDateLabel` 함수 export 추가
+- [x] `src/pages/PatchResult.tsx`, `src/pages/DailyLog.tsx` — 로컬 `formatDateLabel` 제거, `date.ts` import로 통일
+
+---
+
+### [2026-05-25] 날씨/공기질 API 한국 공공 API로 전환
+
+**완료된 항목:**
+- [x] `src/lib/weather.ts` (신규) — Lambert 격자 좌표 변환, base_time 계산, 날씨/AQI 코드 매핑 로직 분리
+- [x] `api/weather.ts` (신규) — 기상청 초단기실황 API Vercel Serverless Function 프록시 (`KMA_API_KEY`)
+- [x] `api/airkorea.ts` (신규) — 에어코리아 API Vercel Serverless Function 프록시 (`AIRKOREA_API_KEY`)
+- [x] `src/hooks/useWeather.ts` — OpenWeatherMap 호출 제거, `/api/weather`, `/api/airkorea` 내부 프록시 호출로 전환
+- [x] `tsconfig.json` — `api/` 디렉터리 타입 검사 포함
+- [x] `vercel.json` — `/api/*` rewrite 명시적 제외 규칙 추가
+- [x] `VITE_OPENWEATHER_API_KEY` 환경변수 제거 → `KMA_API_KEY`, `AIRKOREA_API_KEY` (서버사이드) 로 대체

@@ -6,6 +6,83 @@
 
 ## 2026-05-25
 
+### 날씨/공기질 API 한국 공공 API로 전환
+
+**신규 파일**
+- `src/lib/weather.ts` — Lambert 투영법 기반 `latlonToGrid` (위경도 → 격자 좌표 변환), `getKmaBaseDateTime` (현재 시각 기준 기상청 base_time 계산), `mapKmaWeather` (기상청 PTY/SKY 코드 → 날씨 레이블), `mapKhaiGrade` (에어코리아 통합대기환경지수 등급 → 레이블) 분리
+- `api/weather.ts` — 기상청 초단기실황 API(`getUltraSrtNcst`) Vercel Serverless Function 프록시. `KMA_API_KEY` 서버사이드 환경변수 사용. CORS 우회
+- `api/airkorea.ts` — 한국환경공단 에어코리아 API Vercel Serverless Function 프록시. `AIRKOREA_API_KEY` 서버사이드 환경변수 사용. CORS 우회
+
+**src/hooks/useWeather.ts**
+- OpenWeatherMap Current Weather + Air Pollution API 호출 전면 제거
+- `/api/weather`, `/api/airkorea` 내부 프록시 엔드포인트 호출로 전환
+
+**tsconfig.json**
+- `include`에 `api/` 디렉터리 추가. Serverless Function 파일에 타입 검사 적용
+
+**vercel.json**
+- SPA rewrite 규칙(`/*` → `/index.html`)에서 `/api/*` 경로를 명시적으로 제외. Serverless Function이 rewrite에 의해 가려지는 문제 방지
+
+**환경변수**
+- `VITE_OPENWEATHER_API_KEY` 제거 (클라이언트 번들에 API 키 노출 제거)
+- `KMA_API_KEY`, `AIRKOREA_API_KEY` 서버사이드 환경변수로 대체
+
+---
+
+### 캘린더에서 과거 날짜 패치노트 작성 기능
+
+**src/App.tsx**
+- `/daily/:date` 동적 라우트 추가. 기존 `/daily` (오늘 날짜용) 유지
+
+**src/pages/DailyLog.tsx**
+- `useParams`로 `:date` 수신
+- `isToday`, `isFuture` 분기 추가. 과거 날짜 저장 시 날씨/공기질 필드 미포함, 미래 날짜는 저장 버튼 비활성화
+
+**src/pages/CalendarView.tsx**
+- 기록 없는 과거/오늘 날짜 클릭 시 "패치노트 작성하기" 버튼 표시 → `/daily/${dateStr}` 이동
+- 미래 날짜 클릭 시 저장 불가 안내 텍스트만 표시
+- `today()` import로 날짜 비교 통일 (로컬 날짜 파싱 일관성 확보)
+
+**src/pages/PatchResult.tsx**
+- "수정하기" 버튼 이동 경로를 `/daily` → `/daily/${date}`로 수정 (날짜 파라미터 전달)
+
+---
+
+### 코드 리뷰 수정사항 반영 (BLOCK/WARN 7개)
+
+**src/pages/PatchResult.tsx**
+- `getStatusTags` 재계산 블록 제거, `patch.tags` 직접 사용으로 변경 (BLOCK). `isHoliday`/`getStatusTags` import 제거
+- `loadMaxedSkills`/`saveMaxedSkills` 직접 import 제거 (WARN), useStore 액션(`getMaxedSkills`, `markSkillsMaxed`)으로 교체
+- `StatConfig` 로컬 선언 제거, `src/types.ts` import로 통일 (WARN)
+- 로컬 `formatDateLabel` 제거, `src/lib/date.ts` import로 통일 (WARN)
+
+**src/pages/CharacterSheet.tsx**
+- `getStatusTags` 재계산 블록 제거, `todayPatch?.tags ?? []` 직접 사용으로 변경 (BLOCK). `getStatusTags` import 제거
+- `StatConfig` 로컬 선언 제거, `src/types.ts` import로 통일 (WARN)
+
+**src/pages/DailyLog.tsx**
+- 로컬 `formatDateLabel` 제거, `src/lib/date.ts` import로 통일 (WARN)
+
+**src/lib/storage.ts**
+- `loadCharacter` JSON.parse에 try-catch 추가, 파싱 실패 시 기본값 반환 (WARN)
+
+**src/lib/storage.test.ts**
+- 손상된 JSON / 빈 localStorage 방어 테스트 추가 (총 159개 통과)
+
+**src/store/useStore.ts**
+- `getMaxedSkills()`, `markSkillsMaxed(keys)` 액션 추가. skill_maxed 관련 localStorage 접근을 스토어로 집중
+
+**src/styles/calendar.css**
+- `#181826` 하드코딩 컬러 → `var(--color-bg-input)` 토큰으로 교체 (WARN)
+
+**src/types.ts**
+- `StatConfig` 인터페이스 export 추가
+
+**src/lib/date.ts**
+- `formatDateLabel` 함수 export 추가
+
+---
+
 ### Phase 4 — 날씨/공휴일/공유/모바일 완성도
 
 **신규 파일**

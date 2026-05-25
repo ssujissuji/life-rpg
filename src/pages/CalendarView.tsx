@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import useStore from '../store/useStore';
+import { today } from '../lib/date';
 import 'react-calendar/dist/Calendar.css';
 import '../styles/calendar.css';
 
@@ -16,6 +17,7 @@ export default function CalendarView() {
   const navigate = useNavigate();
   const { patches } = useStore();
   const [selected, setSelected] = useState<string | null>(null);
+  const todayStr = today();
 
   function handleDayClick(date: Date) {
     const dateStr = toDateStr(date);
@@ -69,13 +71,21 @@ export default function CalendarView() {
           <div className="text-text-sub text-xs font-mono">
             {selected} — 기록 없음
           </div>
-          {selected === toDateStr(new Date()) && (
+          {selected <= todayStr ? (
             <button
-              onClick={() => navigate('/daily')}
+              onClick={() =>
+                selected === todayStr
+                  ? navigate('/daily')
+                  : navigate(`/daily/${selected}`)
+              }
               className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-2.5 rounded-lg transition-colors"
             >
-              오늘 패치노트 작성하기
+              {selected === todayStr ? '오늘 패치노트 작성하기' : '패치노트 작성하기'}
             </button>
+          ) : (
+            <div className="text-text-sub text-xs font-mono">
+              미래 날짜는 기록할 수 없습니다
+            </div>
           )}
         </div>
       )}

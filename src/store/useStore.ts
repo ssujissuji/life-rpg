@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { loadCharacter, loadAllPatches, saveCharacter, savePatch } from '../lib/storage'
+import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills } from '../lib/storage'
 import { calcStats, calcSkills, getStatusTags } from '../lib/stats'
 import { isHoliday } from '../lib/holidays'
 import type { Character, PatchEntry, PatchFormData, PatchRecord, Skills } from '../types'
@@ -11,6 +11,8 @@ interface StoreState {
   setCharacter: (data: Character) => void
   savePatchEntry: (date: string, formData: PatchFormData) => void
   getPatch: (date: string) => PatchEntry | null
+  getMaxedSkills: () => string[]
+  markSkillsMaxed: (keys: string[]) => void
 }
 
 const useStore = create<StoreState>((set, get) => ({
@@ -49,6 +51,15 @@ const useStore = create<StoreState>((set, get) => ({
 
   getPatch(date) {
     return get().patches[date] ?? null
+  },
+
+  getMaxedSkills() {
+    return loadMaxedSkills()
+  },
+
+  markSkillsMaxed(keys) {
+    const merged = [...new Set([...loadMaxedSkills(), ...keys])]
+    saveMaxedSkills(merged)
   },
 }))
 

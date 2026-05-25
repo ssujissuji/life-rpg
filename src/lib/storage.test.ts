@@ -117,6 +117,20 @@ describe('saveCharacter / loadCharacter', () => {
   })
 })
 
+// ─── loadCharacter — 손상된 JSON 방어 ────────────────────────────────────────
+
+describe('loadCharacter — 손상된 JSON 방어', () => {
+  it('손상된 JSON이 있을 때 기본값을 반환한다', () => {
+    localStorage.setItem('character', '{invalid json}')
+    expect(() => loadCharacter()).not.toThrow()
+    expect(loadCharacter()).toEqual({ name: '모험가', class: '사회인', birthYear: 2000 })
+  })
+
+  it('localStorage가 비어있을 때 기본값을 반환한다', () => {
+    expect(loadCharacter()).toEqual({ name: '모험가', class: '사회인', birthYear: 2000 })
+  })
+})
+
 // ─── 빈 상태 안전성 ───────────────────────────────────────────────────────────
 
 describe('빈 localStorage 상태에서 기본 동작', () => {

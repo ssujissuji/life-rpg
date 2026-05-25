@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { formatSpend } from '../lib/stats';
-import { today } from '../lib/date';
+import { today, formatDateLabel } from '../lib/date';
 import { useWeather } from '../hooks/useWeather';
 import { isHoliday } from '../lib/holidays';
 import type { PatchFormData } from '../types';
@@ -17,21 +17,6 @@ const SPEND_CHIPS = [
   { label: '5만', value: 50000 },
   { label: '10만', value: 100000 },
 ];
-
-function formatDateLabel(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
-  const days = [
-    '일요일',
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-  ];
-  const version = dateStr.replace(/-/g, '.');
-  return `v${version} (${days[d.getDay()]})`;
-}
 
 interface CounterProps {
   value: number;
@@ -104,12 +89,16 @@ function Section({ label, children }: SectionProps) {
 
 export default function DailyLog() {
   const navigate = useNavigate();
+  const params = useParams<{ date?: string }>();
   const { savePatchEntry, getPatch } = useStore();
   const { weatherLabel, aqiLabel, isLoading } = useWeather();
 
-  const date = today();
+  const todayStr = today();
+  const date = params.date ?? todayStr;
+  const isToday = date === todayStr;
+  const isFuture = date > todayStr;
   const existing = getPatch(date);
-  const isTodayHoliday = isHoliday(date);
+  const isDateHoliday = isHoliday(date);
 
   const [form, setForm] = useState<PatchFormData>({
     sleep: existing?.sleep ?? 7,
@@ -132,8 +121,8 @@ export default function DailyLog() {
     e.preventDefault();
     savePatchEntry(date, {
       ...form,
-      weather: weatherLabel ?? undefined,
-      aqi: aqiLabel ?? undefined,
+      weather: isToday ? weatherLabel ?? undefined : undefined,
+      aqi: isToday ? aqiLabel ?? undefined : undefined,
     });
     navigate(`/result/${date}`, { state: { fromSave: true } });
   }
@@ -143,20 +132,20 @@ export default function DailyLog() {
       {/* 헤더 */}
       <div className="space-y-1">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
           className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors">
           ← 뒤로
         </button>
         <div className="text-white font-mono font-bold text-base">
-          오늘의 패치노트
+          {isToday ? '오늘의 패치노트' : `${date} 패치노트`}
         </div>
         <div className="text-purple-light text-xs font-mono">
           {formatDateLabel(date)}
         </div>
-        {isLoading && (
+        {isToday && isLoading && (
           <div className="text-text-sub text-xs font-mono">날씨 확인 중...</div>
         )}
-        {!isLoading && (weatherLabel || aqiLabel || isTodayHoliday) && (
+        {isToday && !isLoading && (weatherLabel || aqiLabel || isDateHoliday) && (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {weatherLabel && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
@@ -168,7 +157,7 @@ export default function DailyLog() {
                 {aqiLabel}
               </span>
             )}
-            {isTodayHoliday && (
+            {isDateHoliday && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-success">
                 🎌 공휴일
               </span>
@@ -313,9 +302,15 @@ export default function DailyLog() {
           </Section>
         </div>
         {/* 제출 버튼 */}
+        {isFuture && (
+          <div className="text-danger text-xs font-mono text-center">
+            미래 날짜는 기록할 수 없습니다
+          </div>
+        )}
         <button
           type="submit"
-          className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors">
+          disabled={isFuture}
+          className={`w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors ${isFuture ? 'opacity-40 cursor-not-allowed' : ''}`}>
           패치노트 저장 →
         </button>
       </form>

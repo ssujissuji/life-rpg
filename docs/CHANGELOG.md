@@ -7,6 +7,46 @@
 ## [Unreleased]
 
 ### Added
+- `src/lib/weather.ts` (신규) — `latlonToGrid` (Lambert 투영법 격자 좌표 변환), `getKmaBaseDateTime` (기상청 base_time 계산), `mapKmaWeather` (기상청 날씨 코드 → 레이블 매핑), `mapKhaiGrade` (에어코리아 통합대기환경지수 등급 매핑)
+- `api/weather.ts` (신규) — 기상청 초단기실황 API(`getUltraSrtNcst`) Vercel Serverless Function 프록시. `KMA_API_KEY` 서버사이드 환경변수 사용
+- `api/airkorea.ts` (신규) — 한국환경공단 에어코리아 API Vercel Serverless Function 프록시. `AIRKOREA_API_KEY` 서버사이드 환경변수 사용
+
+### Changed
+- `src/hooks/useWeather.ts` — OpenWeatherMap API 호출 제거, `/api/weather`, `/api/airkorea` 내부 프록시 호출로 전환
+- `tsconfig.json` — `api/` 디렉터리 타입 검사 포함
+- `vercel.json` — SPA rewrite 규칙에서 `/api/*` 경로 명시적 제외
+
+### Removed
+- `VITE_OPENWEATHER_API_KEY` 환경변수 제거 (클라이언트 노출 방지). `KMA_API_KEY`, `AIRKOREA_API_KEY`로 대체
+
+---
+
+### Added
+- `src/pages/CalendarView.tsx` — 기록 없는 과거/오늘 날짜 클릭 시 "패치노트 작성하기" 버튼 표시. 미래 날짜는 안내 텍스트만 표시
+
+### Changed
+- `src/App.tsx` — `/daily/:date` 동적 라우트 추가 (기존 `/daily` 유지)
+- `src/pages/DailyLog.tsx` — `useParams`로 날짜 수신, `isToday`/`isFuture` 분기 처리. 과거 날짜 저장 시 날씨/공기질 미저장, 미래 날짜는 저장 비활성화
+- `src/pages/PatchResult.tsx` — "수정하기" 버튼 경로를 `/daily/${date}`로 수정
+
+### Fixed
+- `src/pages/PatchResult.tsx` — `getStatusTags` 재계산 블록 제거, 저장된 `patch.tags` 직접 사용 (BLOCK). 공휴일 미전달 등으로 저장 시와 렌더링 시 태그가 불일치하던 버그 해소
+- `src/pages/CharacterSheet.tsx` — `getStatusTags` 재계산 블록 제거, `todayPatch?.tags ?? []` 직접 사용 (BLOCK). 공휴일에 작성한 패치노트 태그가 다르게 표시되던 버그 해소
+- `src/lib/storage.ts` — `loadCharacter` JSON.parse에 try-catch 추가. 손상된 character 데이터로 인한 앱 진입 화이트스크린 방지 (WARN)
+
+### Changed
+- `src/store/useStore.ts` — `getMaxedSkills()`, `markSkillsMaxed(keys)` 액션 추가. skill_maxed localStorage 접근을 스토어로 집중 (WARN)
+- `src/pages/PatchResult.tsx` — `loadMaxedSkills`/`saveMaxedSkills` 직접 import 제거, useStore 액션으로 교체 (WARN)
+- `src/styles/calendar.css` — `#181826` 하드코딩 컬러 → `var(--color-bg-input)` 토큰으로 교체 (WARN)
+- `src/types.ts` — `StatConfig` 인터페이스 export 추가. `PatchResult.tsx`/`CharacterSheet.tsx` 로컬 선언 제거 후 import 통일 (WARN)
+- `src/lib/date.ts` — `formatDateLabel` 함수 export 추가. `PatchResult.tsx`/`DailyLog.tsx` 로컬 선언 제거 후 import 통일 (WARN)
+
+### Added
+- `src/lib/storage.test.ts` — 손상된 JSON / 빈 localStorage 방어 테스트 추가 (총 159개 통과)
+
+---
+
+### Added
 - `src/hooks/useWeather.ts` — OpenWeatherMap Current Weather + Air Pollution API 훅. 위치 거부 시 서울 좌표 fallback, AbortController 타임아웃 처리
 - `src/lib/holidays.ts` — 2025/2026년 공휴일 정적 Set + `isHoliday(dateStr): boolean`
 - `vercel.json` — SPA rewrites 설정 (모든 경로 → index.html)
