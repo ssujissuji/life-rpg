@@ -6,6 +6,29 @@
 
 ## 2026-05-25
 
+### 날씨/공기질 API 한국 공공 API로 전환
+
+**신규 파일**
+- `src/lib/weather.ts` — Lambert 투영법 기반 `latlonToGrid` (위경도 → 격자 좌표 변환), `getKmaBaseDateTime` (현재 시각 기준 기상청 base_time 계산), `mapKmaWeather` (기상청 PTY/SKY 코드 → 날씨 레이블), `mapKhaiGrade` (에어코리아 통합대기환경지수 등급 → 레이블) 분리
+- `api/weather.ts` — 기상청 초단기실황 API(`getUltraSrtNcst`) Vercel Serverless Function 프록시. `KMA_API_KEY` 서버사이드 환경변수 사용. CORS 우회
+- `api/airkorea.ts` — 한국환경공단 에어코리아 API Vercel Serverless Function 프록시. `AIRKOREA_API_KEY` 서버사이드 환경변수 사용. CORS 우회
+
+**src/hooks/useWeather.ts**
+- OpenWeatherMap Current Weather + Air Pollution API 호출 전면 제거
+- `/api/weather`, `/api/airkorea` 내부 프록시 엔드포인트 호출로 전환
+
+**tsconfig.json**
+- `include`에 `api/` 디렉터리 추가. Serverless Function 파일에 타입 검사 적용
+
+**vercel.json**
+- SPA rewrite 규칙(`/*` → `/index.html`)에서 `/api/*` 경로를 명시적으로 제외. Serverless Function이 rewrite에 의해 가려지는 문제 방지
+
+**환경변수**
+- `VITE_OPENWEATHER_API_KEY` 제거 (클라이언트 번들에 API 키 노출 제거)
+- `KMA_API_KEY`, `AIRKOREA_API_KEY` 서버사이드 환경변수로 대체
+
+---
+
 ### 캘린더에서 과거 날짜 패치노트 작성 기능
 
 **src/App.tsx**

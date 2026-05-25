@@ -272,3 +272,16 @@
 - [x] `src/pages/PatchResult.tsx`, `src/pages/CharacterSheet.tsx` — 로컬 `StatConfig` 선언 제거, `types.ts` import로 통일
 - [x] `src/lib/date.ts` — `formatDateLabel` 함수 export 추가
 - [x] `src/pages/PatchResult.tsx`, `src/pages/DailyLog.tsx` — 로컬 `formatDateLabel` 제거, `date.ts` import로 통일
+
+---
+
+### [2026-05-25] 날씨/공기질 API 한국 공공 API로 전환
+
+**완료된 항목:**
+- [x] `src/lib/weather.ts` (신규) — Lambert 격자 좌표 변환, base_time 계산, 날씨/AQI 코드 매핑 로직 분리
+- [x] `api/weather.ts` (신규) — 기상청 초단기실황 API Vercel Serverless Function 프록시 (`KMA_API_KEY`)
+- [x] `api/airkorea.ts` (신규) — 에어코리아 API Vercel Serverless Function 프록시 (`AIRKOREA_API_KEY`)
+- [x] `src/hooks/useWeather.ts` — OpenWeatherMap 호출 제거, `/api/weather`, `/api/airkorea` 내부 프록시 호출로 전환
+- [x] `tsconfig.json` — `api/` 디렉터리 타입 검사 포함
+- [x] `vercel.json` — `/api/*` rewrite 명시적 제외 규칙 추가
+- [x] `VITE_OPENWEATHER_API_KEY` 환경변수 제거 → `KMA_API_KEY`, `AIRKOREA_API_KEY` (서버사이드) 로 대체

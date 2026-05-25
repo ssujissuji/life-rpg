@@ -7,6 +7,21 @@
 ## [Unreleased]
 
 ### Added
+- `src/lib/weather.ts` (신규) — `latlonToGrid` (Lambert 투영법 격자 좌표 변환), `getKmaBaseDateTime` (기상청 base_time 계산), `mapKmaWeather` (기상청 날씨 코드 → 레이블 매핑), `mapKhaiGrade` (에어코리아 통합대기환경지수 등급 매핑)
+- `api/weather.ts` (신규) — 기상청 초단기실황 API(`getUltraSrtNcst`) Vercel Serverless Function 프록시. `KMA_API_KEY` 서버사이드 환경변수 사용
+- `api/airkorea.ts` (신규) — 한국환경공단 에어코리아 API Vercel Serverless Function 프록시. `AIRKOREA_API_KEY` 서버사이드 환경변수 사용
+
+### Changed
+- `src/hooks/useWeather.ts` — OpenWeatherMap API 호출 제거, `/api/weather`, `/api/airkorea` 내부 프록시 호출로 전환
+- `tsconfig.json` — `api/` 디렉터리 타입 검사 포함
+- `vercel.json` — SPA rewrite 규칙에서 `/api/*` 경로 명시적 제외
+
+### Removed
+- `VITE_OPENWEATHER_API_KEY` 환경변수 제거 (클라이언트 노출 방지). `KMA_API_KEY`, `AIRKOREA_API_KEY`로 대체
+
+---
+
+### Added
 - `src/pages/CalendarView.tsx` — 기록 없는 과거/오늘 날짜 클릭 시 "패치노트 작성하기" 버튼 표시. 미래 날짜는 안내 텍스트만 표시
 
 ### Changed
