@@ -1,4 +1,5 @@
 import type { PatchFormData, Stats, Skills, PatchRecord, WeeklyReport, WeeklyVerdict, MonthlyReport, StatChartPoint, DayStat } from '../types'
+import { isHoliday } from './holidays'
 
 export function calcHP(sleep: number, meal: number, isWeekend: boolean): number {
   let hp = 100
@@ -87,7 +88,7 @@ export function calcStats(entry: PatchFormData & { date: string }): Stats {
   const date = new Date(entry.date)
   const day = date.getDay()
   const isMonday = day === 1
-  const isWeekend = day === 0 || day === 6
+  const isWeekend = day === 0 || day === 6 || isHoliday(entry.date)
 
   return {
     hp: calcHP(entry.sleep, entry.meal, isWeekend),

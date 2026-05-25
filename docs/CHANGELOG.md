@@ -7,6 +7,33 @@
 ## [Unreleased]
 
 ### Added
+- `src/hooks/useWeather.ts` — OpenWeatherMap Current Weather + Air Pollution API 훅. 위치 거부 시 서울 좌표 fallback, AbortController 타임아웃 처리
+- `src/lib/holidays.ts` — 2025/2026년 공휴일 정적 Set + `isHoliday(dateStr): boolean`
+- `vercel.json` — SPA rewrites 설정 (모든 경로 → index.html)
+- `src/lib/holidays.test.ts` — vitest 단위 테스트 11개 신규
+- `src/lib/stats.test.ts` — 공휴일 통합 테스트 7개 추가 (전체 157개 통과)
+- `e2e/daily-log.spec.ts` — 날씨 API 키 없을 때 Pill 미표시 케이스 추가
+
+### Fixed
+- `src/store/useStore.ts` — `savePatchEntry`의 `tags: []` 하드코딩 제거 → `getStatusTags` 결과로 올바르게 계산 (주간/월간 리포트 summaryMessage 정상화)
+- `src/pages/PatchResult.tsx` — `getStatusTags` 호출 시 `isHoliday` 누락 수정
+- `src/hooks/useWeather.ts` — 위치 거부 시 `error: true` 제거, 서울 fallback만 적용
+- `src/lib/holidays.ts` — 날짜 오류 수정 (2026-05-24 부처님오신날, 2026-05-25 대체공휴일), 2025년 공휴일 추가
+- `src/pages/PatchResult.tsx` — 캡처 실패 시 Toast 피드백 추가
+- `src/pages/DailyLog.tsx` — Pill 렌더링 IIFE → 조건부 렌더링으로 정리
+- `index.html` — lang="en" → lang="ko"
+
+### Changed
+- `src/types.ts` — `PatchEntry`에 `weather?: string`, `aqi?: string` optional 필드 추가
+- `src/lib/stats.ts` — `calcStats` 내 `isWeekend`에 `isHoliday` 통합 (공휴일 → HP +15, Social +10 보너스)
+- `src/pages/DailyLog.tsx` — `useWeather` 훅 호출, `isHoliday` 호출, 날씨/AQI Pill 배지 렌더링, 저장 시 weather/aqi 포함. Counter 터치타겟 min-w-11 min-h-11 적용
+- `src/pages/PatchResult.tsx` — 결과 카드 내 공유 아이콘 버튼 추가 (html-to-image 캡처 + Web Share API)
+- `src/components/BottomNav.tsx` — safe-area-inset-bottom 인라인 스타일 추가
+- `index.html` — viewport-fit=cover 추가
+
+---
+
+### Added
 - `src/pages/Analysis.tsx` — 주간/월간 탭 전환, 빈 상태 처리, useMemo로 리포트·차트 데이터 계산
 - `src/components/WeeklyReportCard.tsx` — 주간 리포트 카드 (출석 현황, MVP/위험 스탯, 스킬 성장, verdict 배지)
 - `src/components/MonthlyReportCard.tsx` — 월간 리포트 카드 (평균 수면, 총 지출, 최고/최저일, 예측 메시지)

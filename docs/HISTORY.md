@@ -6,6 +6,55 @@
 
 ## 2026-05-25
 
+### Phase 4 — 날씨/공휴일/공유/모바일 완성도
+
+**신규 파일**
+- `src/hooks/useWeather.ts` — OpenWeatherMap Current Weather + Air Pollution API 훅. Geolocation API로 현재 위치 취득, 거부 시 서울 좌표(37.5665, 126.9780)로 fallback. AbortController로 8초 타임아웃 처리. weatherLabel/aqiLabel 반환
+- `src/lib/holidays.ts` — 2025/2026년 공휴일 정적 Set + `isHoliday(dateStr: string): boolean`
+- `vercel.json` — SPA rewrites 설정 (`/*` → `/index.html`)
+
+**src/types.ts**
+- `PatchEntry`에 `weather?: string`, `aqi?: string` optional 필드 추가
+
+**src/lib/stats.ts**
+- `calcStats` 내 `isWeekend` 판단에 `isHoliday` 통합. 공휴일을 주말과 동일하게 처리 (HP +15, Social +10 보너스)
+
+**src/store/useStore.ts**
+- `savePatchEntry`의 `tags: []` 하드코딩 제거 → `getStatusTags` 결과로 올바르게 계산. 이 버그로 주간/월간 리포트 summaryMessage가 태그 없는 상태로 계산되던 문제 해소 (BLOCK-1)
+
+**src/pages/DailyLog.tsx**
+- `useWeather` 훅 호출, `isHoliday` 호출, 날씨/AQI Pill 배지 조건부 렌더링 추가 (IIFE → 조건부 렌더링으로 정리)
+- 저장 시 weather/aqi 포함
+- Counter 컴포넌트 터치타겟 min-w-11 min-h-11 적용
+
+**src/pages/PatchResult.tsx**
+- 결과 카드 내 공유 아이콘 버튼 추가. html-to-image로 카드 캡처 후 Web Share API로 공유. 캡처 실패 시 Toast 피드백
+- `getStatusTags` 호출 시 `isHoliday` 누락 수정 (BLOCK-2)
+
+**src/components/BottomNav.tsx**
+- safe-area-inset-bottom 인라인 스타일 추가 (아이폰 홈 인디케이터 영역 침범 방지)
+
+**index.html**
+- `viewport-fit=cover` 추가 (safe-area 사용 전제)
+- `lang="en"` → `lang="ko"` 변경
+
+**리뷰 수정사항 반영**
+- BLOCK-1: `useStore.ts` — `tags: []` → `getStatusTags` 계산으로 수정
+- BLOCK-2: `PatchResult.tsx` — `getStatusTags` 호출 시 `isHoliday` 누락 수정
+- BLOCK-3: `useWeather.ts` — 위치 거부 시 `error: true` 제거, 서울 fallback만 적용
+- WARN-4: `holidays.ts` — 날짜 오류 수정 (2026-05-24 부처님오신날, 2026-05-25 대체공휴일), 2025년 공휴일 추가
+- WARN-5: `PatchResult.tsx` — 캡처 실패 시 Toast 피드백 추가
+- WARN-6: `DailyLog.tsx` — Pill 렌더링 IIFE → 조건부 렌더링으로 정리
+- SUGGEST-7: `index.html` — lang="ko" 변경
+- SUGGEST-8: `PatchResult.tsx` — handleShare deps에서 cardRef 제거
+
+**테스트**
+- `src/lib/holidays.test.ts` 신규 — vitest 단위 테스트 11개 (isHoliday 경계 케이스 포함)
+- `src/lib/stats.test.ts` — 공휴일 통합 테스트 7개 추가 (전체 157개 통과)
+- `e2e/daily-log.spec.ts` — 날씨 API 키 없을 때 Pill 미표시 케이스 추가
+
+---
+
 ### Phase 3 — 분석 화면 구현
 
 **Analysis.tsx (신규 구현, Phase 3 스텁 교체)**

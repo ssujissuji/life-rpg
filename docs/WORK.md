@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 3 완료 — Phase 4 대기 중
+## 현재 Phase: Phase 4 완료
 
 ---
 
@@ -189,7 +189,28 @@
 - [x] `e2e/analysis.spec.ts` — e2e 테스트 13개 추가
 
 ### Phase 4
-- 날씨 API (OpenWeatherMap), 미세먼지 API (에어코리아), 공휴일 API (공공데이터포털)
-- 카드 이미지 저장/공유 기능
-- 반응형 모바일 UI 점검
-- Vercel 배포
+- [x] 날씨 API 연동 (OpenWeatherMap Current Weather)
+- [x] 미세먼지 API 연동 (OpenWeatherMap Air Pollution, 에어코리아 대신)
+- [x] 공휴일 정적 데이터 (정적 배열, 공공데이터포털 API 대신)
+- [x] 카드 이미지 저장/공유 (html-to-image + Web Share API)
+- [x] 반응형 모바일 UI 점검 (safe-area, 터치 타겟)
+- [x] Vercel 배포 (vercel.json SPA rewrites 포함)
+
+---
+
+### [2026-05-25] Phase 4 — 완성도
+
+**완료된 항목:**
+- [x] `src/hooks/useWeather.ts` — 날씨/미세먼지 훅 구현 (위치 거부 시 서울 fallback, AbortController 타임아웃)
+- [x] `src/lib/holidays.ts` — 2025/2026년 공휴일 정적 Set + isHoliday(dateStr): boolean
+- [x] `src/types.ts` — PatchEntry weather/aqi optional 필드 추가
+- [x] `src/lib/stats.ts` — isWeekend에 isHoliday 통합 (공휴일 → HP +15, Social +10 보너스)
+- [x] `src/store/useStore.ts` — savePatchEntry tags: [] 하드코딩 → getStatusTags 결과로 수정
+- [x] `src/pages/DailyLog.tsx` — useWeather 훅 호출, isHoliday 호출, Pill 배지 렌더링, 저장 시 weather/aqi 포함, Counter 터치타겟 min-w-11 min-h-11
+- [x] `src/pages/PatchResult.tsx` — 결과 카드 내 공유 아이콘 버튼 추가 (html-to-image + Web Share API), 캡처 실패 시 Toast 피드백, isHoliday 통합
+- [x] `src/components/BottomNav.tsx` — safe-area-inset-bottom 인라인 스타일 추가
+- [x] `index.html` — viewport-fit=cover 추가, lang="ko" 변경
+- [x] `vercel.json` — SPA rewrites 설정
+- [x] `src/lib/holidays.test.ts` — vitest 단위 테스트 11개 신규
+- [x] `src/lib/stats.test.ts` — 공휴일 통합 테스트 7개 추가 (전체 157개 통과)
+- [x] `e2e/daily-log.spec.ts` — 날씨 API 키 없을 때 Pill 미표시 케이스 추가

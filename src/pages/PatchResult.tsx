@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { toPng } from 'html-to-image'
 import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import Toast from '../components/Toast'
 import { getStatusTags, formatSpend } from '../lib/stats'
 import { loadMaxedSkills, saveMaxedSkills } from '../lib/storage'
+import { isHoliday } from '../lib/holidays'
 import type { Skills, Stats } from '../types'
 
 interface StatConfig {
@@ -60,6 +62,32 @@ export default function PatchResult() {
 
   const fromSave = !!(location.state as { fromSave?: boolean } | null)?.fromSave
 
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [isCapturing, setIsCapturing] = useState(false)
+
+  const handleShare = useCallback(async () => {
+    if (!cardRef.current || isCapturing) return
+    setIsCapturing(true)
+    try {
+      const dataUrl = await toPng(cardRef.current, { backgroundColor: '#12121a' })
+      const blob = await (await fetch(dataUrl)).blob()
+      const file = new File([blob], `patch-${date}.png`, { type: 'image/png' })
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: '오늘의 현생 패치노트' })
+      } else {
+        const a = document.createElement('a')
+        a.href = dataUrl
+        a.download = `patch-${date}.png`
+        a.click()
+      }
+    } catch {
+      setToastQueue(prev => [...prev, { message: '🖼️ 저장 실패', subMessage: '다시 시도해주세요.' }])
+    } finally {
+      setIsCapturing(false)
+    }
+  }, [isCapturing, date])
+
   const newlyMaxed = useMemo<(keyof Skills)[]>(() => {
     if (!fromSave) return []
     const prevMaxed = new Set(loadMaxedSkills())
@@ -100,13 +128,15 @@ export default function PatchResult() {
     )
   }
 
+  const d = new Date(date + 'T00:00:00')
+  const day = d.getDay()
   const tags = getStatusTags({
     sleep: patch.sleep,
     cafeCount: patch.cafe,
     spend: patch.spend,
     deliveryCount: patch.delivery,
-    isMonday: new Date(date + 'T00:00:00').getDay() === 1,
-    isWeekend: [0, 6].includes(new Date(date + 'T00:00:00').getDay()),
+    isMonday: day === 1,
+    isWeekend: day === 0 || day === 6 || isHoliday(date),
   })
 
   const encouragement =
@@ -133,13 +163,23 @@ export default function PatchResult() {
       </div>
 
       {/* 결과 카드 */}
-      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
+      <div ref={cardRef} className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-white font-mono font-bold text-sm">
-              📋 {formatDateLabel(date)}
-            </span>
-            <span className="text-xl">{patch.emoji}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-white font-mono font-bold text-sm">
+                📋 {formatDateLabel(date)}
+              </span>
+              <span className="text-xl">{patch.emoji}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={isCapturing}
+              className="text-text-sub hover:text-purple-light transition-colors text-base disabled:opacity-50"
+            >
+              📤
+            </button>
           </div>
           <div className="text-text-sub text-xs font-mono">상태: {statusSummary}</div>
         </div>
