@@ -7,10 +7,20 @@
 ## [Unreleased]
 
 ### Added
+- `src/pages/Analysis.tsx` — 주간/월간 탭 전환, 빈 상태 처리, useMemo로 리포트·차트 데이터 계산
+- `src/components/WeeklyReportCard.tsx` — 주간 리포트 카드 (출석 현황, MVP/위험 스탯, 스킬 성장, verdict 배지)
+- `src/components/MonthlyReportCard.tsx` — 월간 리포트 카드 (평균 수면, 총 지출, 최고/최저일, 예측 메시지)
+- `src/components/StatTrendChart.tsx` — Recharts LineChart (hp/focus/wallet 트렌드), `STAT_TREND_COLORS` export
+- `src/components/SkillBarChart.tsx` — Recharts BarChart (4스킬 레벨)
+- `src/components/AnalysisTabBar.tsx` — 주간/월간 탭 컴포넌트
+- `src/lib/date.ts` — `today()`, `getWeekDateRange()` 신규 (CharacterSheet·DailyLog 중복 제거)
+- `src/lib/stats.ts` — `getWeekBounds`, `getMonthBounds`, `calcWeeklyReport`, `calcMonthlyReport`, `calcStatTrend` 추가
+- `src/lib/analysis.test.ts` — vitest 단위 테스트 58개 추가
+- `e2e/analysis.spec.ts` — e2e 테스트 13개 추가
 - `PatchResult` 페이지 — DailyLog 저장/수정 후 진입 시 특수스킬 만렙 달성 토스트 이펙트
   - 트리거: `DailyLog`에서 저장 후 navigate 시 `{ state: { fromSave: true } }` 전달, `PatchResult`에서 `useLocation`으로 확인. 캘린더 등 직접 조회 시 미발동
   - 만렙(Lv.MAX) 달성한 스킬별 순차 토스트 표시 (스킬명 + "만렙 달성!" + 특수 칭호 언락 메시지)
-  - 스킬 데이터는 `useStore`의 `skills` 직접 참조 (`loadAllPatches` 재호출 없음)
+  - 스킬 데이터는 `useStore`의 `skills` 구독 방식으로 참조
 - `src/components/Toast.tsx` — 공용 토스트 컴포넌트 신설
 - vitest 단위 테스트 도입
   - `package.json`, `vite.config.ts` — vitest 설정 추가 (environment: jsdom)
@@ -19,12 +29,19 @@
 - `e2e/patch-result.spec.ts` — fromSave 토스트 표시/미표시/큐 순차 케이스 3개 추가 (총 38개)
 
 ### Fixed
+- `calcWeeklyReport` — mvpStat와 dangerStat이 같은 스탯일 경우 `finalDangerStat = null`로 처리 (BLOCK-1)
+- `calcWeeklyReport` — skillsAfter 범위를 weekEntries만으로 제한 (BLOCK-2)
+- `calcMonthlyReport` — dayStats 불필요한 sort 제거 (WARN-4)
+- `StatTrendChart.tsx` — 인라인 hex 컬러를 `STAT_TREND_COLORS` import로 통일 (WARN-5)
+- `PatchResult.tsx` — `useStore.getState()` → `useStore((s) => s.skills)` 구독 방식으로 변경 (WARN-2), skills를 useMemo deps에 추가 (WARN-3)
+- `getWeekDateRange` 사용으로 날짜 범위 생성 일관성 확보 (WARN-1)
 - `Toast.tsx` `onClose` 콜백 무한루프 버그 — `useRef` 패턴으로 안정화
 - `calcWallet` spend=0 fallthrough 버그 — spend=0일 때 `else if (spend < 30000)` 분기로 진입해 wallet -20 패널티가 적용되던 문제. `spend <= 0`이면 spend 패널티 없음 (wallet 100 유지)
 - `storage.ts` `loadPatch` / `loadAllPatches` — `JSON.parse` try-catch 추가. 손상된 localStorage 데이터로 인한 앱 전체 크래시 방지
 
 ### Changed
-- `PatchResult.tsx` — `fromSave` 플래그 방식으로 만렙 체크 진입점 단일화, `useStore.skills` 직접 사용, `SKILL_META` 타입 보강, spread 패턴 정리
+- `src/pages/Analysis.tsx` — Phase 3 예약 스텁에서 실제 분석 화면으로 교체
+- `PatchResult.tsx` — `fromSave` 플래그 방식으로 만렙 체크 진입점 단일화, `useStore((s) => s.skills)` 구독 사용, `SKILL_META` 타입 보강, skills useMemo deps 추가
 - `PatchResult.tsx` — `useState` 초기화 함수에서 `saveMaxedSkills` 제거, `useMemo`(순수 계산) + `useEffect`(localStorage 쓰기)로 분리
 - `DailyLog.tsx` — 저장 후 navigate 시 `{ state: { fromSave: true } }` 추가
 - `types.ts` — `SkillConfig` 인터페이스 추가, `key` 타입을 `keyof Skills`로 지정. `SkillModal.tsx`, `CharacterSheet.tsx` import 경로 통일

@@ -6,6 +6,42 @@
 
 ## 2026-05-25
 
+### Phase 3 — 분석 화면 구현
+
+**Analysis.tsx (신규 구현, Phase 3 스텁 교체)**
+- 주간/월간 탭 전환 UI 구현
+- 데이터 없을 때 빈 상태 메시지 처리
+- useMemo로 리포트·차트 데이터 계산 (탭 전환 시 불필요한 재계산 방지)
+
+**신규 컴포넌트**
+- `src/components/AnalysisTabBar.tsx` — 주간/월간 탭 컴포넌트
+- `src/components/WeeklyReportCard.tsx` — 주간 리포트 카드 (출석 현황, MVP/위험 스탯, 스킬 성장, verdict 배지)
+- `src/components/MonthlyReportCard.tsx` — 월간 리포트 카드 (평균 수면, 총 지출, 최고/최저일, 예측 메시지)
+- `src/components/StatTrendChart.tsx` — Recharts LineChart (hp/focus/wallet 트렌드), `STAT_TREND_COLORS` export
+- `src/components/SkillBarChart.tsx` — Recharts BarChart (4스킬 레벨)
+
+**src/lib/date.ts (신규)**
+- `today()`, `getWeekDateRange()` 추가
+- CharacterSheet·DailyLog에 중복 정의되어 있던 날짜 유틸을 공용 모듈로 분리
+
+**src/lib/stats.ts**
+- `getWeekBounds`, `getMonthBounds`, `calcWeeklyReport`, `calcMonthlyReport`, `calcStatTrend` 추가
+
+**리뷰 수정사항 반영**
+- BLOCK-1: `calcWeeklyReport` — mvpStat === dangerStat인 경우 `finalDangerStat = null`로 처리해 동일 스탯이 MVP/위험 양쪽에 표시되는 문제 해소
+- BLOCK-2: `calcWeeklyReport` — skillsAfter 범위를 weekEntries로 제한 (전체 기록 기준으로 계산되던 스킬 성장이 해당 주 내 기록만 반영하도록 수정)
+- WARN-1: `getWeekDateRange` 사용으로 날짜 범위 생성 일관성 확보
+- WARN-2: `PatchResult.tsx` — `useStore.getState()` → `useStore((s) => s.skills)` 구독 방식으로 변경
+- WARN-3: `PatchResult.tsx` — skills를 useMemo deps에 추가
+- WARN-4: `calcMonthlyReport` — dayStats 불필요한 sort 제거
+- WARN-5: `StatTrendChart.tsx` — 인라인 hex 컬러를 `STAT_TREND_COLORS` import로 통일
+
+**테스트**
+- `src/lib/analysis.test.ts` 신규 — vitest 단위 테스트 58개 (calcWeeklyReport/calcMonthlyReport/calcStatTrend 경계 케이스 포함)
+- `e2e/analysis.spec.ts` 신규 — e2e 테스트 13개 (탭 전환, 빈 상태, 차트 렌더링 확인)
+
+---
+
 ### Phase 2 후속 — 리뷰 수정 + 테스트 추가 + calcWallet 버그 수정
 
 **storage.ts**

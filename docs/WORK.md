@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 2 — 특수스킬 상세 모달 대기 중
+## 현재 Phase: Phase 3 완료 — Phase 4 대기 중
 
 ---
 
@@ -145,6 +145,10 @@
 - [x] 특수스킬 만렙 달성 토스트 이펙트
 - [x] 특수스킬 상세 모달
 
+### Phase 3
+- [x] 주간/월간 리포트 화면
+- [x] Recharts 스탯 그래프
+
 ### [2026-05-25] Phase 2 후속 — 리뷰 수정사항 + 테스트 추가
 
 **완료된 항목:**
@@ -160,11 +164,29 @@
 
 **미완료 (다음으로 이월):**
 - [ ] `PatchResult.tsx` — loadMaxedSkills/saveMaxedSkills 직접 호출 → useStore 액션으로 감싸기
-- [ ] `CharacterSheet.tsx` — today() 함수 중복 정의 (DailyLog.tsx에도 동일 함수 존재), 공용 유틸로 분리
 
-### Phase 3
-- 주간/월간 리포트 화면
-- Recharts 스탯 그래프
+---
+
+### [2026-05-25] Phase 3 — 분석 화면 구현
+
+**완료된 항목:**
+- [x] `src/pages/Analysis.tsx` — 주간/월간 탭 전환, 빈 상태 처리, useMemo로 리포트·차트 데이터 계산
+- [x] `src/components/WeeklyReportCard.tsx` — 주간 리포트 카드 (출석 현황, MVP/위험 스탯, 스킬 성장, verdict 배지)
+- [x] `src/components/MonthlyReportCard.tsx` — 월간 리포트 카드 (평균 수면, 총 지출, 최고/최저일, 예측 메시지)
+- [x] `src/components/StatTrendChart.tsx` — Recharts LineChart (hp/focus/wallet 트렌드), `STAT_TREND_COLORS` export
+- [x] `src/components/SkillBarChart.tsx` — Recharts BarChart (4스킬 레벨)
+- [x] `src/components/AnalysisTabBar.tsx` — 주간/월간 탭 컴포넌트
+- [x] `src/lib/date.ts` — `today()`, `getWeekDateRange()` 신규 (CharacterSheet·DailyLog 중복 제거)
+- [x] `src/lib/stats.ts` — `getWeekBounds`, `getMonthBounds`, `calcWeeklyReport`, `calcMonthlyReport`, `calcStatTrend` 추가
+- [x] BLOCK-1: `calcWeeklyReport` — mvpStat === dangerStat 케이스 → `finalDangerStat = null` 처리
+- [x] BLOCK-2: `calcWeeklyReport` — skillsAfter 범위를 weekEntries만으로 제한
+- [x] WARN-1: `getWeekDateRange` 사용으로 날짜 범위 생성 일관성 확보
+- [x] WARN-2: `PatchResult.tsx` — `useStore.getState()` → `useStore((s) => s.skills)` 구독 방식으로 변경
+- [x] WARN-3: `PatchResult.tsx` — skills를 useMemo deps에 추가
+- [x] WARN-4: `calcMonthlyReport` — dayStats 불필요한 sort 제거
+- [x] WARN-5: `StatTrendChart.tsx` — 인라인 hex → `STAT_TREND_COLORS` import로 통일
+- [x] `src/lib/analysis.test.ts` — vitest 단위 테스트 58개 추가
+- [x] `e2e/analysis.spec.ts` — e2e 테스트 13개 추가
 
 ### Phase 4
 - 날씨 API (OpenWeatherMap), 미세먼지 API (에어코리아), 공휴일 API (공공데이터포털)
