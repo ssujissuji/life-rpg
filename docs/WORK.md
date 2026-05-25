@@ -145,17 +145,21 @@
 - [x] 특수스킬 만렙 달성 토스트 이펙트
 - [x] 특수스킬 상세 모달
 
-### Phase 2 후속 — 리뷰 수정사항
+### [2026-05-25] Phase 2 후속 — 리뷰 수정사항 + 테스트 추가
 
-**[BLOCK] 수정 필수**
-- [ ] `PatchResult.tsx` — useState 초기화 함수 내 saveMaxedSkills(localStorage 쓰기) 제거, useEffect로 분리
-- [ ] `storage.ts` — loadPatch, loadAllPatches의 JSON.parse에 try-catch 추가
+**완료된 항목:**
+- [x] `storage.ts` — `loadPatch`, `loadAllPatches`의 `JSON.parse`에 try-catch 추가 (손상 데이터로 인한 앱 크래시 방지)
+- [x] `PatchResult.tsx` — useState 초기화 함수 내 `saveMaxedSkills`(localStorage 쓰기) 제거, `useMemo`(순수 계산) + `useEffect`(쓰기) 분리
+- [x] `CharacterSheet.tsx` — `getStatusTags` 호출 시 `new Date().getDay()` → `new Date(todayPatch.date + 'T00:00:00').getDay()`로 변경
+- [x] `types.ts` — `SkillConfig` 인터페이스 추가, `key` 타입 `keyof Skills`로 지정. `SkillModal.tsx`, `CharacterSheet.tsx` import 경로 통일
+- [x] `stats.ts` — `formatSpend` 조건식 `!amount || amount === 0` → `amount <= 0` 정리
+- [x] `src/lib/stats.test.ts` — vitest 단위 테스트 67개 추가 (calcHP/Focus/Social/Wallet/Outdoor/SleepQ/getStatusTags/formatSpend/calcStats)
+- [x] `src/lib/storage.test.ts` — vitest 단위 테스트 14개 추가 (loadPatch/loadAllPatches 손상 JSON 방어 포함)
+- [x] `e2e/patch-result.spec.ts` — fromSave 토스트 표시/미표시/큐 순차 케이스 3개 추가 (총 38개)
+- [x] BUG-05 수정 — `calcWallet` spend=0일 때 `-20` 패널티가 적용되던 버그. `spend <= 0`이면 spend 패널티 없음 (wallet 100 유지)
 
-**[WARN] 수정 권장**
-- [ ] `CharacterSheet.tsx:76` — getStatusTags 호출 시 `new Date().getDay()` → `new Date(todayPatch.date + 'T00:00:00').getDay()`로 변경
-- [ ] `SkillModal.tsx` — SkillConfig 타입을 src/types.ts로 이동, key 타입을 `keyof Skills`로 변경
+**미완료 (다음으로 이월):**
 - [ ] `PatchResult.tsx` — loadMaxedSkills/saveMaxedSkills 직접 호출 → useStore 액션으로 감싸기
-- [ ] `stats.ts:101` — `!amount || amount === 0` → `amount <= 0`으로 정리
 - [ ] `CharacterSheet.tsx` — today() 함수 중복 정의 (DailyLog.tsx에도 동일 함수 존재), 공용 유틸로 분리
 
 ### Phase 3

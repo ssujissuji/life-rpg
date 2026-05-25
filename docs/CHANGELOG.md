@@ -12,13 +12,24 @@
   - 만렙(Lv.MAX) 달성한 스킬별 순차 토스트 표시 (스킬명 + "만렙 달성!" + 특수 칭호 언락 메시지)
   - 스킬 데이터는 `useStore`의 `skills` 직접 참조 (`loadAllPatches` 재호출 없음)
 - `src/components/Toast.tsx` — 공용 토스트 컴포넌트 신설
+- vitest 단위 테스트 도입
+  - `package.json`, `vite.config.ts` — vitest 설정 추가 (environment: jsdom)
+  - `src/lib/stats.test.ts` — calcHP/Focus/Social/Wallet/Outdoor/SleepQ/getStatusTags/formatSpend/calcStats 67개 케이스
+  - `src/lib/storage.test.ts` — loadPatch/loadAllPatches 손상 JSON 방어 포함 14개 케이스
+- `e2e/patch-result.spec.ts` — fromSave 토스트 표시/미표시/큐 순차 케이스 3개 추가 (총 38개)
 
 ### Fixed
 - `Toast.tsx` `onClose` 콜백 무한루프 버그 — `useRef` 패턴으로 안정화
+- `calcWallet` spend=0 fallthrough 버그 — spend=0일 때 `else if (spend < 30000)` 분기로 진입해 wallet -20 패널티가 적용되던 문제. `spend <= 0`이면 spend 패널티 없음 (wallet 100 유지)
+- `storage.ts` `loadPatch` / `loadAllPatches` — `JSON.parse` try-catch 추가. 손상된 localStorage 데이터로 인한 앱 전체 크래시 방지
 
 ### Changed
 - `PatchResult.tsx` — `fromSave` 플래그 방식으로 만렙 체크 진입점 단일화, `useStore.skills` 직접 사용, `SKILL_META` 타입 보강, spread 패턴 정리
+- `PatchResult.tsx` — `useState` 초기화 함수에서 `saveMaxedSkills` 제거, `useMemo`(순수 계산) + `useEffect`(localStorage 쓰기)로 분리
 - `DailyLog.tsx` — 저장 후 navigate 시 `{ state: { fromSave: true } }` 추가
+- `types.ts` — `SkillConfig` 인터페이스 추가, `key` 타입을 `keyof Skills`로 지정. `SkillModal.tsx`, `CharacterSheet.tsx` import 경로 통일
+- `stats.ts` — `formatSpend` 조건식 `!amount || amount === 0` → `amount <= 0` 정리
+- `CharacterSheet.tsx` — `getStatusTags` 호출 시 `new Date().getDay()` → `new Date(todayPatch.date + 'T00:00:00').getDay()` 변경
 
 ---
 
