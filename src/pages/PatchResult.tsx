@@ -4,16 +4,9 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import Toast from '../components/Toast'
-import { getStatusTags, formatSpend } from '../lib/stats'
-import { loadMaxedSkills, saveMaxedSkills } from '../lib/storage'
-import { isHoliday } from '../lib/holidays'
-import type { Skills, Stats } from '../types'
-
-interface StatConfig {
-  icon: string
-  label: string
-  key: keyof Stats
-}
+import { formatSpend } from '../lib/stats'
+import { formatDateLabel } from '../lib/date'
+import type { Skills, StatConfig } from '../types'
 
 const STATS: StatConfig[] = [
   { icon: '❤️', label: '체력', key: 'hp' },
@@ -47,17 +40,11 @@ const SKILL_META: Record<keyof Skills, { icon: string; label: string; title: str
   sleep: { icon: '🛌', label: '숙면력', title: '칭호 언락: 꿀잠의 전설' },
 }
 
-function formatDateLabel(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
-  return `v${dateStr.replace(/-/g, '.')} (${days[d.getDay()]})`
-}
-
 export default function PatchResult() {
   const { date } = useParams<{ date: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const { getPatch } = useStore()
+  const { getPatch, getMaxedSkills, markSkillsMaxed } = useStore()
   const skills = useStore((s) => s.skills)
 
   const fromSave = !!(location.state as { fromSave?: boolean } | null)?.fromSave
@@ -90,11 +77,11 @@ export default function PatchResult() {
 
   const newlyMaxed = useMemo<(keyof Skills)[]>(() => {
     if (!fromSave) return []
-    const prevMaxed = new Set(loadMaxedSkills())
+    const prevMaxed = new Set(getMaxedSkills())
     return (Object.keys(SKILL_META) as (keyof Skills)[]).filter(
       (key) => skills[key].level >= 10 && !prevMaxed.has(key),
     )
-  }, [fromSave, skills])
+  }, [fromSave, skills, getMaxedSkills])
 
   const [toastQueue, setToastQueue] = useState<SkillToast[]>(() =>
     newlyMaxed.map((key) => {
@@ -105,9 +92,8 @@ export default function PatchResult() {
 
   useEffect(() => {
     if (newlyMaxed.length === 0) return
-    const prevMaxed = loadMaxedSkills()
-    saveMaxedSkills([...new Set([...prevMaxed, ...newlyMaxed])])
-  }, [newlyMaxed])
+    markSkillsMaxed(newlyMaxed)
+  }, [newlyMaxed, markSkillsMaxed])
 
   const currentToast = toastQueue[0] ?? null
   const handleToastClose = useCallback(() => setToastQueue((prev) => prev.slice(1)), [])
@@ -128,16 +114,7 @@ export default function PatchResult() {
     )
   }
 
-  const d = new Date(date + 'T00:00:00')
-  const day = d.getDay()
-  const tags = getStatusTags({
-    sleep: patch.sleep,
-    cafeCount: patch.cafe,
-    spend: patch.spend,
-    deliveryCount: patch.delivery,
-    isMonday: day === 1,
-    isWeekend: day === 0 || day === 6 || isHoliday(date),
-  })
+  const tags = patch.tags
 
   const encouragement =
     ENCOURAGEMENTS[Math.floor(new Date(date).getDate() % ENCOURAGEMENTS.length)]
@@ -244,7 +221,7 @@ export default function PatchResult() {
       </div>
 
       <button
-        onClick={() => navigate('/daily')}
+        onClick={() => navigate(`/daily/${date}`)}
         className="w-full border border-border text-purple-light font-mono text-sm py-3 rounded-lg hover:bg-bg-card transition-colors"
       >
         수정하기

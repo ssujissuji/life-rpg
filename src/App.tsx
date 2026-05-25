@@ -14,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<CharacterSheet />} />
           <Route path="/daily" element={<DailyLog />} />
+          <Route path="/daily/:date" element={<DailyLog />} />
           <Route path="/result/:date" element={<PatchResult />} />
           <Route path="/calendar" element={<CalendarView />} />
           <Route path="/analysis" element={<Analysis />} />
