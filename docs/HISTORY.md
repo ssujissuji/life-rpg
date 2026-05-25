@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-05-25
+
+### Phase 2 — 만렙 달성 토스트 이펙트
+
+- `src/lib/storage.ts` — `loadMaxedSkills()`, `saveMaxedSkills()` 추가. localStorage `skill_maxed` 키로 만렙 달성 기록을 저장해 재트리거 방지
+- `src/components/Toast.tsx` — 공용 토스트 컴포넌트 신설. `onClose` 콜백을 `useRef`로 관리해 무한루프 버그 방지
+- `src/pages/DailyLog.tsx` — 저장 후 `navigate(`/result/${date}`, { state: { fromSave: true } })` 추가. 결과 페이지에 저장 진입 여부를 전달
+- `src/pages/PatchResult.tsx` — 만렙 감지 + 토스트 큐 로직 추가. `useLocation`의 `fromSave` 플래그가 있을 때만 만렙 체크 실행 (캘린더 등 직접 조회 시 미발동). 스킬 데이터는 `useStore.skills` 직접 참조. `SKILL_META` 타입을 `Record<keyof Skills, ...>`로 보강
+
+---
+
 ## 2026-05-17
 
 ### 공통 CSS 토큰 전체 적용

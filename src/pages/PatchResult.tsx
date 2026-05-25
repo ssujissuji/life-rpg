@@ -1,8 +1,11 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
-import { getStatusTags } from '../lib/stats'
-import type { Stats } from '../types'
+import Toast from '../components/Toast'
+import { getStatusTags, formatSpend } from '../lib/stats'
+import { loadMaxedSkills, saveMaxedSkills } from '../lib/storage'
+import type { Skills, Stats } from '../types'
 
 interface StatConfig {
   icon: string
@@ -30,14 +33,16 @@ const ENCOURAGEMENTS = [
 
 const MEAL_LABELS = ['0끼', '1끼', '2끼', '3끼', '3끼+']
 
-function formatSpend(amount: number): string {
-  if (!amount || amount === 0) return '0원'
-  const man = Math.floor(amount / 10000)
-  const rest = amount % 10000
-  const chun = Math.floor(rest / 1000)
-  if (man > 0 && chun > 0) return `${man}만 ${chun}천원`
-  if (man > 0) return `${man}만원`
-  return `${chun}천원`
+interface SkillToast {
+  message: string
+  subMessage: string
+}
+
+const SKILL_META: Record<keyof Skills, { icon: string; label: string; title: string }> = {
+  pig: { icon: '🐷', label: '돼지력', title: '칭호 언락: 진정한 돼지왕' },
+  poor: { icon: '🪙', label: '거지력', title: '칭호 언락: 절약의 신' },
+  cafe: { icon: '☕', label: '각성력', title: '칭호 언락: 카페인 마스터' },
+  sleep: { icon: '🛌', label: '숙면력', title: '칭호 언락: 꿀잠의 전설' },
 }
 
 function formatDateLabel(dateStr: string): string {
@@ -49,7 +54,30 @@ function formatDateLabel(dateStr: string): string {
 export default function PatchResult() {
   const { date } = useParams<{ date: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { getPatch } = useStore()
+
+  const [toastQueue, setToastQueue] = useState<SkillToast[]>(() => {
+    if (!(location.state as { fromSave?: boolean } | null)?.fromSave) return []
+    const { skills } = useStore.getState()
+    const prevMaxed = new Set(loadMaxedSkills())
+    const newlyMaxed = (Object.keys(SKILL_META) as (keyof Skills)[]).filter(
+      (key) => skills[key].level >= 10 && !prevMaxed.has(key),
+    )
+    if (newlyMaxed.length > 0) {
+      saveMaxedSkills([...prevMaxed, ...newlyMaxed])
+    }
+    return newlyMaxed.map((key) => {
+      const meta = SKILL_META[key]
+      return {
+        message: `${meta.icon} ${meta.label} — 만렙 달성!`,
+        subMessage: meta.title,
+      }
+    })
+  })
+
+  const currentToast = toastQueue[0] ?? null
+  const handleToastClose = useCallback(() => setToastQueue((prev) => prev.slice(1)), [])
 
   const patch = date ? getPatch(date) : null
 
@@ -83,6 +111,13 @@ export default function PatchResult() {
 
   return (
     <div className="px-4 pt-6 pb-28 space-y-4">
+      {currentToast && (
+        <Toast
+          message={currentToast.message}
+          subMessage={currentToast.subMessage}
+          onClose={handleToastClose}
+        />
+      )}
       <div className="space-y-1">
         <button
           onClick={() => navigate('/')}

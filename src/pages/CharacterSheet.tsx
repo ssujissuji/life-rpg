@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
+import SkillModal, { type SkillConfig } from '../components/SkillModal'
 import { getStatusTags } from '../lib/stats'
 import type { Stats } from '../types'
 
@@ -8,14 +10,6 @@ interface StatConfig {
   icon: string
   label: string
   key: keyof Stats
-}
-
-interface SkillConfig {
-  icon: string
-  label: string
-  key: 'pig' | 'poor' | 'cafe' | 'sleep'
-  max: number
-  unit: string
 }
 
 const STATS: StatConfig[] = [
@@ -28,10 +22,10 @@ const STATS: StatConfig[] = [
 ]
 
 const SKILLS: SkillConfig[] = [
-  { icon: '🐷', label: '돼지력', key: 'pig', max: 50, unit: '회' },
-  { icon: '🪙', label: '거지력', key: 'poor', max: 30, unit: '일' },
-  { icon: '☕', label: '각성력', key: 'cafe', max: 100, unit: '회' },
-  { icon: '🛌', label: '숙면력', key: 'sleep', max: 30, unit: '회' },
+  { icon: '🐷', label: '돼지력', key: 'pig', max: 50, unit: '회', description: '먹는 것만이 낙', condition: '배달/카페 소비 누적 50회' },
+  { icon: '🪙', label: '거지력', key: 'poor', max: 30, unit: '일', description: '절약의 신', condition: '소비 0원 기록 30일 누적' },
+  { icon: '☕', label: '각성력', key: 'cafe', max: 100, unit: '회', description: '커피 없이 못 삼', condition: '카페 방문 100회 누적' },
+  { icon: '🛌', label: '숙면력', key: 'sleep', max: 30, unit: '회', description: '꿀잠 마스터', condition: '8시간 이상 수면 30회 누적' },
 ]
 
 function today(): string {
@@ -54,6 +48,7 @@ function getLevelProgress(birthYear: number): number {
 export default function CharacterSheet() {
   const navigate = useNavigate()
   const { character, patches, skills } = useStore()
+  const [selectedSkill, setSelectedSkill] = useState<SkillConfig | null>(null)
 
   const todayPatch = patches[today()]
 
@@ -166,31 +161,49 @@ export default function CharacterSheet() {
             const pct = Math.min(data.count / sk.max, 1)
             const filled = Math.round(pct * 10)
             const toMax = Math.max(0, sk.max - data.count)
+            const isMaxed = data.level >= 10
+            const isNearMax = !isMaxed && pct >= 0.9
             return (
-              <div key={sk.key} className="space-y-1">
+              <button
+                key={sk.key}
+                className="w-full text-left space-y-1 -mx-1 px-1 py-1 rounded-lg hover:bg-bg-input/50 transition-colors cursor-pointer"
+                onClick={() => setSelectedSkill(sk)}
+              >
                 <div className="flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-1.5">
                     <span>{sk.icon}</span>
-                    <span className="text-purple-light">{sk.label}</span>
+                    <span className={isMaxed ? 'text-success' : 'text-purple-light'}>{sk.label}</span>
                     <span className="text-white">Lv.{data.level}</span>
                   </div>
-                  <span className="text-text-sub">
-                    {toMax > 0 ? `만렙까지 ${toMax}${sk.unit}` : '🎉 만렙!'}
-                  </span>
+                  {isMaxed ? (
+                    <span className="text-success">MAX ✓</span>
+                  ) : (
+                    <span className="text-text-sub">
+                      {`만렙까지 ${toMax}${sk.unit}`}{isNearMax ? ' ⚠️' : ''}
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-px">
                   {Array.from({ length: 10 }).map((_, i) => (
                     <div
                       key={i}
-                      className={`flex-1 h-2 rounded-sm ${i < filled ? 'bg-purple-primary' : 'bg-bg-input'}`}
+                      className={`flex-1 h-2 rounded-sm ${i < filled ? (isMaxed ? 'bg-success' : 'bg-purple-primary') : 'bg-bg-input'}`}
                     />
                   ))}
                 </div>
-              </div>
+              </button>
             )
           })}
         </div>
       </div>
+
+      {selectedSkill && (
+        <SkillModal
+          skill={selectedSkill}
+          data={skills[selectedSkill.key]}
+          onClose={() => setSelectedSkill(null)}
+        />
+      )}
 
       {/* 패치노트 작성 버튼 */}
       <button

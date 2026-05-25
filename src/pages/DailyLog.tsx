@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
+import { formatSpend } from '../lib/stats'
 import type { PatchFormData } from '../types'
 
 const EMOJIS = ['😊', '😐', '😴', '😤', '🥲', '🤯', '🔥', '💀']
@@ -13,16 +14,6 @@ const SPEND_CHIPS = [
   { label: '5만', value: 50000 },
   { label: '10만', value: 100000 },
 ]
-
-function formatSpend(amount: number): string {
-  if (amount === 0) return '0원'
-  const man = Math.floor(amount / 10000)
-  const rest = amount % 10000
-  const chun = Math.floor(rest / 1000)
-  if (man > 0 && chun > 0) return `${man}만 ${chun}천원`
-  if (man > 0) return `${man}만원`
-  return `${chun}천원`
-}
 
 function today(): string {
   const d = new Date()
@@ -133,7 +124,7 @@ export default function DailyLog() {
   function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
     savePatchEntry(date, form)
-    navigate(`/result/${date}`)
+    navigate(`/result/${date}`, { state: { fromSave: true } })
   }
 
   return (
