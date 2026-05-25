@@ -1,12 +1,14 @@
-import { useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
-import useStore from '../store/useStore'
-import { formatSpend } from '../lib/stats'
-import { today } from '../lib/date'
-import type { PatchFormData } from '../types'
+import { useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useStore from '../store/useStore';
+import { formatSpend } from '../lib/stats';
+import { today } from '../lib/date';
+import { useWeather } from '../hooks/useWeather';
+import { isHoliday } from '../lib/holidays';
+import type { PatchFormData } from '../types';
 
-const EMOJIS = ['😊', '😐', '😴', '😤', '🥲', '🤯', '🔥', '💀']
-const MEAL_OPTIONS = ['0끼', '1끼', '2끼', '3끼', '3끼+']
+const EMOJIS = ['😊', '😐', '😴', '😤', '🥲', '🤯', '🔥', '💀'];
+const MEAL_OPTIONS = ['0끼', '1끼', '2끼', '3끼', '3끼+'];
 const SPEND_CHIPS = [
   { label: '1천', value: 1000 },
   { label: '5천', value: 5000 },
@@ -14,20 +16,28 @@ const SPEND_CHIPS = [
   { label: '3만', value: 30000 },
   { label: '5만', value: 50000 },
   { label: '10만', value: 100000 },
-]
+];
 
 function formatDateLabel(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
-  const version = dateStr.replace(/-/g, '.')
-  return `v${version} (${days[d.getDay()]})`
+  const d = new Date(dateStr + 'T00:00:00');
+  const days = [
+    '일요일',
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+  ];
+  const version = dateStr.replace(/-/g, '.');
+  return `v${version} (${days[d.getDay()]})`;
 }
 
 interface CounterProps {
-  value: number
-  onChange: (v: number) => void
-  min?: number
-  max?: number
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
 }
 
 function Counter({ value, onChange, min = 0, max = 10 }: CounterProps) {
@@ -36,26 +46,24 @@ function Counter({ value, onChange, min = 0, max = 10 }: CounterProps) {
       <button
         type="button"
         onClick={() => onChange(Math.max(min, value - 1))}
-        className="w-8 h-8 bg-bg-input text-white rounded font-mono text-lg leading-none hover:bg-border transition-colors"
-      >
+        className="min-w-11 min-h-11 bg-bg-input text-white rounded font-mono text-lg leading-none hover:bg-border transition-colors">
         −
       </button>
       <span className="text-white w-6 text-center font-mono">{value}</span>
       <button
         type="button"
         onClick={() => onChange(Math.min(max, value + 1))}
-        className="w-8 h-8 bg-bg-input text-white rounded font-mono text-lg leading-none hover:bg-border transition-colors"
-      >
+        className="min-w-11 min-h-11 bg-bg-input text-white rounded font-mono text-lg leading-none hover:bg-border transition-colors">
         +
       </button>
     </div>
-  )
+  );
 }
 
 interface TabButtonsProps {
-  options: string[]
-  value: number
-  onChange: (i: number) => void
+  options: string[];
+  value: number;
+  onChange: (i: number) => void;
 }
 
 function TabButtons({ options, value, onChange }: TabButtonsProps) {
@@ -70,35 +78,38 @@ function TabButtons({ options, value, onChange }: TabButtonsProps) {
             value === i
               ? 'bg-purple-primary text-white'
               : 'bg-bg-input text-text-sub hover:text-white'
-          }`}
-        >
+          }`}>
           {opt}
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 interface SectionProps {
-  label: string
-  children: ReactNode
+  label: string;
+  children: ReactNode;
 }
 
 function Section({ label, children }: SectionProps) {
   return (
     <div className="space-y-2">
-      <div className="text-purple-light text-xs font-mono font-bold">{label}</div>
+      <div className="text-purple-light text-xs font-mono font-bold">
+        {label}
+      </div>
       {children}
     </div>
-  )
+  );
 }
 
 export default function DailyLog() {
-  const navigate = useNavigate()
-  const { savePatchEntry, getPatch } = useStore()
+  const navigate = useNavigate();
+  const { savePatchEntry, getPatch } = useStore();
+  const { weatherLabel, aqiLabel, isLoading } = useWeather();
 
-  const date = today()
-  const existing = getPatch(date)
+  const date = today();
+  const existing = getPatch(date);
+  const isTodayHoliday = isHoliday(date);
 
   const [form, setForm] = useState<PatchFormData>({
     sleep: existing?.sleep ?? 7,
@@ -108,19 +119,23 @@ export default function DailyLog() {
     spend: existing?.spend ?? 0,
     emoji: existing?.emoji ?? '😊',
     memo: existing?.memo ?? '',
-  })
-  const [customInput, setCustomInput] = useState('')
-  const [showCustom, setShowCustom] = useState(false)
+  });
+  const [customInput, setCustomInput] = useState('');
+  const [showCustom, setShowCustom] = useState(false);
 
   const set =
     <K extends keyof PatchFormData>(key: K) =>
     (val: PatchFormData[K]) =>
-      setForm((f) => ({ ...f, [key]: val }))
+      setForm((f) => ({ ...f, [key]: val }));
 
   function handleSubmit(e: { preventDefault(): void }) {
-    e.preventDefault()
-    savePatchEntry(date, form)
-    navigate(`/result/${date}`, { state: { fromSave: true } })
+    e.preventDefault();
+    savePatchEntry(date, {
+      ...form,
+      weather: weatherLabel ?? undefined,
+      aqi: aqiLabel ?? undefined,
+    });
+    navigate(`/result/${date}`, { state: { fromSave: true } });
   }
 
   return (
@@ -129,12 +144,37 @@ export default function DailyLog() {
       <div className="space-y-1">
         <button
           onClick={() => navigate('/')}
-          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
-        >
+          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors">
           ← 뒤로
         </button>
-        <div className="text-white font-mono font-bold text-base">오늘의 패치노트</div>
-        <div className="text-purple-light text-xs font-mono">{formatDateLabel(date)}</div>
+        <div className="text-white font-mono font-bold text-base">
+          오늘의 패치노트
+        </div>
+        <div className="text-purple-light text-xs font-mono">
+          {formatDateLabel(date)}
+        </div>
+        {isLoading && (
+          <div className="text-text-sub text-xs font-mono">날씨 확인 중...</div>
+        )}
+        {!isLoading && (weatherLabel || aqiLabel || isTodayHoliday) && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {weatherLabel && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
+                {weatherLabel}
+              </span>
+            )}
+            {aqiLabel && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
+                {aqiLabel}
+              </span>
+            )}
+            {isTodayHoliday && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-success">
+                🎌 공휴일
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -157,11 +197,14 @@ export default function DailyLog() {
             </div>
           </Section>
         </div>
-
         {/* 식사 + 카페 + 배달 */}
         <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
           <Section label="🍚 식사 횟수">
-            <TabButtons options={MEAL_OPTIONS} value={form.meal} onChange={set('meal')} />
+            <TabButtons
+              options={MEAL_OPTIONS}
+              value={form.meal}
+              onChange={set('meal')}
+            />
           </Section>
 
           <div className="border-t border-border" />
@@ -176,7 +219,6 @@ export default function DailyLog() {
             <Counter value={form.delivery} onChange={set('delivery')} />
           </Section>
         </div>
-
         {/* 지출 규모 */}
         <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
           <Section label={`💸 지출 규모 — 합계: ${formatSpend(form.spend)}`}>
@@ -186,8 +228,7 @@ export default function DailyLog() {
                   key={chip.label}
                   type="button"
                   onClick={() => set('spend')(form.spend + chip.value)}
-                  className="px-3 py-1.5 rounded text-xs font-mono bg-bg-input text-text-sub hover:text-white hover:bg-border transition-colors"
-                >
+                  className="px-3 py-1.5 rounded text-xs font-mono bg-bg-input text-text-sub hover:text-white hover:bg-border transition-colors">
                   +{chip.label}
                 </button>
               ))}
@@ -198,16 +239,14 @@ export default function DailyLog() {
                   showCustom
                     ? 'bg-purple-primary text-white'
                     : 'bg-bg-input text-text-sub hover:text-white'
-                }`}
-              >
+                }`}>
                 +직접입력
               </button>
               {form.spend > 0 && (
                 <button
                   type="button"
                   onClick={() => set('spend')(0)}
-                  className="px-3 py-1.5 rounded text-xs font-mono bg-bg-input text-danger hover:bg-border transition-colors"
-                >
+                  className="px-3 py-1.5 rounded text-xs font-mono bg-bg-input text-danger hover:bg-border transition-colors">
                   초기화
                 </button>
               )}
@@ -226,22 +265,20 @@ export default function DailyLog() {
                 <button
                   type="button"
                   onClick={() => {
-                    const val = parseInt(customInput, 10)
+                    const val = parseInt(customInput, 10);
                     if (!isNaN(val) && val > 0) {
-                      set('spend')(form.spend + val)
+                      set('spend')(form.spend + val);
                     }
-                    setCustomInput('')
-                    setShowCustom(false)
+                    setCustomInput('');
+                    setShowCustom(false);
                   }}
-                  className="px-3 py-2 bg-purple-primary text-white text-xs font-mono rounded-lg hover:bg-purple-dark transition-colors"
-                >
+                  className="px-3 py-2 bg-purple-primary text-white text-xs font-mono rounded-lg hover:bg-purple-dark transition-colors">
                   추가
                 </button>
               </div>
             )}
           </Section>
         </div>
-
         {/* 오늘의 감정 */}
         <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
           <Section label="오늘의 감정">
@@ -255,15 +292,13 @@ export default function DailyLog() {
                     form.emoji === em
                       ? 'bg-bg-input ring-2 ring-purple-primary'
                       : 'bg-bg-input opacity-40 hover:opacity-70'
-                  }`}
-                >
+                  }`}>
                   {em}
                 </button>
               ))}
             </div>
           </Section>
         </div>
-
         {/* 한 줄 메모 */}
         <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
           <Section label="📝 한 줄 메모 (선택)">
@@ -277,15 +312,13 @@ export default function DailyLog() {
             />
           </Section>
         </div>
-
         {/* 제출 버튼 */}
         <button
           type="submit"
-          className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
-        >
+          className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors">
           패치노트 저장 →
         </button>
       </form>
     </div>
-  )
+  );
 }

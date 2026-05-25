@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 3 완료 — Phase 4 대기 중
+## 현재 Phase: Phase 4 진행 중
 
 ---
 
@@ -189,7 +189,41 @@
 - [x] `e2e/analysis.spec.ts` — e2e 테스트 13개 추가
 
 ### Phase 4
-- 날씨 API (OpenWeatherMap), 미세먼지 API (에어코리아), 공휴일 API (공공데이터포털)
-- 카드 이미지 저장/공유 기능
-- 반응형 모바일 UI 점검
-- Vercel 배포
+- [ ] 날씨 API 연동 (OpenWeatherMap Current Weather)
+- [ ] 미세먼지 API 연동 (OpenWeatherMap Air Pollution, 에어코리아 대신)
+- [ ] 공휴일 정적 데이터 (정적 배열, 공공데이터포털 API 대신)
+- [ ] 카드 이미지 저장/공유 (html-to-image + Web Share API)
+- [ ] 반응형 모바일 UI 점검 (safe-area, 터치 타겟)
+- [ ] Vercel 배포 (vercel.json SPA rewrites 포함)
+
+---
+
+### [2026-05-25] Phase 4 — 완성도
+
+**확정된 스펙 결정사항:**
+- 날씨/미세먼지: DailyLog에 Pill 배지 표시 + PatchEntry에 저장 (types.ts, storage.ts 수정)
+- 미세먼지: OpenWeatherMap Air Pollution API 사용 (에어코리아 CORS 이슈로 대체)
+- 공휴일: 공공데이터포털 API 제외, 정적 배열(holidays.ts) 사용 + isWeekend에 통합 (HP +15 보너스 적용)
+- 카드 공유 버튼: 결과 카드 내부 아이콘
+
+**신규 파일:**
+- `src/hooks/useWeather.ts`: 위치 취득 + OWM API 호출, weatherLabel/aqiLabel/isLoading/error 반환
+- `src/lib/holidays.ts`: 2026년 공휴일 배열 + isHoliday(dateStr): boolean
+- `vercel.json`: SPA rewrites 설정
+
+**수정 파일:**
+- `src/types.ts`: PatchEntry에 weather, aqi 필드 추가 (선택적 optional)
+- `src/lib/storage.ts`: weather/aqi 포함 저장/로드 처리
+- `src/lib/stats.ts`: calcHP, calcSocial 등 isWeekend 판단에 isHoliday 통합
+- `src/pages/DailyLog.tsx`: useWeather 훅 호출, isHoliday 호출, Pill 배지 렌더링 추가
+- `src/pages/PatchResult.tsx`: 결과 카드 ref, 카드 내부 공유 아이콘 버튼, html-to-image 캡처
+
+**진행 현황:**
+- [ ] `src/hooks/useWeather.ts` — 날씨/미세먼지 훅 구현
+- [ ] `src/lib/holidays.ts` — 2026년 공휴일 정적 배열 + isHoliday
+- [ ] `src/types.ts` — PatchEntry weather/aqi 필드 추가
+- [ ] `src/lib/storage.ts` — weather/aqi 저장/로드 처리
+- [ ] `src/lib/stats.ts` — isHoliday 통합
+- [ ] `src/pages/DailyLog.tsx` — Pill 배지 렌더링
+- [ ] `src/pages/PatchResult.tsx` — 카드 공유 기능
+- [ ] `vercel.json` — SPA rewrites 설정

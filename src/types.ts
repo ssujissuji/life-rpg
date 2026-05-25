@@ -18,6 +18,8 @@ export interface PatchEntry {
   memo: string
   stats: Stats
   tags: string[]
+  weather?: string
+  aqi?: string
 }
 
 export type PatchFormData = Omit<PatchEntry, 'date' | 'stats' | 'tags'>

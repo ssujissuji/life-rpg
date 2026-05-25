@@ -359,3 +359,60 @@ describe('calcStats', () => {
     }
   })
 })
+
+// ─── calcStats — 공휴일 통합 ──────────────────────────────────────────────────
+
+describe('calcStats — 공휴일 통합', () => {
+  it('2026-05-25 (부처님오신날 대체공휴일, 월요일)은 isWeekend=true로 HP +15 적용된다', () => {
+    // 2026-05-25는 월요일이지만 대체공휴일 → isWeekend=true
+    // sleep=7, meal=2, 평일 기준 hp=100, isWeekend=true → 100+15 → clamp 100
+    const entry = { date: '2026-05-25', sleep: 7, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.hp).toBe(100)
+  })
+
+  it('2026-05-25 (부처님오신날 대체공휴일)은 isWeekend=true로 social +10 적용된다', () => {
+    // isWeekend=true → social = 70(base) + 10(meal>=2) + 10(isWeekend) = 90
+    const entry = { date: '2026-05-25', sleep: 7, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.social).toBe(90)
+  })
+
+  it('2026-05-25는 월요일(day=1)이므로 isMonday=true → focus에 월요병(-10) 적용된다', () => {
+    // 공휴일 여부는 isMonday 판단에 영향 없음 — 요일(day===1)만으로 판단
+    // sleep=7, isMonday=true → focus = 100 - 10 = 90
+    const entry = { date: '2026-05-25', sleep: 7, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.focus).toBe(90)
+  })
+
+  it('2025-10-08 (추석 대체공휴일, 수요일)은 isWeekend=true로 HP +15 적용된다', () => {
+    // 2025-10-08은 수요일이지만 공휴일 → isWeekend=true
+    // sleep=7, meal=2 → hp = 100 + 15 → clamp 100
+    const entry = { date: '2025-10-08', sleep: 7, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.hp).toBe(100)
+  })
+
+  it('2025-10-08 (추석 대체공휴일, 수요일)은 isWeekend=true로 social +10 적용된다', () => {
+    // social = 70 + 10(meal>=2) + 10(isWeekend) = 90
+    const entry = { date: '2025-10-08', sleep: 7, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.social).toBe(90)
+  })
+
+  it('2025-10-08 (수요일, 공휴일)은 isMonday=false → focus에 월요병 미적용', () => {
+    // 수요일(day=3)이면 isMonday=false → 월요병 없음
+    // sleep=7, isMonday=false → focus = 100
+    const entry = { date: '2025-10-08', sleep: 7, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.focus).toBe(100)
+  })
+
+  it('공휴일(isWeekend=true)인 날 수면 부족 시 isWeekend 보정이 적용된다', () => {
+    // 2026-05-25, sleep=5(→ hp -20), isWeekend=true(+15) → hp = 100 - 20 + 15 = 95
+    const entry = { date: '2026-05-25', sleep: 5, meal: 2, cafe: 0, delivery: 0, spend: 0, emoji: '😊', memo: '' }
+    const stats = calcStats(entry)
+    expect(stats.hp).toBe(95)
+  })
+})

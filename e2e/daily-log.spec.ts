@@ -65,6 +65,28 @@ test.describe('DailyLog — 인터랙션', () => {
   })
 })
 
+test.describe('DailyLog — 날씨 Pill (API 키 없음)', () => {
+  test('VITE_OPENWEATHER_API_KEY 없으면 날씨 Pill이 렌더되지 않는다', async ({ page }) => {
+    // 테스트 환경은 API 키가 설정되지 않으므로 weatherLabel=null, aqiLabel=null
+    // isLoading=false 상태에서 날씨·공기질 Pill이 보이지 않아야 한다
+    await expect(page.getByText('날씨 확인 중...')).not.toBeVisible()
+    // weatherLabel이 null이면 날씨 span이 없다
+    // 공휴일이 아닌 날에는 Pill 컨테이너 자체가 렌더되지 않는다
+    const today = new Date()
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    // 오늘이 공휴일인 경우 "🎌 공휴일" Pill은 표시될 수 있으나 날씨/공기질 Pill은 없다
+    // 날씨 형식은 "☀️ 맑음" / "🌧️ 비" 등이며, 공기질은 "💚 좋음" 등의 패턴이다
+    // 두 Pill 모두 text-purple-light 클래스를 가지므로 날씨·공기질 span만 선택
+    const weatherPill = page.locator('span.text-purple-light')
+    // API 키가 없으면 날씨 Pill이 전혀 없어야 한다
+    await expect(weatherPill).toHaveCount(0)
+    // "날씨 확인 중..." 텍스트도 없어야 한다
+    await expect(page.getByText('날씨 확인 중...')).not.toBeVisible()
+    // 오늘이 공휴일 여부와 무관하게 isLoading이 false이고 날씨 label이 null인 상태
+    void dateStr
+  })
+})
+
 test.describe('DailyLog — 기존 기록 초기값 로드', () => {
   test('오늘 기록이 있으면 폼에 저장된 값이 초기값으로 로드된다', async ({ page }) => {
     const d = new Date()

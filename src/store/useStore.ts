@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { loadCharacter, loadAllPatches, saveCharacter, savePatch } from '../lib/storage'
-import { calcStats, calcSkills } from '../lib/stats'
+import { calcStats, calcSkills, getStatusTags } from '../lib/stats'
+import { isHoliday } from '../lib/holidays'
 import type { Character, PatchEntry, PatchFormData, PatchRecord, Skills } from '../types'
 
 interface StoreState {
@@ -23,11 +24,23 @@ const useStore = create<StoreState>((set, get) => ({
   },
 
   savePatchEntry(date, formData) {
+    const d = new Date(date + 'T00:00:00')
+    const day = d.getDay()
+    const isMonday = day === 1
+    const isWeekend = day === 0 || day === 6 || isHoliday(date)
+    const tags = getStatusTags({
+      sleep: formData.sleep,
+      cafeCount: formData.cafe,
+      spend: formData.spend,
+      deliveryCount: formData.delivery,
+      isMonday,
+      isWeekend,
+    })
     const entry: PatchEntry = {
       ...formData,
       date,
       stats: calcStats({ ...formData, date }),
-      tags: [],
+      tags,
     }
     savePatch(date, entry)
     const patches = { ...get().patches, [date]: entry }
