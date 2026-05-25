@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import { formatSpend } from '../lib/stats'
+import { today } from '../lib/date'
 import type { PatchFormData } from '../types'
 
 const EMOJIS = ['😊', '😐', '😴', '😤', '🥲', '🤯', '🔥', '💀']
@@ -14,11 +15,6 @@ const SPEND_CHIPS = [
   { label: '5만', value: 50000 },
   { label: '10만', value: 100000 },
 ]
-
-function today(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
 
 function formatDateLabel(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
