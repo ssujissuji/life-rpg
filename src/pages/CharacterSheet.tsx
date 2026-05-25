@@ -3,15 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import SkillModal from '../components/SkillModal'
-import { getStatusTags } from '../lib/stats'
 import { today } from '../lib/date'
-import type { SkillConfig, Stats } from '../types'
-
-interface StatConfig {
-  icon: string
-  label: string
-  key: keyof Stats
-}
+import type { SkillConfig, StatConfig, Stats } from '../types'
 
 const STATS: StatConfig[] = [
   { icon: '❤️', label: '체력', key: 'hp' },
@@ -63,16 +56,7 @@ export default function CharacterSheet() {
         }, {} as Stats)
       : null
 
-  const tags = todayPatch
-    ? getStatusTags({
-        sleep: todayPatch.sleep,
-        cafeCount: todayPatch.cafe,
-        spend: todayPatch.spend,
-        deliveryCount: todayPatch.delivery,
-        isMonday: new Date(todayPatch.date + 'T00:00:00').getDay() === 1,
-        isWeekend: [0, 6].includes(new Date(todayPatch.date + 'T00:00:00').getDay()),
-      })
-    : []
+  const tags = todayPatch?.tags ?? []
 
   const age = getAge(character.birthYear)
   const daysLeft = getLevelProgress(character.birthYear)

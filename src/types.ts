@@ -47,6 +47,12 @@ export type PatchRecord = Record<string, PatchEntry>
 
 export type DayStat = { date: string; totalStat: number }
 
+export interface StatConfig {
+  icon: string
+  label: string
+  key: keyof Stats
+}
+
 export interface SkillConfig {
   icon: string
   label: string
