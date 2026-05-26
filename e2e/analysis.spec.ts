@@ -10,7 +10,10 @@ function localDateStr(offsetDays = 0): string {
 
 test.describe('Analysis — 기록 없을 때', () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => localStorage.clear())
+    await page.addInitScript(() => {
+      localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+    })
     await page.goto('/analysis')
   })
 
@@ -41,6 +44,7 @@ test.describe('Analysis — 기록 있을 때', () => {
 
     await page.addInitScript((dateStr) => {
       localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
       const entry = {
         date: dateStr,
         sleep: 7,
@@ -75,9 +79,10 @@ test.describe('Analysis — 기록 있을 때', () => {
     // 월간 탭 활성화 확인
     await expect(page.getByRole('button', { name: '월간' })).toHaveClass(/bg-purple-primary/)
 
-    // MonthlyReportCard: 년/월 텍스트 포함
+    // MonthlyReportCard: 년/월 텍스트 포함 (첫 번째 일치 요소로 확인)
     const d = new Date()
-    await expect(page.getByText(new RegExp(`${d.getFullYear()}년 ${d.getMonth() + 1}월`))).toBeVisible()
+    const yearMonthRegex = new RegExp(`${d.getFullYear()}년 ${d.getMonth() + 1}월`)
+    await expect(page.getByText(yearMonthRegex).first()).toBeVisible()
   })
 
   test('월간 탭 클릭 후 주간 탭 다시 클릭 → 주간 컨텐츠가 다시 표시된다', async ({ page }) => {
@@ -102,7 +107,10 @@ test.describe('Analysis — 기록 있을 때', () => {
 
 test.describe('Analysis — 바텀 네비게이션', () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => localStorage.clear())
+    await page.addInitScript(() => {
+      localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+    })
     await page.goto('/analysis')
   })
 
@@ -116,6 +124,111 @@ test.describe('Analysis — 바텀 네비게이션', () => {
   })
 })
 
+// ─── Analysis — 날짜 네비게이션 ──────────────────────────────────────────────
+
+test.describe('Analysis — 날짜 네비게이션', () => {
+  test.beforeEach(async ({ page }) => {
+    const today = localDateStr()
+
+    await page.addInitScript((dateStr) => {
+      localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+      const entry = {
+        date: dateStr,
+        sleep: 7,
+        meal: 2,
+        cafe: 0,
+        delivery: 0,
+        spend: 0,
+        emoji: '😊',
+        memo: '',
+        stats: { hp: 100, focus: 100, social: 80, wallet: 100, outdoor: 70, sleepQ: 55 },
+        tags: [],
+      }
+      localStorage.setItem(`patch_${dateStr}`, JSON.stringify(entry))
+    }, today)
+
+    await page.goto('/analysis')
+  })
+
+  test('주간 탭: "< 이전 주" 버튼 클릭 시 레이블이 이전 주로 변경된다', async ({ page }) => {
+    // 초기 레이블을 읽어둠
+    const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
+
+    // 이전 주 버튼 클릭
+    await page.getByRole('button', { name: /이전 주/ }).click()
+
+    // 레이블이 변경되었는지 확인
+    const updatedLabel = await page.locator('span.font-mono.text-center').first().textContent()
+    expect(updatedLabel).not.toBe(initialLabel)
+    // MM/DD ~ MM/DD 형식 유지 확인
+    expect(updatedLabel).toMatch(/\d{2}\/\d{2} ~ \d{2}\/\d{2}/)
+  })
+
+  test('주간 탭: "다음 주 >" 버튼이 현재 주일 때 disabled 상태이다', async ({ page }) => {
+    const nextBtn = page.getByRole('button', { name: /다음 주/ })
+    await expect(nextBtn).toBeDisabled()
+  })
+
+  test('주간 탭: 이전 주로 이동하면 "다음 주 >" 버튼이 활성화된다', async ({ page }) => {
+    await page.getByRole('button', { name: /이전 주/ }).click()
+
+    const nextBtn = page.getByRole('button', { name: /다음 주/ })
+    await expect(nextBtn).not.toBeDisabled()
+  })
+
+  test('주간 탭: 이전 주 → 다음 주 클릭 시 레이블이 원래 주로 돌아온다', async ({ page }) => {
+    const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
+
+    await page.getByRole('button', { name: /이전 주/ }).click()
+    await page.getByRole('button', { name: /다음 주/ }).click()
+
+    const restoredLabel = await page.locator('span.font-mono.text-center').first().textContent()
+    expect(restoredLabel).toBe(initialLabel)
+  })
+
+  test('월간 탭: "< 이전 달" 클릭 시 레이블이 이전 달로 변경된다', async ({ page }) => {
+    await page.getByRole('button', { name: '월간' }).click()
+
+    // 초기 레이블
+    const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
+
+    // 이전 달 버튼 클릭
+    await page.getByRole('button', { name: /이전 달/ }).click()
+
+    const updatedLabel = await page.locator('span.font-mono.text-center').first().textContent()
+    expect(updatedLabel).not.toBe(initialLabel)
+    // YYYY년 M월 형식 확인
+    expect(updatedLabel).toMatch(/\d{4}년 \d{1,2}월/)
+  })
+
+  test('월간 탭: "다음 달 >" 버튼이 현재 달일 때 disabled 상태이다', async ({ page }) => {
+    await page.getByRole('button', { name: '월간' }).click()
+
+    const nextBtn = page.getByRole('button', { name: /다음 달/ })
+    await expect(nextBtn).toBeDisabled()
+  })
+
+  test('월간 탭: 이전 달로 이동하면 "다음 달 >" 버튼이 활성화된다', async ({ page }) => {
+    await page.getByRole('button', { name: '월간' }).click()
+    await page.getByRole('button', { name: /이전 달/ }).click()
+
+    const nextBtn = page.getByRole('button', { name: /다음 달/ })
+    await expect(nextBtn).not.toBeDisabled()
+  })
+
+  test('월간 탭: 이전 달 → 다음 달 클릭 시 레이블이 원래 달로 돌아온다', async ({ page }) => {
+    await page.getByRole('button', { name: '월간' }).click()
+    const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
+
+    await page.getByRole('button', { name: /이전 달/ }).click()
+    await page.getByRole('button', { name: /다음 달/ }).click()
+
+    const restoredLabel = await page.locator('span.font-mono.text-center').first().textContent()
+    expect(restoredLabel).toBe(initialLabel)
+  })
+})
+
 // ─── Analysis — 여러 기록이 있을 때 주간 리포트 ───────────────────────────────
 
 test.describe('Analysis — 주간 리포트 여러 기록', () => {
@@ -124,6 +237,7 @@ test.describe('Analysis — 주간 리포트 여러 기록', () => {
 
     await page.addInitScript((dateStr) => {
       localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
       // 오늘 포함 최근 3일 기록 생성
       for (let i = 0; i < 3; i++) {
         const d = new Date(dateStr)

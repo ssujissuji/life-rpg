@@ -20,3 +20,31 @@ export function getWeekDateRange(weekStart: string): string[] {
     return `${y}-${m}-${day}`
   })
 }
+
+function toDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+export function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  d.setDate(d.getDate() + days)
+  return toDateStr(d)
+}
+
+export function shiftMonth(dateStr: string, delta: number): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  d.setDate(1)
+  d.setMonth(d.getMonth() + delta)
+  return toDateStr(d)
+}
+
+export function formatWeekLabel(weekStart: string, weekEnd: string): string {
+  const s = weekStart.slice(5).replace('-', '/')
+  const e = weekEnd.slice(5).replace('-', '/')
+  return `${s} ~ ${e}`
+}
+
+export function formatMonthLabel(monthStart: string): string {
+  const d = new Date(monthStart + 'T00:00:00')
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월`
+}
