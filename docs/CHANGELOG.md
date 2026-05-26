@@ -6,6 +6,12 @@
 
 ## [Unreleased]
 
+### Fixed
+- `api/airkorea.ts` — `getCtprvnRltmMesureDnsty`(시도별) endpoint에 측정소별 파라미터(`stationName`, `dataTerm`)를 사용해 실제 API 호출이 깨지던 버그 수정. `sidoName` 파라미터로 교체
+- `api/airkorea.ts` — `getStationName()` → `getSidoName()` 리네임, 반환값을 측정소명 → 시도명(서울/부산/대구/광주/대전)으로 변경
+
+---
+
 ### Added
 - `src/lib/weather.ts` (신규) — `latlonToGrid` (Lambert 투영법 격자 좌표 변환), `getKmaBaseDateTime` (기상청 base_time 계산), `mapKmaWeather` (기상청 날씨 코드 → 레이블 매핑), `mapKhaiGrade` (에어코리아 통합대기환경지수 등급 매핑)
 - `api/weather.ts` (신규) — 기상청 초단기실황 API(`getUltraSrtNcst`) Vercel Serverless Function 프록시. `KMA_API_KEY` 서버사이드 환경변수 사용
