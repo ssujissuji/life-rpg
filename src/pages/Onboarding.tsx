@@ -3,21 +3,23 @@ import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import { setOnboardingDone } from '../lib/storage'
 import { DEFAULT_BASELINE } from '../types'
-import type { PersonalBaseline } from '../types'
+import type { PersonalBaseline, SidoName } from '../types'
 import BaselineForm from '../components/BaselineForm'
+import SidoPicker from '../components/SidoPicker'
 import { CLASS_OPTIONS } from './Settings'
 
-type Step = 1 | 2 | 3 | 4
+type Step = 1 | 2 | 3 | 4 | 5
 
 export default function Onboarding() {
   const navigate = useNavigate()
-  const { setCharacter, setBaseline } = useStore()
+  const { setCharacter, setBaseline, setRegion } = useStore()
 
   const [step, setStep] = useState<Step>(1)
   const [name, setName] = useState('')
   const [cls, setCls] = useState('')
   const [customCls, setCustomCls] = useState('')
   const [birthYear, setBirthYear] = useState<number | ''>('')
+  const [region, setRegionLocal] = useState<SidoName | null>(null)
   const [baseline, setBaselineLocal] = useState<PersonalBaseline>({ ...DEFAULT_BASELINE })
 
   const currentYear = new Date().getFullYear()
@@ -28,17 +30,19 @@ export default function Onboarding() {
   const isStep2Valid = resolvedCls.trim().length > 0
   const isStep3Valid =
     birthYear !== '' && Number(birthYear) >= 1950 && Number(birthYear) <= currentYear
+  const isStep4Valid = true
 
   function handleComplete(useDefault: boolean) {
     if (birthYear === '' || isNaN(Number(birthYear))) return
     setCharacter({ name: name.trim(), class: resolvedCls.trim(), birthYear: Number(birthYear) })
     setBaseline(useDefault ? { ...DEFAULT_BASELINE } : baseline)
+    setRegion(region)
     setOnboardingDone()
     navigate('/')
   }
 
   function goNext() {
-    if (step < 4) setStep((s) => (s + 1) as Step)
+    if (step < 5) setStep((s) => (s + 1) as Step)
   }
 
   function goPrev() {
@@ -48,9 +52,8 @@ export default function Onboarding() {
   return (
     <div className="min-h-svh bg-[#0f0f13] flex flex-col font-mono">
       <div className="flex-1 flex flex-col w-full max-w-[430px] mx-auto px-4 pt-10 pb-8">
-        {/* 스텝 인디케이터 */}
         <div className="flex justify-center gap-2 mb-10">
-          {([1, 2, 3, 4] as Step[]).map((s) => (
+          {([1, 2, 3, 4, 5] as Step[]).map((s) => (
             <div
               key={s}
               className={`w-2.5 h-2.5 rounded-full transition-colors ${
@@ -60,12 +63,11 @@ export default function Onboarding() {
           ))}
         </div>
 
-        {/* 스텝 콘텐츠 */}
         <div className="flex-1 flex flex-col">
           {step === 1 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 1 / 4</div>
+                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 1 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">캐릭터명을 입력하세요</div>
                 <div className="text-[#6b7280] text-[13px] font-mono">앱에서 사용할 이름입니다</div>
               </div>
@@ -84,7 +86,7 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 2 / 4</div>
+                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 2 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">클래스를 선택하세요</div>
                 <div className="text-[#6b7280] text-[13px] font-mono">현재 직업 또는 상태</div>
               </div>
@@ -126,7 +128,7 @@ export default function Onboarding() {
           {step === 3 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 3 / 4</div>
+                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 3 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">출생연도를 입력하세요</div>
                 <div className="text-[#6b7280] text-[13px] font-mono">레벨 계산에 사용됩니다</div>
               </div>
@@ -154,7 +156,18 @@ export default function Onboarding() {
           {step === 4 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 4 / 4</div>
+                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 4 / 5</div>
+                <div className="text-white font-bold text-xl font-mono">지역을 선택하세요</div>
+                <div className="text-[#6b7280] text-[13px] font-mono">날씨 및 공기질 데이터에 사용됩니다</div>
+              </div>
+              <SidoPicker value={region} onChange={setRegionLocal} />
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-6">
+              <div className="space-y-1.5">
+                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 5 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">개인 기준값 설정</div>
                 <div className="text-[#6b7280] text-[13px] font-mono">능력치 계산 기준이 됩니다</div>
               </div>
@@ -165,9 +178,8 @@ export default function Onboarding() {
           )}
         </div>
 
-        {/* 하단 버튼 영역 */}
         <div className="mt-10 space-y-2">
-          {step === 4 ? (
+          {step === 5 ? (
             <>
               <button
                 type="button"
@@ -191,7 +203,8 @@ export default function Onboarding() {
               disabled={
                 (step === 1 && !isStep1Valid) ||
                 (step === 2 && !isStep2Valid) ||
-                (step === 3 && !isStep3Valid)
+                (step === 3 && !isStep3Valid) ||
+                (step === 4 && !isStep4Valid)
               }
               className="w-full bg-[#534ab7] hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >

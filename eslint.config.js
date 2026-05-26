@@ -9,6 +9,18 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    files: ['api/**/*.ts'],
+    extends: [js.configs.recommended],
+    plugins: { '@typescript-eslint': tseslint },
+    languageOptions: {
+      globals: globals.node,
+      parser: tsparser,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,

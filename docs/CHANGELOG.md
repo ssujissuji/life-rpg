@@ -6,6 +6,22 @@
 
 ## [Unreleased]
 
+### Added
+- `src/components/SidoPicker.tsx` (신규) — 17개 시도 버튼 그리드 재사용 컴포넌트. Onboarding Step 4와 Settings 지역 선택 섹션에서 공용 사용
+- `src/types.ts` — `SidoName` 유니온 타입(17개 시도), `SidoCoord` 인터페이스 추가
+- `src/lib/storage.ts` — `saveRegion()`, `loadRegion()` 추가 (`region` localStorage 키, `Character`와 분리)
+- `src/lib/weather.ts` — `SIDO_LIST`, `SIDO_COORDS: Record<SidoName, SidoCoord>` 17개 시도 대표 좌표 추가
+- `src/store/useStore.ts` — `region: SidoName | null` 상태 및 `setRegion()` 액션 추가
+
+### Changed
+- `src/pages/Onboarding.tsx` — Step 타입 `1|2|3|4|5`로 확장. Step 4(지역 선택, 선택사항) 삽입, 기존 Step 4(기준값)를 Step 5로 이동. 미선택 시 null 저장 → geolocation fallback 유지
+- `src/pages/Settings.tsx` — 지역 선택 섹션 추가 (`SidoPicker` 재사용)
+- `src/hooks/useWeather.ts` — 저장된 `region`이 있으면 `SIDO_COORDS[region]` 좌표로 직접 fetch. airkorea API 호출 시 `sidoName` 쿼리 파라미터 전달. `useEffect` 의존성 배열에 `region` 추가
+- `api/airkorea.ts` — `SIDO_ALLOWLIST` 추가, `sidoName` 쿼리 파라미터 직접 수신 지원 (allowlist 통과 시 우선, 아니면 기존 lat/lon 폴백)
+
+### Fixed
+- `eslint.config.js` — `api/**/*.ts`에 `globals.node` 별도 적용. 기존 `globals.browser`만 적용되어 `process` 변수 미인식 에러 수정
+
 ---
 
 ## [0.4.0] 2026-05-26 — 온보딩 + 개인 기준값

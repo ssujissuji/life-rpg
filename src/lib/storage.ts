@@ -1,4 +1,4 @@
-import type { PatchEntry, Character, PatchRecord, PersonalBaseline } from '../types'
+import type { PatchEntry, Character, PatchRecord, PersonalBaseline, SidoName } from '../types'
 import { DEFAULT_BASELINE } from '../types'
 
 const PATCH_PREFIX = 'patch_'
@@ -87,6 +87,16 @@ export function isOnboardingDone(): boolean {
 
 export function setOnboardingDone(): void {
   localStorage.setItem(ONBOARDING_KEY, '1')
+}
+
+const REGION_KEY = 'region'
+
+export function saveRegion(sido: SidoName): void {
+  localStorage.setItem(REGION_KEY, sido)
+}
+
+export function loadRegion(): SidoName | null {
+  return (localStorage.getItem(REGION_KEY) as SidoName) ?? null
 }
 
 export function clearAll(): void {

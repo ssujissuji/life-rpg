@@ -6,6 +6,50 @@
 
 ## 2026-05-26
 
+### 온보딩 지역 선택 기능 추가
+
+**신규 파일**
+- `src/components/SidoPicker.tsx` — 17개 시도 버튼 그리드 재사용 컴포넌트. Onboarding Step 4와 Settings 지역 선택 섹션에서 공용 사용
+
+**src/types.ts**
+- `SidoName` 유니온 타입 추가 (17개 시도명 리터럴)
+- `SidoCoord` 인터페이스 추가 (`lat`, `lon` 필드)
+
+**src/lib/storage.ts**
+- `saveRegion(sido)`, `loadRegion()` 추가. 별도 `region` localStorage 키 사용 (`Character` 인터페이스와 분리)
+
+**src/lib/weather.ts**
+- `SIDO_LIST` 배열 추가 (17개 시도명)
+- `SIDO_COORDS: Record<SidoName, SidoCoord>` 추가. 17개 시도별 대표 위경도 좌표
+
+**src/store/useStore.ts**
+- `region: SidoName | null` 상태 추가 (초기값 `loadRegion()`)
+- `setRegion(sido)` 액션 추가
+
+**src/pages/Onboarding.tsx**
+- Step 타입 `1|2|3|4` → `1|2|3|4|5`로 확장
+- Step 4(지역 선택, 선택사항) 삽입. 미선택 시 null 저장 → 기존 geolocation fallback 유지
+- 기존 Step 4(기준값)를 Step 5로 이동
+- `handleComplete`에서 `setRegion()` 호출
+
+**src/pages/Settings.tsx**
+- 지역 선택 섹션 추가. `SidoPicker` 재사용
+- `handleSave`에서 `setRegion()` 호출
+
+**src/hooks/useWeather.ts**
+- 저장된 `region`이 있으면 `SIDO_COORDS[region]` 좌표로 직접 fetch (geolocation 생략)
+- airkorea API 호출 시 `?sidoName=` 쿼리 파라미터 전달
+- `useEffect` 의존성 배열에 `region` 추가
+
+**api/airkorea.ts**
+- `SIDO_ALLOWLIST` 추가 (허용된 시도명 집합)
+- `sidoName` 쿼리 파라미터 직접 수신 지원. allowlist 통과 시 우선 사용, 아니면 기존 lat/lon 기반 폴백 유지
+
+**eslint.config.js**
+- `api/**/*.ts`에 `globals.node` 별도 적용. 기존 `globals.browser`만 적용되어 `process` 변수 미인식 ESLint 에러 수정
+
+---
+
 ### Phase 1.5 — 온보딩 + 개인 기준값
 
 **신규 파일**

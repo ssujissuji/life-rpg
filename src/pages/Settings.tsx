@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
-import type { Character, PersonalBaseline } from '../types'
+import type { Character, PersonalBaseline, SidoName } from '../types'
+import { loadRegion } from '../lib/storage'
 import BaselineForm from '../components/BaselineForm'
+import SidoPicker from '../components/SidoPicker'
 
 export const CLASS_OPTIONS = ['취준생', '직장인', '프리랜서', '학생', '백수', '사회인']
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { character, setCharacter, baseline, setBaseline } = useStore()
+  const { character, setCharacter, baseline, setBaseline, setRegion } = useStore()
 
   const [form, setForm] = useState<Character>({ ...character })
   const [baselineForm, setBaselineForm] = useState<PersonalBaseline>({ ...baseline })
+  const [regionForm, setRegionForm] = useState<SidoName | null>(loadRegion())
   const [saved, setSaved] = useState(false)
 
   const set =
@@ -23,6 +26,7 @@ export default function Settings() {
     e.preventDefault()
     setCharacter({ ...form, birthYear: Number(form.birthYear) })
     setBaseline(baselineForm)
+    setRegion(regionForm)
     setSaved(true)
     setTimeout(() => setSaved(false), 1500)
   }
@@ -92,6 +96,11 @@ export default function Settings() {
               max={new Date().getFullYear()}
               className="w-full bg-bg-input text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-purple-primary transition-all"
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-text-sub text-xs font-mono">지역 (날씨/공기질)</label>
+            <SidoPicker value={regionForm} onChange={setRegionForm} />
           </div>
         </div>
 

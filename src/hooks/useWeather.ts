@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { latlonToGrid, getKmaBaseDateTime, mapKmaWeather, mapKhaiGrade } from '../lib/weather'
+import { latlonToGrid, getKmaBaseDateTime, mapKmaWeather, mapKhaiGrade, SIDO_COORDS } from '../lib/weather'
+import useStore from '../store/useStore'
+import type { SidoName } from '../types'
 
 interface UseWeatherResult {
   weatherLabel: string | null
@@ -13,6 +15,7 @@ const SEOUL_LON = 126.978
 const TIMEOUT_MS = 5000
 
 export function useWeather(): UseWeatherResult {
+  const { region } = useStore()
   const [weatherLabel, setWeatherLabel] = useState<string | null>(null)
   const [aqiLabel, setAqiLabel] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -25,14 +28,18 @@ export function useWeather(): UseWeatherResult {
       setIsLoading(false)
     }, TIMEOUT_MS)
 
-    async function fetchAll(lat: number, lon: number) {
+    async function fetchAll(lat: number, lon: number, sidoName?: SidoName) {
       const { base_date, base_time } = getKmaBaseDateTime()
       const { nx, ny } = latlonToGrid(lat, lon)
+
+      const airkoreaUrl = sidoName
+        ? `/api/airkorea?sidoName=${encodeURIComponent(sidoName)}`
+        : `/api/airkorea?lat=${lat}&lon=${lon}`
 
       const [weatherResult, aqiResult] = await Promise.allSettled([
         fetch(`/api/weather?nx=${nx}&ny=${ny}&base_date=${base_date}&base_time=${base_time}`, { signal: controller.signal })
           .then(r => r.json()),
-        fetch(`/api/airkorea?lat=${lat}&lon=${lon}`, { signal: controller.signal })
+        fetch(airkoreaUrl, { signal: controller.signal })
           .then(r => r.json()),
       ])
 
@@ -59,16 +66,21 @@ export function useWeather(): UseWeatherResult {
       setIsLoading(false)
     }
 
-    navigator.geolocation.getCurrentPosition(
-      pos => { fetchAll(pos.coords.latitude, pos.coords.longitude) },
-      () => { fetchAll(SEOUL_LAT, SEOUL_LON) }
-    )
+    if (region && SIDO_COORDS[region]) {
+      const { lat, lon } = SIDO_COORDS[region]
+      fetchAll(lat, lon, region)
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        pos => { fetchAll(pos.coords.latitude, pos.coords.longitude) },
+        () => { fetchAll(SEOUL_LAT, SEOUL_LON) }
+      )
+    }
 
     return () => {
       clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [])
+  }, [region])
 
   return { weatherLabel, aqiLabel, isLoading, error }
 }
