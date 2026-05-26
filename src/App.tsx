@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
 import CharacterSheet from './pages/CharacterSheet'
@@ -8,12 +7,12 @@ import CalendarView from './pages/CalendarView'
 import Analysis from './pages/Analysis'
 import Settings from './pages/Settings'
 import Onboarding from './pages/Onboarding'
-import { isOnboardingDone } from './lib/storage'
+import useStore from './store/useStore'
 
 function AppShell() {
   const location = useLocation()
   const onboardingPath = location.pathname === '/onboarding'
-  const [onboarded] = useState(() => isOnboardingDone())
+  const onboarded = useStore(s => s.onboardingDone)
 
   if (!onboarded && !onboardingPath) {
     return <Navigate to="/onboarding" replace />

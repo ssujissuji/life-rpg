@@ -352,3 +352,45 @@
 - [x] `tsconfig.json` — `api/` 디렉터리 타입 검사 포함
 - [x] `vercel.json` — `/api/*` rewrite 명시적 제외 규칙 추가
 - [x] `VITE_OPENWEATHER_API_KEY` 환경변수 제거 → `KMA_API_KEY`, `AIRKOREA_API_KEY` (서버사이드) 로 대체
+
+---
+
+### [2026-05-26] 온보딩 지역 선택 기능 추가
+
+날씨/공기질 데이터 정확도 개선을 위해 온보딩 플로우에 시도(지역) 선택 스텝을 추가한다.
+
+**변경 파일:**
+- [x] `src/types.ts` — `SidoName` 타입, `SidoCoord` 인터페이스 추가
+- [x] `src/lib/storage.ts` — `saveRegion()`, `loadRegion()` 추가 (별도 `region` localStorage 키)
+- [x] `src/lib/weather.ts` — `SIDO_LIST`, `SIDO_COORDS: Record<SidoName, SidoCoord>` 17개 시도 대표 좌표 추가
+- [x] `src/store/useStore.ts` — `region: SidoName | null` 상태 및 `setRegion()` 액션 추가 (초기값 `loadRegion()`)
+- [x] `src/components/SidoPicker.tsx` — 신규 생성. 17개 시도 버튼 그리드 재사용 컴포넌트
+- [x] `src/pages/Onboarding.tsx` — Step 타입 `1|2|3|4|5`로 확장, Step 4(지역 선택) 삽입, 기존 Step 4(기준값)를 Step 5로 이동. `handleComplete`에서 `setRegion()` 호출
+- [x] `src/pages/Settings.tsx` — 지역 선택 섹션 추가 (SidoPicker 재사용), `handleSave`에서 `setRegion()` 호출
+- [x] `src/hooks/useWeather.ts` — 저장된 `region`이 있으면 `SIDO_COORDS[region]` 좌표로 직접 fetch, airkorea API에 `sidoName` 쿼리 파라미터 전달. `useEffect` 의존성 배열에 `region` 추가
+- [x] `api/airkorea.ts` — `SIDO_ALLOWLIST` 추가, `sidoName` 쿼리 파라미터 직접 수신 지원 (allowlist 통과 시 우선 사용, 아니면 기존 lat/lon 기반 폴백 유지)
+- [x] `eslint.config.js` — `api/**/*.ts`에 `globals.node` 별도 적용 (기존 `globals.browser`만 적용되어 `process` 미인식 에러 수정)
+
+**결정 사항:**
+- region은 `Character` 인터페이스가 아닌 별도 `region` localStorage 키로 저장
+- 온보딩에서 건너뛰기 시 null 저장 → geolocation fallback 유지
+- `SidoPicker` 컴포넌트를 Onboarding과 Settings 양쪽에서 재사용
+
+---
+
+### 버그 수정 완료 — 온보딩 완료 후 리다이렉트
+
+**현상:** 온보딩 완료 후 `/`로 이동하지 않고 온보딩 첫 화면으로 다시 튕김
+
+**원인:**
+- `App.tsx`의 `AppShell`이 `useState(() => isOnboardingDone())`로 마운트 시 딱 한 번만 localStorage를 읽음
+- `Onboarding.tsx`의 `handleComplete`가 `setOnboardingDone()`을 직접 호출해 localStorage에는 기록되지만 store의 `onboardingDone` 상태는 `false`로 남음
+- `navigate('/')` 후 `AppShell`의 가드가 `onboarded = false`로 판단해 다시 `/onboarding`으로 리다이렉트
+
+**수정 항목:**
+- [x] `src/App.tsx` — `useState(() => isOnboardingDone())` 제거, `useStore(s => s.onboardingDone)` 구독으로 교체. `isOnboardingDone` import 제거
+- [x] `src/pages/Onboarding.tsx` — `handleComplete`에서 `setOnboardingDone()` 직접 호출 제거, `useStore`의 `completeOnboarding()` 액션 호출로 교체. `setOnboardingDone` import 제거
+
+**주의 사항:**
+- `isOnboardingDone`을 `storage.ts`에서 삭제하지 말 것 (`useStore.ts` 초기화에서 사용 중)
+- `AppShell`에서 `useStore(s => s.onboardingDone)` selector 방식 사용

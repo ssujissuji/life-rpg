@@ -1,5 +1,7 @@
-import type { PatchEntry, Character, PatchRecord, PersonalBaseline } from '../types'
+import type { PatchEntry, Character, PatchRecord, PersonalBaseline, SidoName } from '../types'
 import { DEFAULT_BASELINE } from '../types'
+
+const REGION_LEGACY_KEY = 'region'
 
 const PATCH_PREFIX = 'patch_'
 const CHARACTER_KEY = 'character'
@@ -47,7 +49,12 @@ export function loadCharacter(): Character {
   const raw = localStorage.getItem(CHARACTER_KEY)
   if (!raw) return { name: '모험가', class: '사회인', birthYear: 2000 }
   try {
-    return JSON.parse(raw) as Character
+    const parsed = JSON.parse(raw) as Character
+    if (!parsed.region) {
+      const legacy = localStorage.getItem(REGION_LEGACY_KEY) as SidoName | null
+      if (legacy) parsed.region = legacy
+    }
+    return parsed
   } catch {
     return { name: '모험가', class: '사회인', birthYear: 2000 }
   }

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
-import type { Character, PersonalBaseline } from '../types'
+import type { Character, PersonalBaseline, SidoName } from '../types'
 import BaselineForm from '../components/BaselineForm'
+import SidoPicker from '../components/SidoPicker'
 
 export const CLASS_OPTIONS = ['취준생', '직장인', '프리랜서', '학생', '백수', '사회인']
 
@@ -91,6 +92,14 @@ export default function Settings() {
               min={1950}
               max={new Date().getFullYear()}
               className="w-full bg-bg-input text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-purple-primary transition-all"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-text-sub text-xs font-mono">지역 (날씨/공기질)</label>
+            <SidoPicker
+              value={form.region ?? null}
+              onChange={(sido: SidoName) => setForm(f => ({ ...f, region: sido }))}
             />
           </div>
         </div>

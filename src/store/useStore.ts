@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills, loadBaseline, saveBaseline } from '../lib/storage'
+import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills, loadBaseline, saveBaseline, isOnboardingDone, setOnboardingDone } from '../lib/storage'
 import { calcStats, calcSkills, getStatusTags } from '../lib/stats'
 import { isHoliday } from '../lib/holidays'
 import type { Character, PatchEntry, PatchFormData, PatchRecord, Skills, PersonalBaseline } from '../types'
@@ -9,12 +9,14 @@ interface StoreState {
   patches: PatchRecord
   skills: Skills
   baseline: PersonalBaseline
+  onboardingDone: boolean
   setCharacter: (data: Character) => void
   savePatchEntry: (date: string, formData: PatchFormData) => void
   getPatch: (date: string) => PatchEntry | null
   getMaxedSkills: () => string[]
   markSkillsMaxed: (keys: string[]) => void
   setBaseline: (data: PersonalBaseline) => void
+  completeOnboarding: () => void
 }
 
 const initialPatches = loadAllPatches()
@@ -24,6 +26,7 @@ const useStore = create<StoreState>((set, get) => ({
   patches: initialPatches,
   skills: calcSkills(initialPatches),
   baseline: loadBaseline(),
+  onboardingDone: isOnboardingDone(),
 
   setCharacter(data) {
     saveCharacter(data)
@@ -72,6 +75,11 @@ const useStore = create<StoreState>((set, get) => ({
   markSkillsMaxed(keys) {
     const merged = [...new Set([...loadMaxedSkills(), ...keys])]
     saveMaxedSkills(merged)
+  },
+
+  completeOnboarding() {
+    setOnboardingDone()
+    set({ onboardingDone: true })
   },
 }))
 

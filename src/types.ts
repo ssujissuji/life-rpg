@@ -40,6 +40,7 @@ export interface Character {
   name: string
   class: string
   birthYear: number
+  region?: SidoName
 }
 
 export interface SkillData {
@@ -110,4 +111,14 @@ export interface StatChartPoint {
   wallet: number
   outdoor: number
   sleepQ: number
+}
+
+export type SidoName =
+  | '서울' | '부산' | '대구' | '인천' | '광주' | '대전' | '울산'
+  | '경기' | '강원' | '충북' | '충남' | '전북' | '전남' | '경북' | '경남'
+  | '제주' | '세종'
+
+export interface SidoCoord {
+  lat: number
+  lon: number
 }
