@@ -123,6 +123,42 @@
 
 ---
 
+## 다음 작업 (Phase 1.5 — 온보딩 + 개인 기준값)
+
+- [x] `src/types.ts` — `Baseline` 인터페이스 추가
+- [x] `src/lib/storage.ts` — `loadBaseline()`, `saveBaseline()` 추가 (`baseline` 키, DEFAULT_BASELINE fallback)
+- [x] `src/lib/stats.ts` — `calcHP`, `calcFocus`, `calcSleepQ`, `getStatusTags` 함수에 `baseline` 인자 추가 (없으면 DEFAULT_BASELINE fallback)
+- [x] `src/pages/Onboarding.tsx` 신규 — 3단계 필수 + Step 4 선택(건너뛰기)
+  - Step 1: 캐릭터명 입력
+  - Step 2: 클래스 선택 (탭 6종 + 직접 입력)
+  - Step 3: 출생연도 입력
+  - Step 4: sleepGoal 슬라이더 / cafeMax 카운터 / spendThreshold 칩 선택
+  - 완료 시 character + baseline 저장, `onboarding_done` 플래그 저장 → `/` 이동
+- [x] `src/App.tsx` — 진입 시 `onboarding_done` 키 없으면 `/onboarding` 리다이렉트
+- [x] `src/pages/Settings.tsx` — 개인 기준값 설정 섹션 추가 (sleepGoal / cafeMax / spendThreshold)
+- [x] `src/store/useStore.ts` — baseline 상태 + loadBaseline/saveBaseline 액션 추가
+
+---
+
+## 코드 리뷰 수정 사항 (2026-05-26)
+
+> Phase 1.5 구현 코드에 대한 리뷰에서 식별된 항목.
+
+### BLOCK — 즉시 수정 필요
+
+- [x] **`src/App.tsx` AppShell** — `isOnboardingDone()` 체크가 매 렌더 시 localStorage 직접 읽기. 온보딩 완료 후 `navigate('/')` 타이밍에 재리다이렉트 위험. React state로 전환 필요
+- [x] **`src/lib/stats.ts` `calcWallet`** — `spend <= 0` 분기가 음수 입력을 패널티 없이 통과. PRD 스펙(`spend > 0` 조건)과 불일치. `spend > 0` 조건으로 수정
+- [x] **`src/pages/Onboarding.tsx` `handleComplete`** — `birthYear`가 `''` 상태일 때 `Number('')`=0 이 저장될 수 있음. `birthYear !== ''` guard 추가
+
+### WARN — 수정 권장
+
+- [x] **`src/components/BaselineForm.tsx`** — 로컬 `formatSpend` 함수가 `stats.ts`의 동일 함수와 중복. `stats.ts`에서 import하거나 인라인 표현식으로 대체
+- [x] **`src/pages/Onboarding.tsx` + `src/pages/Settings.tsx`** — `CLASS_OPTIONS` 배열이 두 파일에 중복 선언. 공통 위치로 추출 검토
+- [x] **`src/pages/Onboarding.tsx`** — `hover:bg-[#4340a0]` 하드코딩 → `hover:bg-purple-dark` 토큰으로 통일
+- [x] **`src/store/useStore.ts`** — `loadAllPatches()` 이중 호출 → 변수에 담아 재사용
+
+---
+
 ## 다음 작업 (Phase 1 마무리)
 
 - [x] 실제 브라우저 UI 확인 및 레이아웃 이슈 수정 (e2e 35/35 통과로 대체 검증)
@@ -272,6 +308,29 @@
 - [x] `src/pages/PatchResult.tsx`, `src/pages/CharacterSheet.tsx` — 로컬 `StatConfig` 선언 제거, `types.ts` import로 통일
 - [x] `src/lib/date.ts` — `formatDateLabel` 함수 export 추가
 - [x] `src/pages/PatchResult.tsx`, `src/pages/DailyLog.tsx` — 로컬 `formatDateLabel` 제거, `date.ts` import로 통일
+
+---
+
+### [2026-05-26] Phase 1.5 — 온보딩 + 개인 기준값
+
+**완료된 항목:**
+- [x] `src/pages/Onboarding.tsx` (신규) — 4단계 온보딩. Step 1~3 필수 (이름/클래스/출생연도), Step 4 선택 (기준값, 건너뛰기 시 DEFAULT_BASELINE 저장). 완료 시 `onboarding_done` 플래그 저장 → `/` 이동
+- [x] `src/components/BaselineForm.tsx` (신규) — 개인 기준값 입력 폼 재사용 컴포넌트 (sleepGoal 슬라이더, cafeMax 카운터, spendThreshold 칩 선택)
+- [x] `src/types.ts` — `PersonalBaseline` 인터페이스, `DEFAULT_BASELINE` 상수 추가
+- [x] `src/lib/storage.ts` — `saveBaseline`, `loadBaseline`, `isOnboardingDone`, `setOnboardingDone` 추가
+- [x] `src/lib/stats.ts` — `calcHP`, `calcFocus`, `calcSleepQ`, `getStatusTags`, `calcStats`에 `baseline?` 인자 추가. `calcWallet` PRD 스펙 수정 (spend > 0 조건)
+- [x] `src/store/useStore.ts` — `baseline` 상태 및 `setBaseline` 액션 추가
+- [x] `src/pages/Settings.tsx` — 개인 기준값 섹션 추가, `CLASS_OPTIONS` export
+- [x] `src/App.tsx` — 온보딩 라우트 가드 (onboarding_done 없으면 /onboarding 리다이렉트), BottomNav 조건부 숨김
+
+**코드 리뷰 수정사항 (BLOCK/WARN) 반영:**
+- [x] `src/App.tsx` — `isOnboardingDone()` 매 렌더 호출 → React state로 전환 (BLOCK)
+- [x] `src/lib/stats.ts` `calcWallet` — 음수 입력 패널티 없이 통과 → `spend > 0` 조건으로 수정 (BLOCK)
+- [x] `src/pages/Onboarding.tsx` `handleComplete` — `birthYear === ''` 시 0 저장 방지 guard 추가 (BLOCK)
+- [x] `src/components/BaselineForm.tsx` — 중복 `formatSpend` 제거, `stats.ts` import로 대체 (WARN)
+- [x] `src/pages/Settings.tsx` — `CLASS_OPTIONS` export로 Onboarding과 공유 (WARN)
+- [x] `src/pages/Onboarding.tsx` — `hover:bg-[#4340a0]` → `hover:bg-purple-dark` 토큰으로 교체 (WARN)
+- [x] `src/store/useStore.ts` — `loadAllPatches()` 이중 호출 → 변수에 담아 재사용 (WARN)
 
 ---
 

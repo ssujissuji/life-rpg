@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
-import type { Character } from '../types'
+import type { Character, PersonalBaseline } from '../types'
+import BaselineForm from '../components/BaselineForm'
 
-const CLASS_OPTIONS = ['취준생', '직장인', '프리랜서', '학생', '백수', '사회인']
+export const CLASS_OPTIONS = ['취준생', '직장인', '프리랜서', '학생', '백수', '사회인']
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { character, setCharacter } = useStore()
+  const { character, setCharacter, baseline, setBaseline } = useStore()
 
   const [form, setForm] = useState<Character>({ ...character })
+  const [baselineForm, setBaselineForm] = useState<PersonalBaseline>({ ...baseline })
   const [saved, setSaved] = useState(false)
 
   const set =
@@ -20,6 +22,7 @@ export default function Settings() {
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setCharacter({ ...form, birthYear: Number(form.birthYear) })
+    setBaseline(baselineForm)
     setSaved(true)
     setTimeout(() => setSaved(false), 1500)
   }
@@ -90,6 +93,12 @@ export default function Settings() {
               className="w-full bg-bg-input text-white text-sm font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-purple-primary transition-all"
             />
           </div>
+        </div>
+
+        <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
+          <div className="text-purple-light text-xs font-mono font-bold">개인 기준값</div>
+          <BaselineForm value={baselineForm} onChange={setBaselineForm} />
+          <div className="text-[#6b7280] text-[11px] font-mono">이후 기록부터 적용됩니다</div>
         </div>
 
         <button

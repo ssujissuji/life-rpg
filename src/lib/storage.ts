@@ -1,8 +1,11 @@
-import type { PatchEntry, Character, PatchRecord } from '../types'
+import type { PatchEntry, Character, PatchRecord, PersonalBaseline } from '../types'
+import { DEFAULT_BASELINE } from '../types'
 
 const PATCH_PREFIX = 'patch_'
 const CHARACTER_KEY = 'character'
 const SKILL_MAXED_KEY = 'skill_maxed'
+const BASELINE_KEY = 'baseline'
+const ONBOARDING_KEY = 'onboarding_done'
 
 export function savePatch(date: string, data: PatchEntry): void {
   localStorage.setItem(`${PATCH_PREFIX}${date}`, JSON.stringify(data))
@@ -62,6 +65,28 @@ export function loadMaxedSkills(): string[] {
 
 export function saveMaxedSkills(skills: string[]): void {
   localStorage.setItem(SKILL_MAXED_KEY, JSON.stringify(skills))
+}
+
+export function saveBaseline(data: PersonalBaseline): void {
+  localStorage.setItem(BASELINE_KEY, JSON.stringify(data))
+}
+
+export function loadBaseline(): PersonalBaseline {
+  const raw = localStorage.getItem(BASELINE_KEY)
+  if (!raw) return { ...DEFAULT_BASELINE }
+  try {
+    return JSON.parse(raw) as PersonalBaseline
+  } catch {
+    return { ...DEFAULT_BASELINE }
+  }
+}
+
+export function isOnboardingDone(): boolean {
+  return localStorage.getItem(ONBOARDING_KEY) !== null
+}
+
+export function setOnboardingDone(): void {
+  localStorage.setItem(ONBOARDING_KEY, '1')
 }
 
 export function clearAll(): void {

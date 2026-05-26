@@ -6,6 +6,46 @@
 
 ## 2026-05-26
 
+### Phase 1.5 — 온보딩 + 개인 기준값
+
+**신규 파일**
+- `src/pages/Onboarding.tsx` — 4단계 온보딩 화면. Step 1(이름), Step 2(클래스), Step 3(출생연도)는 필수. Step 4(기준값 설정)는 건너뛰기 가능, 건너뛰면 DEFAULT_BASELINE 저장. 완료 시 `character` + `baseline` localStorage 저장, `onboarding_done` 플래그 저장 → `/` 이동
+- `src/components/BaselineForm.tsx` — 개인 기준값 입력 폼 재사용 컴포넌트. sleepGoal 슬라이더(4~10h, step 0.5), cafeMax 카운터(1~5), spendThreshold 칩 선택(1만/2만/3만/5만/10만). Onboarding Step 4와 Settings 기준값 섹션에서 공용 사용
+
+**src/types.ts**
+- `PersonalBaseline` 인터페이스 추가 (`sleepGoal`, `cafeMax`, `spendThreshold` 필드)
+- `DEFAULT_BASELINE` 상수 추가 (`sleepGoal: 7`, `cafeMax: 2`, `spendThreshold: 30000`)
+
+**src/lib/storage.ts**
+- `saveBaseline(baseline)`, `loadBaseline()` 추가 (`baseline` localStorage 키)
+- `isOnboardingDone()`, `setOnboardingDone()` 추가 (`onboarding_done` localStorage 키)
+
+**src/lib/stats.ts**
+- `calcHP`, `calcFocus`, `calcSleepQ`, `getStatusTags`, `calcStats`에 `baseline?: PersonalBaseline` 인자 추가. 미전달 시 DEFAULT_BASELINE fallback
+- `calcWallet` — PRD 스펙 맞게 spend 조건 수정 (`spend > 0`). 꿀잠 기준은 `sleepGoal + 1h`로 자동 계산 (UI 미노출)
+
+**src/store/useStore.ts**
+- `baseline: PersonalBaseline` 상태 추가 (초기값 `loadBaseline()`)
+- `setBaseline(baseline)` 액션 추가
+
+**src/pages/Settings.tsx**
+- 개인 기준값 섹션 추가 (sleepGoal / cafeMax / spendThreshold). `BaselineForm` 재사용
+- `CLASS_OPTIONS` 배열 export 추가 (Onboarding과 공유)
+
+**src/App.tsx**
+- 온보딩 라우트 가드 추가. `onboarding_done` 키 없으면 `/onboarding`으로 리다이렉트
+- BottomNav 온보딩 화면에서 조건부 숨김 처리
+- 온보딩 완료 후 재리다이렉트 방지 위해 `isOnboardingDone()` 매 렌더 호출 → React state로 전환 (BLOCK)
+
+**코드 리뷰 수정사항 반영**
+- `src/lib/stats.ts` `calcWallet` — 음수 입력이 패널티 없이 통과하던 문제. `spend > 0` 조건으로 수정 (BLOCK)
+- `src/pages/Onboarding.tsx` `handleComplete` — `birthYear === ''`일 때 `Number('')`=0이 저장되던 문제. guard 추가 (BLOCK)
+- `src/components/BaselineForm.tsx` — 로컬 `formatSpend` 중복 제거, `stats.ts` import로 대체 (WARN)
+- `src/pages/Onboarding.tsx` — `hover:bg-[#4340a0]` 하드코딩 → `hover:bg-purple-dark` 토큰으로 교체 (WARN)
+- `src/store/useStore.ts` — `loadAllPatches()` 이중 호출 → 변수에 담아 재사용 (WARN)
+
+---
+
 ### AirKorea API 파라미터 버그 수정
 
 **api/airkorea.ts**
