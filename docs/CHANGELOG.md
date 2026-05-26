@@ -4,7 +4,7 @@
 
 ---
 
-## [Unreleased]
+## [0.5.0] 2026-05-26 — 온보딩 지역 선택 및 날씨 정확도 개선
 
 ### Added
 - `src/components/SidoPicker.tsx` (신규) — 17개 시도 버튼 그리드 재사용 컴포넌트. Onboarding Step 4와 Settings 지역 선택 섹션에서 공용 사용
