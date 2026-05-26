@@ -19,19 +19,21 @@ function AppShell() {
   }
 
   return (
-    <div className="max-w-[430px] mx-auto min-h-svh bg-bg-root relative">
-      <Routes>
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/" element={<CharacterSheet />} />
-        <Route path="/daily" element={<DailyLog />} />
-        <Route path="/daily/:date" element={<DailyLog />} />
-        <Route path="/result/:date" element={<PatchResult />} />
-        <Route path="/calendar" element={<CalendarView />} />
-        <Route path="/analysis" element={<Analysis />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      {!onboardingPath && <BottomNav />}
+    <div className="min-h-svh bg-bg-root sm:py-6">
+      <div className="max-w-[430px] mx-auto min-h-svh sm:min-h-0 bg-bg-root relative">
+        <Routes>
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/" element={<CharacterSheet />} />
+          <Route path="/daily" element={<DailyLog />} />
+          <Route path="/daily/:date" element={<DailyLog />} />
+          <Route path="/result/:date" element={<PatchResult />} />
+          <Route path="/calendar" element={<CalendarView />} />
+          <Route path="/analysis" element={<Analysis />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        {!onboardingPath && <BottomNav />}
+      </div>
     </div>
   )
 }

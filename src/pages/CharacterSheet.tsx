@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Settings } from 'lucide-react'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import SkillModal from '../components/SkillModal'
@@ -76,9 +77,9 @@ export default function CharacterSheet() {
           </div>
           <button
             onClick={() => navigate('/settings')}
-            className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
+            className="text-text-sub hover:text-purple-light transition-colors"
           >
-            설정 →
+            <Settings size={16} />
           </button>
         </div>
 

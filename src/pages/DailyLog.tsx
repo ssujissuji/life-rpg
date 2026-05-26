@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Save } from 'lucide-react';
 import useStore from '../store/useStore';
 import { formatSpend } from '../lib/stats';
 import { today, formatDateLabel } from '../lib/date';
@@ -121,8 +122,8 @@ export default function DailyLog() {
     e.preventDefault();
     savePatchEntry(date, {
       ...form,
-      weather: isToday ? weatherLabel ?? undefined : undefined,
-      aqi: isToday ? aqiLabel ?? undefined : undefined,
+      weather: isToday ? (weatherLabel ?? undefined) : undefined,
+      aqi: isToday ? (aqiLabel ?? undefined) : undefined,
     });
     navigate(`/result/${date}`, { state: { fromSave: true } });
   }
@@ -134,7 +135,7 @@ export default function DailyLog() {
         <button
           onClick={() => navigate(-1)}
           className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors">
-          ← 뒤로
+          <ArrowLeft size={16} />
         </button>
         <div className="text-white font-mono font-bold text-base">
           {isToday ? '오늘의 패치노트' : `${date} 패치노트`}
@@ -146,27 +147,31 @@ export default function DailyLog() {
           <div className="text-text-sub text-xs font-mono">날씨 확인 중...</div>
         )}
         {isToday && !isLoading && error && !weatherLabel && !aqiLabel && (
-          <div className="text-text-sub text-xs font-mono">날씨 정보를 불러오지 못했습니다</div>
-        )}
-        {isToday && !isLoading && (weatherLabel || aqiLabel || isDateHoliday) && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {weatherLabel && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
-                {weatherLabel}
-              </span>
-            )}
-            {aqiLabel && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
-                {aqiLabel}
-              </span>
-            )}
-            {isDateHoliday && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-success">
-                🎌 공휴일
-              </span>
-            )}
+          <div className="text-text-sub text-xs font-mono">
+            날씨 정보를 불러오지 못했습니다
           </div>
         )}
+        {isToday &&
+          !isLoading &&
+          (weatherLabel || aqiLabel || isDateHoliday) && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {weatherLabel && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
+                  {weatherLabel}
+                </span>
+              )}
+              {aqiLabel && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-purple-light">
+                  {aqiLabel}
+                </span>
+              )}
+              {isDateHoliday && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input border border-border font-mono text-success">
+                  🎌 공휴일
+                </span>
+              )}
+            </div>
+          )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -314,7 +319,7 @@ export default function DailyLog() {
           type="submit"
           disabled={isFuture}
           className={`w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors ${isFuture ? 'opacity-40 cursor-not-allowed' : ''}`}>
-          패치노트 저장 →
+          <span className="flex items-center justify-center gap-2">패치노트 저장 <Save size={14} /></span>
         </button>
       </form>
     </div>

@@ -1,31 +1,39 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import useStore from '../store/useStore'
-import type { Character, PersonalBaseline, SidoName } from '../types'
-import BaselineForm from '../components/BaselineForm'
-import SidoPicker from '../components/SidoPicker'
+import { useState, type ChangeEvent, type SubmitEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import useStore from '../store/useStore';
+import type { Character, PersonalBaseline, SidoName } from '../types';
+import BaselineForm from '../components/BaselineForm';
+import SidoPicker from '../components/SidoPicker';
 
-export const CLASS_OPTIONS = ['취준생', '직장인', '프리랜서', '학생', '백수', '사회인']
+export const CLASS_OPTIONS = [
+  '취준생',
+  '직장인',
+  '프리랜서',
+  '학생',
+  '백수',
+  '사회인',
+];
 
 export default function Settings() {
-  const navigate = useNavigate()
-  const { character, setCharacter, baseline, setBaseline } = useStore()
+  const navigate = useNavigate();
+  const { character, setCharacter, baseline, setBaseline } = useStore();
 
-  const [form, setForm] = useState<Character>({ ...character })
-  const [baselineForm, setBaselineForm] = useState<PersonalBaseline>({ ...baseline })
-  const [saved, setSaved] = useState(false)
+  const [form, setForm] = useState<Character>({ ...character });
+  const [baselineForm, setBaselineForm] = useState<PersonalBaseline>({
+    ...baseline,
+  });
+  const [saved, setSaved] = useState(false);
 
-  const set =
-    (key: keyof Character) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setForm((f) => ({ ...f, [key]: e.target.value }))
+  const set = (key: keyof Character) => (e: ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setCharacter({ ...form, birthYear: Number(form.birthYear) })
-    setBaseline(baselineForm)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
+  function handleSave(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setCharacter({ ...form, birthYear: Number(form.birthYear) });
+    setBaseline(baselineForm);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
   }
 
   return (
@@ -33,16 +41,17 @@ export default function Settings() {
       <div className="space-y-1">
         <button
           onClick={() => navigate('/')}
-          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
-        >
-          ← 뒤로
+          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors">
+          <ArrowLeft size={16} />
         </button>
         <div className="text-white font-mono font-bold text-base">설정</div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">
         <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
-          <div className="text-purple-light text-xs font-mono font-bold">캐릭터 정보</div>
+          <div className="text-purple-light text-xs font-mono font-bold">
+            캐릭터 정보
+          </div>
 
           <div className="space-y-1.5">
             <label className="text-text-sub text-xs font-mono">캐릭터명</label>
@@ -67,8 +76,7 @@ export default function Settings() {
                     form.class === cls
                       ? 'bg-purple-primary text-white'
                       : 'bg-bg-input text-text-sub hover:text-white'
-                  }`}
-                >
+                  }`}>
                   {cls}
                 </button>
               ))}
@@ -84,7 +92,9 @@ export default function Settings() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-text-sub text-xs font-mono">출생연도 (레벨 계산용)</label>
+            <label className="text-text-sub text-xs font-mono">
+              출생연도 (레벨 계산용)
+            </label>
             <input
               type="number"
               value={form.birthYear}
@@ -96,27 +106,34 @@ export default function Settings() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-text-sub text-xs font-mono">지역 (날씨/공기질)</label>
+            <label className="text-text-sub text-xs font-mono">
+              지역 (날씨/공기질)
+            </label>
             <SidoPicker
               value={form.region ?? null}
-              onChange={(sido: SidoName) => setForm(f => ({ ...f, region: sido }))}
+              onChange={(sido: SidoName) =>
+                setForm((f) => ({ ...f, region: sido }))
+              }
             />
           </div>
         </div>
 
         <div className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
-          <div className="text-purple-light text-xs font-mono font-bold">개인 기준값</div>
+          <div className="text-purple-light text-xs font-mono font-bold">
+            개인 기준값
+          </div>
           <BaselineForm value={baselineForm} onChange={setBaselineForm} />
-          <div className="text-[#6b7280] text-[11px] font-mono">이후 기록부터 적용됩니다</div>
+          <div className="text-[#6b7280] text-[11px] font-mono">
+            이후 기록부터 적용됩니다
+          </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
-        >
+          className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors">
           {saved ? '✓ 저장됨' : '저장하기'}
         </button>
       </form>
     </div>
-  )
+  );
 }
