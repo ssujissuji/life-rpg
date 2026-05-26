@@ -417,6 +417,14 @@
 
 ---
 
+### [2026-05-26] 분석 페이지 주간/월간 날짜 네비게이션 기능 추가
+
+**완료된 항목:**
+- [x] `src/components/PeriodNavigator.tsx` (신규) — 이전/다음 기간 이동 버튼 + 현재 기간 레이블 컴포넌트 (6 props: label/prevLabel/nextLabel/onPrev/onNext/isNextDisabled)
+- [x] `src/pages/Analysis.tsx` — `weekBaseDate` / `monthBaseDate` 로컬 state 추가, PeriodNavigator 연결, useMemo 의존성 변경, 스탯 트렌드 레이블 동적 반영
+
+---
+
 ### [2026-05-26] maxedSkills Zustand 반응형 상태 통합
 
 **완료된 항목:**
