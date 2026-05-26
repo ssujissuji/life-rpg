@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { latlonToGrid, getKmaBaseDateTime, mapKmaWeather, mapKhaiGrade, SIDO_COORDS } from '../lib/weather'
+import { latlonToGrid, getKmaBaseDateTime, getWeatherLabel, mapKhaiGrade, SIDO_COORDS } from '../lib/weather'
 import useStore from '../store/useStore'
 import type { SidoName } from '../types'
 
@@ -47,11 +47,10 @@ export function useWeather(): UseWeatherResult {
 
       if (weatherResult.status === 'fulfilled') {
         const items = weatherResult.value?.response?.body?.items?.item as { category: string; obsrValue: string }[] | undefined
-        const ptyItem = items?.find(i => i.category === 'PTY')
-        if (ptyItem) {
-          const label = mapKmaWeather(parseInt(ptyItem.obsrValue, 10))
-          if (label) setWeatherLabel(label)
-        }
+        const pty = parseInt(items?.find(i => i.category === 'PTY')?.obsrValue ?? '', 10)
+        const sky = parseInt(items?.find(i => i.category === 'SKY')?.obsrValue ?? '', 10)
+        const label = getWeatherLabel(pty, sky)
+        if (label) setWeatherLabel(label)
       }
 
       if (aqiResult.status === 'fulfilled') {
@@ -72,7 +71,8 @@ export function useWeather(): UseWeatherResult {
     } else {
       navigator.geolocation.getCurrentPosition(
         pos => { fetchAll(pos.coords.latitude, pos.coords.longitude) },
-        () => { fetchAll(SEOUL_LAT, SEOUL_LON) }
+        () => { fetchAll(SEOUL_LAT, SEOUL_LON) },
+        { timeout: TIMEOUT_MS }
       )
     }
 

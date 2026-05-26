@@ -4,7 +4,7 @@
 
 ---
 
-## [Unreleased]
+## [0.5.0] 2026-05-26 — 온보딩 지역 선택 및 날씨 정확도 개선
 
 ### Added
 - `src/components/SidoPicker.tsx` (신규) — 17개 시도 버튼 그리드 재사용 컴포넌트. Onboarding Step 4와 Settings 지역 선택 섹션에서 공용 사용
@@ -14,12 +14,19 @@
 - `src/store/useStore.ts` — `region: SidoName | null` 상태 및 `setRegion()` 액션 추가
 
 ### Changed
+- `src/store/useStore.ts` — `maxedSkills: string[]`를 Zustand 반응형 state로 통합. `getMaxedSkills()` 액션 제거, `markSkillsMaxed` 액션에 `set({ maxedSkills: merged })` 갱신 추가. 기존에는 매 호출마다 localStorage를 직접 읽는 구조였음
+- `src/pages/PatchResult.tsx` — `getMaxedSkills()` 직접 호출 → `useStore(s => s.maxedSkills)` 셀렉터 구독으로 교체. `useMemo` 의존성 배열 정리
 - `src/pages/Onboarding.tsx` — Step 타입 `1|2|3|4|5`로 확장. Step 4(지역 선택, 선택사항) 삽입, 기존 Step 4(기준값)를 Step 5로 이동. 미선택 시 null 저장 → geolocation fallback 유지
 - `src/pages/Settings.tsx` — 지역 선택 섹션 추가 (`SidoPicker` 재사용)
 - `src/hooks/useWeather.ts` — 저장된 `region`이 있으면 `SIDO_COORDS[region]` 좌표로 직접 fetch. airkorea API 호출 시 `sidoName` 쿼리 파라미터 전달. `useEffect` 의존성 배열에 `region` 추가
 - `api/airkorea.ts` — `SIDO_ALLOWLIST` 추가, `sidoName` 쿼리 파라미터 직접 수신 지원 (allowlist 통과 시 우선, 아니면 기존 lat/lon 폴백)
 
 ### Fixed
+- `src/lib/weather.ts` / `src/hooks/useWeather.ts` — `mapKmaWeather(pty)` 제거, `getWeatherLabel(pty, sky)` 도입. PTY=0(강수 없음) 시 SKY 코드 기반으로 맑음/구름많음/흐림 분기. 기존에는 PTY=0을 무조건 맑음으로 표시하던 문제 수정 (BUG-08)
+- `src/hooks/useWeather.ts` — `getCurrentPosition` 세 번째 인자에 `{ timeout: TIMEOUT_MS }` 추가. timeout 미설정으로 geolocation 응답이 무한 대기되던 버그 수정 (BUG-07)
+- `src/pages/DailyLog.tsx` — `useWeather()` error 상태 처리 추가. API 전체 실패 시 "날씨 정보를 불러오지 못했습니다" 오류 메시지 표시
+- `src/components/SidoPicker.tsx` — hex 하드코딩 컬러 전체 → Tailwind 디자인 토큰으로 교체 (`bg-purple-primary`, `bg-bg-input`, `text-text-sub`, `hover:bg-border`)
+- `src/pages/Onboarding.tsx` — hex 하드코딩 컬러 전체 → Tailwind 디자인 토큰으로 교체. `isStep4Valid = true` dead code 제거
 - `eslint.config.js` — `api/**/*.ts`에 `globals.node` 별도 적용. 기존 `globals.browser`만 적용되어 `process` 변수 미인식 에러 수정
 - `src/App.tsx` — `useState(() => isOnboardingDone())` 스냅샷 방식을 `useStore(s => s.onboardingDone)` 구독으로 교체. 온보딩 완료 직후 재리다이렉트 버그 수정 (BUG-06)
 - `src/pages/Onboarding.tsx` — `handleComplete`의 `setOnboardingDone()` 직접 호출을 `completeOnboarding()` 스토어 액션으로 교체. `setOnboardingDone` import 제거

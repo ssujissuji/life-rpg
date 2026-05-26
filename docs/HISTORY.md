@@ -6,6 +6,54 @@
 
 ## 2026-05-26
 
+### maxedSkills Zustand 반응형 상태 통합
+
+**배경:** `getMaxedSkills()` 액션이 매 호출마다 localStorage를 직접 읽는 구조였음. `maxedSkills`가 Zustand 반응형 state가 아니라 컴포넌트가 상태 변경에 구독하지 못하는 문제 존재.
+
+**src/store/useStore.ts**
+- `StoreState` 인터페이스에 `maxedSkills: string[]` 필드 추가
+- 초기값에 `maxedSkills: loadMaxedSkills()` 추가
+- `getMaxedSkills: () => string[]` 액션 제거
+- `markSkillsMaxed` 액션에 `set({ maxedSkills: merged })` 반응형 갱신 추가. 기존에는 `saveMaxedSkills(merged)` localStorage 쓰기만 수행
+
+**src/pages/PatchResult.tsx**
+- `getMaxedSkills()` 함수 호출 → `useStore(s => s.maxedSkills)` 셀렉터 구독으로 교체
+- `useMemo` 의존성 배열에서 `getMaxedSkills` 제거, `maxedSkills` 추가
+
+---
+
+### 날씨 렌더링 버그·경고 수정
+
+**src/lib/weather.ts**
+- `mapKmaWeather(pty)` 제거
+- `getWeatherLabel(pty, sky)` 추가. PTY≠0이면 강수 라벨(비/눈 등) 반환, PTY=0이면 SKY(하늘상태) 기반으로 맑음/구름많음/흐림 반환
+
+**src/hooks/useWeather.ts**
+- import를 `mapKmaWeather` → `getWeatherLabel`로 교체
+- 날씨 API 응답에서 PTY와 SKY 카테고리를 모두 추출해 `getWeatherLabel(pty, sky)` 호출로 변경
+- `navigator.geolocation.getCurrentPosition` 세 번째 인자에 `{ timeout: TIMEOUT_MS }` 추가 (BUG-07)
+
+**src/pages/DailyLog.tsx**
+- `useWeather()`에서 `error` 상태 destructure 추가
+- API 전체 실패 시 "날씨 정보를 불러오지 못했습니다" 오류 메시지 UI 추가
+
+**src/components/SidoPicker.tsx**
+- hex 하드코딩 컬러(`#534ab7`, `#1e1e2e`, `#6b7280`, `#2a2a3a`) → Tailwind 디자인 토큰(`bg-purple-primary`, `bg-bg-input`, `text-text-sub`, `hover:bg-border`)으로 교체
+
+**src/pages/Onboarding.tsx**
+- hex 하드코딩 컬러 전체 → Tailwind 디자인 토큰으로 교체 (`bg-bg-root`, `bg-bg-card`, `bg-bg-input`, `bg-purple-primary`, `border-border`, `text-text-sub`, `text-danger`, `text-purple-light`, `placeholder-text-sub` 등)
+- `isStep4Valid = true` dead code 제거 및 disable 조건에서 해당 조건 제거
+
+**BUG-07 — geolocation 무한 로딩**
+- 원인: `navigator.geolocation.getCurrentPosition` 호출 시 세 번째 인자(options) 미설정으로 timeout이 Infinity로 동작
+- 해결: `{ timeout: TIMEOUT_MS }` 옵션 추가
+
+**BUG-08 — PTY=0을 맑음으로 오표시**
+- 원인: `mapKmaWeather(pty)`가 PTY 코드만 보고 PTY=0(강수 없음)을 맑음으로 반환. SKY(하늘상태) 코드를 활용하지 않아 구름많음/흐림이 맑음으로 표시됨
+- 해결: `getWeatherLabel(pty, sky)` 함수로 교체. PTY=0인 경우 SKY 코드 기반으로 맑음/구름많음/흐림 분기 처리
+
+---
+
 ### BUG-06 — 온보딩 완료 후 리다이렉트 버그 수정
 
 **현상:** 온보딩 완료 후 `/`로 이동하지 않고 온보딩 첫 화면으로 다시 튕기는 문제

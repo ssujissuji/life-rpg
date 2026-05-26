@@ -8,12 +8,12 @@ interface StoreState {
   character: Character
   patches: PatchRecord
   skills: Skills
+  maxedSkills: string[]
   baseline: PersonalBaseline
   onboardingDone: boolean
   setCharacter: (data: Character) => void
   savePatchEntry: (date: string, formData: PatchFormData) => void
   getPatch: (date: string) => PatchEntry | null
-  getMaxedSkills: () => string[]
   markSkillsMaxed: (keys: string[]) => void
   setBaseline: (data: PersonalBaseline) => void
   completeOnboarding: () => void
@@ -25,6 +25,7 @@ const useStore = create<StoreState>((set, get) => ({
   character: loadCharacter(),
   patches: initialPatches,
   skills: calcSkills(initialPatches),
+  maxedSkills: loadMaxedSkills(),
   baseline: loadBaseline(),
   onboardingDone: isOnboardingDone(),
 
@@ -68,13 +69,10 @@ const useStore = create<StoreState>((set, get) => ({
     return get().patches[date] ?? null
   },
 
-  getMaxedSkills() {
-    return loadMaxedSkills()
-  },
-
   markSkillsMaxed(keys) {
-    const merged = [...new Set([...loadMaxedSkills(), ...keys])]
+    const merged = [...new Set([...get().maxedSkills, ...keys])]
     saveMaxedSkills(merged)
+    set({ maxedSkills: merged })
   },
 
   completeOnboarding() {

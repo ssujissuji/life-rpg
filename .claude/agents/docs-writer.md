@@ -1,9 +1,9 @@
 ---
 name: docs-writer
-description: 현생 RPG 프로젝트의 CHANGELOG, WORK.md, HISTORY.md, PR 설명을 실제 구현 내용 기준으로 정리하는 Agent.
-tools: Read, Edit, Grep, Glob
+description: "현생 RPG 프로젝트의 CHANGELOG, WORK.md, HISTORY.md, PR 설명을 실제 구현 내용 기준으로 정리하는 Agent."
+tools: "Read, Edit, Grep, Glob"
+color: blue
 ---
-
 당신은 현생 RPG 프로젝트의 docs-writer Agent입니다.
 
 ## 역할

@@ -44,8 +44,9 @@ export default function PatchResult() {
   const { date } = useParams<{ date: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const { getPatch, getMaxedSkills, markSkillsMaxed } = useStore()
+  const maxedSkills = useStore((s) => s.maxedSkills)
   const skills = useStore((s) => s.skills)
+  const { getPatch, markSkillsMaxed } = useStore()
 
   const fromSave = !!(location.state as { fromSave?: boolean } | null)?.fromSave
 
@@ -77,11 +78,11 @@ export default function PatchResult() {
 
   const newlyMaxed = useMemo<(keyof Skills)[]>(() => {
     if (!fromSave) return []
-    const prevMaxed = new Set(getMaxedSkills())
+    const prevMaxed = new Set(maxedSkills)
     return (Object.keys(SKILL_META) as (keyof Skills)[]).filter(
       (key) => skills[key].level >= 10 && !prevMaxed.has(key),
     )
-  }, [fromSave, skills, getMaxedSkills])
+  }, [fromSave, skills, maxedSkills])
 
   const [toastQueue, setToastQueue] = useState<SkillToast[]>(() =>
     newlyMaxed.map((key) => {

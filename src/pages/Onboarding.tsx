@@ -29,8 +29,6 @@ export default function Onboarding() {
   const isStep2Valid = resolvedCls.trim().length > 0
   const isStep3Valid =
     birthYear !== '' && Number(birthYear) >= 1950 && Number(birthYear) <= currentYear
-  const isStep4Valid = true
-
   function handleComplete(useDefault: boolean) {
     if (birthYear === '' || isNaN(Number(birthYear))) return
     setCharacter({ name: name.trim(), class: resolvedCls.trim(), birthYear: Number(birthYear), region: region ?? undefined })
@@ -48,14 +46,14 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-svh bg-[#0f0f13] flex flex-col font-mono">
+    <div className="min-h-svh bg-bg-root flex flex-col font-mono">
       <div className="flex-1 flex flex-col w-full max-w-[430px] mx-auto px-4 pt-10 pb-8">
         <div className="flex justify-center gap-2 mb-10">
           {([1, 2, 3, 4, 5] as Step[]).map((s) => (
             <div
               key={s}
               className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                s === step ? 'bg-[#534ab7]' : 'bg-[#2a2a3a]'
+                s === step ? 'bg-purple-primary' : 'bg-border'
               }`}
             />
           ))}
@@ -65,9 +63,9 @@ export default function Onboarding() {
           {step === 1 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 1 / 5</div>
+                <div className="text-text-sub text-[11px] font-mono uppercase tracking-widest">STEP 1 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">캐릭터명을 입력하세요</div>
-                <div className="text-[#6b7280] text-[13px] font-mono">앱에서 사용할 이름입니다</div>
+                <div className="text-text-sub text-[13px] font-mono">앱에서 사용할 이름입니다</div>
               </div>
               <input
                 type="text"
@@ -75,7 +73,7 @@ export default function Onboarding() {
                 onChange={(e) => setName(e.target.value)}
                 maxLength={20}
                 placeholder="이름 입력..."
-                className="w-full bg-[#1e1e2e] border border-[#2a2a3a] text-white text-[13px] font-mono rounded-lg px-3 py-3 outline-none focus:ring-1 focus:ring-[#534ab7] focus:border-[#534ab7] transition-colors placeholder-[#6b7280]"
+                className="w-full bg-bg-input border border-border text-white text-[13px] font-mono rounded-lg px-3 py-3 outline-none focus:ring-1 focus:ring-purple-primary focus:border-purple-primary transition-colors placeholder-text-sub"
                 autoFocus
               />
             </div>
@@ -84,9 +82,9 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 2 / 5</div>
+                <div className="text-text-sub text-[11px] font-mono uppercase tracking-widest">STEP 2 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">클래스를 선택하세요</div>
-                <div className="text-[#6b7280] text-[13px] font-mono">현재 직업 또는 상태</div>
+                <div className="text-text-sub text-[13px] font-mono">현재 직업 또는 상태</div>
               </div>
               <div className="space-y-3">
                 <div className="flex gap-1.5 flex-wrap">
@@ -100,8 +98,8 @@ export default function Onboarding() {
                       }}
                       className={`px-3 py-1.5 rounded text-xs font-mono transition-colors ${
                         cls === option
-                          ? 'bg-[#534ab7] text-white'
-                          : 'bg-[#1e1e2e] text-[#6b7280] hover:text-white hover:bg-[#2a2a3a]'
+                          ? 'bg-purple-primary text-white'
+                          : 'bg-bg-input text-text-sub hover:text-white hover:bg-border'
                       }`}
                     >
                       {option}
@@ -117,7 +115,7 @@ export default function Onboarding() {
                   }}
                   placeholder="직접 입력..."
                   maxLength={10}
-                  className="w-full bg-[#1e1e2e] border border-[#2a2a3a] text-white text-[13px] font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-[#534ab7] focus:border-[#534ab7] transition-colors placeholder-[#6b7280]"
+                  className="w-full bg-bg-input border border-border text-white text-[13px] font-mono rounded-lg px-3 py-2.5 outline-none focus:ring-1 focus:ring-purple-primary focus:border-purple-primary transition-colors placeholder-text-sub"
                 />
               </div>
             </div>
@@ -126,9 +124,9 @@ export default function Onboarding() {
           {step === 3 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 3 / 5</div>
+                <div className="text-text-sub text-[11px] font-mono uppercase tracking-widest">STEP 3 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">출생연도를 입력하세요</div>
-                <div className="text-[#6b7280] text-[13px] font-mono">레벨 계산에 사용됩니다</div>
+                <div className="text-text-sub text-[13px] font-mono">레벨 계산에 사용됩니다</div>
               </div>
               <input
                 type="number"
@@ -139,12 +137,12 @@ export default function Onboarding() {
                 min={1950}
                 max={currentYear}
                 placeholder="예: 1995"
-                className="w-full bg-[#1e1e2e] border border-[#2a2a3a] text-white text-[13px] font-mono rounded-lg px-3 py-3 outline-none focus:ring-1 focus:ring-[#534ab7] focus:border-[#534ab7] transition-colors placeholder-[#6b7280]"
+                className="w-full bg-bg-input border border-border text-white text-[13px] font-mono rounded-lg px-3 py-3 outline-none focus:ring-1 focus:ring-purple-primary focus:border-purple-primary transition-colors placeholder-text-sub"
                 autoFocus
               />
               {birthYear !== '' &&
                 (Number(birthYear) < 1950 || Number(birthYear) > currentYear) && (
-                  <div className="text-[#f0997b] text-xs font-mono">
+                  <div className="text-danger text-xs font-mono">
                     1950 ~ {currentYear} 사이의 연도를 입력하세요
                   </div>
                 )}
@@ -154,9 +152,9 @@ export default function Onboarding() {
           {step === 4 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 4 / 5</div>
+                <div className="text-text-sub text-[11px] font-mono uppercase tracking-widest">STEP 4 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">지역을 선택하세요</div>
-                <div className="text-[#6b7280] text-[13px] font-mono">날씨 및 공기질 데이터에 사용됩니다</div>
+                <div className="text-text-sub text-[13px] font-mono">날씨 및 공기질 데이터에 사용됩니다</div>
               </div>
               <SidoPicker value={region} onChange={setRegionLocal} />
             </div>
@@ -165,11 +163,11 @@ export default function Onboarding() {
           {step === 5 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
-                <div className="text-[#6b7280] text-[11px] font-mono uppercase tracking-widest">STEP 5 / 5</div>
+                <div className="text-text-sub text-[11px] font-mono uppercase tracking-widest">STEP 5 / 5</div>
                 <div className="text-white font-bold text-xl font-mono">개인 기준값 설정</div>
-                <div className="text-[#6b7280] text-[13px] font-mono">능력치 계산 기준이 됩니다</div>
+                <div className="text-text-sub text-[13px] font-mono">능력치 계산 기준이 됩니다</div>
               </div>
-              <div className="bg-[#12121a] border border-[#2a2a3a] rounded-lg p-4">
+              <div className="bg-bg-card border border-border rounded-lg p-4">
                 <BaselineForm value={baseline} onChange={setBaselineLocal} />
               </div>
             </div>
@@ -182,14 +180,14 @@ export default function Onboarding() {
               <button
                 type="button"
                 onClick={() => handleComplete(false)}
-                className="w-full bg-[#534ab7] hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
+                className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
               >
                 시작하기
               </button>
               <button
                 type="button"
                 onClick={() => handleComplete(true)}
-                className="w-full text-[#6b7280] font-mono text-[13px] py-2.5 hover:text-[#afa9ec] transition-colors"
+                className="w-full text-text-sub font-mono text-[13px] py-2.5 hover:text-purple-light transition-colors"
               >
                 건너뛰기 (기본값 사용)
               </button>
@@ -202,9 +200,9 @@ export default function Onboarding() {
                 (step === 1 && !isStep1Valid) ||
                 (step === 2 && !isStep2Valid) ||
                 (step === 3 && !isStep3Valid) ||
-                (step === 4 && !isStep4Valid)
+                false
               }
-              className="w-full bg-[#534ab7] hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               다음
             </button>
@@ -213,7 +211,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              className="w-full text-[#6b7280] font-mono text-[13px] py-2.5 hover:text-white transition-colors"
+              className="w-full text-text-sub font-mono text-[13px] py-2.5 hover:text-white transition-colors"
             >
               이전
             </button>
