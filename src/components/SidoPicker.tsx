@@ -16,8 +16,8 @@ export default function SidoPicker({ value, onChange }: SidoPickerProps) {
           onClick={() => onChange(sido)}
           className={`rounded px-3 py-1.5 text-xs font-mono transition-colors ${
             value === sido
-              ? 'bg-[#534ab7] text-white'
-              : 'bg-[#1e1e2e] text-[#6b7280] hover:text-white hover:bg-[#2a2a3a]'
+              ? 'bg-purple-primary text-white'
+              : 'bg-bg-input text-text-sub hover:text-white hover:bg-border'
           }`}
         >
           {sido}

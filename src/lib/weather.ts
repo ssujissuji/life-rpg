@@ -82,15 +82,15 @@ export function getKmaBaseDateTime(): { base_date: string; base_time: string } {
   return { base_date, base_time }
 }
 
-export function mapKmaWeather(pty: number): string | null {
-  switch (pty) {
-    case 0: return '☀️ 맑음'
-    case 1: return '🌧️ 비'
-    case 2: return '🌨️ 진눈깨비'
-    case 3: return '❄️ 눈'
-    case 4: return '🌦️ 소나기'
-    default: return null
-  }
+export function getWeatherLabel(pty: number, sky: number): string | null {
+  if (pty === 1) return '🌧️ 비'
+  if (pty === 2) return '🌨️ 진눈깨비'
+  if (pty === 3) return '❄️ 눈'
+  if (pty === 4) return '🌦️ 소나기'
+  if (sky === 1) return '☀️ 맑음'
+  if (sky === 3) return '🌤️ 구름많음'
+  if (sky === 4) return '☁️ 흐림'
+  return null
 }
 
 export function mapKhaiGrade(grade: number): string | null {

@@ -199,7 +199,7 @@
 - [x] BUG-05 수정 — `calcWallet` spend=0일 때 `-20` 패널티가 적용되던 버그. `spend <= 0`이면 spend 패널티 없음 (wallet 100 유지)
 
 **미완료 (다음으로 이월):**
-- [ ] `PatchResult.tsx` — loadMaxedSkills/saveMaxedSkills 직접 호출 → useStore 액션으로 감싸기
+- [x] `PatchResult.tsx` — loadMaxedSkills/saveMaxedSkills 직접 호출 → useStore 액션으로 감싸기
 
 ---
 
@@ -378,6 +378,17 @@
 
 ---
 
+### [2026-05-26] 날씨 렌더링 버그·경고 수정
+
+**완료된 항목:**
+- [x] `src/lib/weather.ts` — `mapKmaWeather(pty)` 제거, `getWeatherLabel(pty, sky)` 추가 (PTY=0이면 SKY 기반으로 맑음/구름많음/흐림 반환, PTY≠0이면 강수 라벨 반환)
+- [x] `src/hooks/useWeather.ts` — `mapKmaWeather` → `getWeatherLabel`로 교체. API 응답에서 PTY·SKY 카테고리 모두 추출해 `getWeatherLabel(pty, sky)` 호출. `navigator.geolocation.getCurrentPosition` 세 번째 인자에 `{ timeout: TIMEOUT_MS }` 추가 (BUG-07)
+- [x] `src/pages/DailyLog.tsx` — `useWeather()`에서 `error` 상태 destructure 추가. API 전체 실패 시 "날씨 정보를 불러오지 못했습니다" 오류 메시지 UI 추가
+- [x] `src/components/SidoPicker.tsx` — hex 하드코딩 컬러 → Tailwind 디자인 토큰으로 교체 (`bg-purple-primary`, `bg-bg-input`, `text-text-sub`, `hover:bg-border`)
+- [x] `src/pages/Onboarding.tsx` — hex 하드코딩 컬러 전체 → Tailwind 디자인 토큰으로 교체. `isStep4Valid = true` dead code 제거 및 disable 조건에서 해당 조건 제거
+
+---
+
 ### 버그 수정 완료 — 온보딩 완료 후 리다이렉트
 
 **현상:** 온보딩 완료 후 `/`로 이동하지 않고 온보딩 첫 화면으로 다시 튕김
@@ -394,3 +405,20 @@
 **주의 사항:**
 - `isOnboardingDone`을 `storage.ts`에서 삭제하지 말 것 (`useStore.ts` 초기화에서 사용 중)
 - `AppShell`에서 `useStore(s => s.onboardingDone)` selector 방식 사용
+
+---
+
+## 다음 작업 (2026-05-26 이월 확인)
+
+> `[2026-05-25] Phase 2 후속` 섹션의 이월 항목을 실제 코드와 대조한 결과, 아래 작업은 이미 구현 완료된 것으로 확인됨. 미완료 표시(`- [ ]`)를 완료(`- [x]`)로 수정함.
+
+- [x] `src/pages/PatchResult.tsx` — `loadMaxedSkills` / `saveMaxedSkills` 직접 호출 → `useStore`의 `getMaxedSkills()` / `markSkillsMaxed()` 액션으로 교체 (이미 완료)
+- [x] `src/store/useStore.ts` — `getMaxedSkills()`, `markSkillsMaxed(keys)` 액션 추가 (이미 완료)
+
+---
+
+### [2026-05-26] maxedSkills Zustand 반응형 상태 통합
+
+**완료된 항목:**
+- [x] `src/store/useStore.ts` — `StoreState` 인터페이스에 `maxedSkills: string[]` 필드 추가. 초기값 `loadMaxedSkills()`. `getMaxedSkills()` 액션 제거. `markSkillsMaxed` 액션에 `set({ maxedSkills: merged })` 반응형 갱신 추가
+- [x] `src/pages/PatchResult.tsx` — `getMaxedSkills()` 함수 호출 → `useStore(s => s.maxedSkills)` 셀렉터 구독으로 교체. `useMemo` 의존성 배열에서 `getMaxedSkills` 제거, `maxedSkills` 추가

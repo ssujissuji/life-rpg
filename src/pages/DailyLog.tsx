@@ -91,7 +91,7 @@ export default function DailyLog() {
   const navigate = useNavigate();
   const params = useParams<{ date?: string }>();
   const { savePatchEntry, getPatch } = useStore();
-  const { weatherLabel, aqiLabel, isLoading } = useWeather();
+  const { weatherLabel, aqiLabel, isLoading, error } = useWeather();
 
   const todayStr = today();
   const date = params.date ?? todayStr;
@@ -144,6 +144,9 @@ export default function DailyLog() {
         </div>
         {isToday && isLoading && (
           <div className="text-text-sub text-xs font-mono">날씨 확인 중...</div>
+        )}
+        {isToday && !isLoading && error && !weatherLabel && !aqiLabel && (
+          <div className="text-text-sub text-xs font-mono">날씨 정보를 불러오지 못했습니다</div>
         )}
         {isToday && !isLoading && (weatherLabel || aqiLabel || isDateHoliday) && (
           <div className="flex flex-wrap gap-1.5 pt-1">
