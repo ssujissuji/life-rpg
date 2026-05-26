@@ -16,28 +16,30 @@ export default function PeriodNavigator({
   isNextDisabled,
 }: PeriodNavigatorProps) {
   return (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center justify-between w-full gap-2">
       <button
         onClick={onPrev}
-        className="font-mono text-xs px-3 py-1 bg-bg-input text-purple-light border border-border rounded hover:bg-border transition-colors"
+        className="flex items-center gap-1.5 font-mono text-[13px] px-3 py-2.5 min-h-11 bg-bg-input text-purple-light border border-border hover:bg-border hover:text-white transition-colors"
       >
-        {'< '}{prevLabel}
+        <span className="text-purple-light">◀</span>
+        <span>{prevLabel}</span>
       </button>
 
-      <span className="text-xs font-mono text-center flex-1 text-text-base px-2">
+      <span className="font-mono text-sm font-bold text-center flex-1 text-white tracking-wide">
         {label}
       </span>
 
       <button
         onClick={onNext}
         disabled={isNextDisabled}
-        className={`font-mono text-xs px-3 py-1 bg-bg-input text-purple-light border border-border rounded transition-colors ${
+        className={`flex items-center gap-1.5 font-mono text-[13px] px-3 py-2.5 min-h-11 bg-bg-input text-purple-light border border-border transition-colors ${
           isNextDisabled
             ? 'opacity-30 cursor-not-allowed pointer-events-none'
-            : 'hover:bg-border'
+            : 'hover:bg-border hover:text-white'
         }`}
       >
-        {nextLabel}{' >'}
+        <span>{nextLabel}</span>
+        <span className="text-purple-light">▶</span>
       </button>
     </div>
   )
