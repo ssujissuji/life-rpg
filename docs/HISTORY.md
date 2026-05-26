@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-05-26
+
+### AirKorea API 파라미터 버그 수정
+
+**api/airkorea.ts**
+- `getStationName()` → `getSidoName()` 으로 리네임
+  - 반환값을 측정소명(종로구, 연제구 등) → 시도명(서울, 부산, 대구, 광주, 대전)으로 변경
+- URL 파라미터 `stationName` + `dataTerm=DAILY` 제거 → `sidoName`으로 교체
+  - 원인: endpoint를 `getMsrstnAcctoRltmMesureDnsty`(측정소별) → `getCtprvnRltmMesureDnsty`(시도별)로 변경했으나 URL 파라미터가 측정소별 기준으로 남아 있어 실제 API 호출이 깨진 상태였음
+  - 해결: 시도별 endpoint에 맞게 `sidoName` 파라미터 사용
+- curl로 KMA 기상청 API(NORMAL_SERVICE, PTY=0, 기온 26.1°C), AirKorea API(NORMAL_CODE, khaiGrade=2 보통) 정상 응답 확인
+
+---
+
 ## 2026-05-25
 
 ### 날씨/공기질 API 한국 공공 API로 전환

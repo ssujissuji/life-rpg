@@ -275,6 +275,14 @@
 
 ---
 
+### [2026-05-26] AirKorea API 파라미터 버그 수정
+
+**완료된 항목:**
+- [x] `api/airkorea.ts` — `getStationName()` → `getSidoName()` 리네임, 반환값을 시도명으로 변경
+- [x] `api/airkorea.ts` — URL 파라미터 `stationName` + `dataTerm=DAILY` → `sidoName`으로 교체 (시도별 endpoint 기준으로 정렬)
+
+---
+
 ### [2026-05-25] 날씨/공기질 API 한국 공공 API로 전환
 
 **완료된 항목:**
