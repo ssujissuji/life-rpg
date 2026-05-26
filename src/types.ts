@@ -40,6 +40,7 @@ export interface Character {
   name: string
   class: string
   birthYear: number
+  region?: SidoName
 }
 
 export interface SkillData {

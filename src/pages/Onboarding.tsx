@@ -12,7 +12,7 @@ type Step = 1 | 2 | 3 | 4 | 5
 
 export default function Onboarding() {
   const navigate = useNavigate()
-  const { setCharacter, setBaseline, setRegion } = useStore()
+  const { setCharacter, setBaseline } = useStore()
 
   const [step, setStep] = useState<Step>(1)
   const [name, setName] = useState('')
@@ -34,9 +34,8 @@ export default function Onboarding() {
 
   function handleComplete(useDefault: boolean) {
     if (birthYear === '' || isNaN(Number(birthYear))) return
-    setCharacter({ name: name.trim(), class: resolvedCls.trim(), birthYear: Number(birthYear) })
+    setCharacter({ name: name.trim(), class: resolvedCls.trim(), birthYear: Number(birthYear), region: region ?? undefined })
     setBaseline(useDefault ? { ...DEFAULT_BASELINE } : baseline)
-    setRegion(region)
     setOnboardingDone()
     navigate('/')
   }

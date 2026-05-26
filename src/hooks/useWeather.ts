@@ -15,7 +15,7 @@ const SEOUL_LON = 126.978
 const TIMEOUT_MS = 5000
 
 export function useWeather(): UseWeatherResult {
-  const { region } = useStore()
+  const region = useStore(s => s.character.region)
   const [weatherLabel, setWeatherLabel] = useState<string | null>(null)
   const [aqiLabel, setAqiLabel] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
