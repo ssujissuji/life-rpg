@@ -375,3 +375,22 @@
 - region은 `Character` 인터페이스가 아닌 별도 `region` localStorage 키로 저장
 - 온보딩에서 건너뛰기 시 null 저장 → geolocation fallback 유지
 - `SidoPicker` 컴포넌트를 Onboarding과 Settings 양쪽에서 재사용
+
+---
+
+### 버그 수정 완료 — 온보딩 완료 후 리다이렉트
+
+**현상:** 온보딩 완료 후 `/`로 이동하지 않고 온보딩 첫 화면으로 다시 튕김
+
+**원인:**
+- `App.tsx`의 `AppShell`이 `useState(() => isOnboardingDone())`로 마운트 시 딱 한 번만 localStorage를 읽음
+- `Onboarding.tsx`의 `handleComplete`가 `setOnboardingDone()`을 직접 호출해 localStorage에는 기록되지만 store의 `onboardingDone` 상태는 `false`로 남음
+- `navigate('/')` 후 `AppShell`의 가드가 `onboarded = false`로 판단해 다시 `/onboarding`으로 리다이렉트
+
+**수정 항목:**
+- [x] `src/App.tsx` — `useState(() => isOnboardingDone())` 제거, `useStore(s => s.onboardingDone)` 구독으로 교체. `isOnboardingDone` import 제거
+- [x] `src/pages/Onboarding.tsx` — `handleComplete`에서 `setOnboardingDone()` 직접 호출 제거, `useStore`의 `completeOnboarding()` 액션 호출로 교체. `setOnboardingDone` import 제거
+
+**주의 사항:**
+- `isOnboardingDone`을 `storage.ts`에서 삭제하지 말 것 (`useStore.ts` 초기화에서 사용 중)
+- `AppShell`에서 `useStore(s => s.onboardingDone)` selector 방식 사용

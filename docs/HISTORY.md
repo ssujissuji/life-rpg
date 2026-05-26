@@ -6,6 +6,27 @@
 
 ## 2026-05-26
 
+### BUG-06 — 온보딩 완료 후 리다이렉트 버그 수정
+
+**현상:** 온보딩 완료 후 `/`로 이동하지 않고 온보딩 첫 화면으로 다시 튕기는 문제
+
+**원인:**
+- `App.tsx`의 `useState(() => isOnboardingDone())`가 마운트 시 1회만 localStorage를 읽어 이후 상태 변경을 반영하지 못함
+- `Onboarding.tsx`의 `handleComplete`가 `setOnboardingDone()`으로 localStorage에는 기록하지만 store의 `onboardingDone`은 `false`로 남음
+- `navigate('/')` 후 `AppShell` 가드가 `onboarded = false`로 판단해 다시 `/onboarding`으로 리다이렉트
+
+**수정 파일 및 방식:**
+
+`src/App.tsx`
+- `useState(() => isOnboardingDone())` 제거 → `useStore(s => s.onboardingDone)` 반응형 구독으로 교체
+- `isOnboardingDone`, `useState` import 제거
+
+`src/pages/Onboarding.tsx`
+- `handleComplete`의 `setOnboardingDone()` 직접 호출 제거 → `completeOnboarding()` 스토어 액션 호출로 교체
+- `setOnboardingDone` import 제거
+
+---
+
 ### 온보딩 지역 선택 기능 추가
 
 **신규 파일**

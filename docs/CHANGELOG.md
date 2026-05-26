@@ -21,6 +21,8 @@
 
 ### Fixed
 - `eslint.config.js` — `api/**/*.ts`에 `globals.node` 별도 적용. 기존 `globals.browser`만 적용되어 `process` 변수 미인식 에러 수정
+- `src/App.tsx` — `useState(() => isOnboardingDone())` 스냅샷 방식을 `useStore(s => s.onboardingDone)` 구독으로 교체. 온보딩 완료 직후 재리다이렉트 버그 수정 (BUG-06)
+- `src/pages/Onboarding.tsx` — `handleComplete`의 `setOnboardingDone()` 직접 호출을 `completeOnboarding()` 스토어 액션으로 교체. `setOnboardingDone` import 제거
 
 ---
 

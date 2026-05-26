@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
-import { setOnboardingDone } from '../lib/storage'
 import { DEFAULT_BASELINE } from '../types'
 import type { PersonalBaseline, SidoName } from '../types'
 import BaselineForm from '../components/BaselineForm'
@@ -12,7 +11,7 @@ type Step = 1 | 2 | 3 | 4 | 5
 
 export default function Onboarding() {
   const navigate = useNavigate()
-  const { setCharacter, setBaseline } = useStore()
+  const { setCharacter, setBaseline, completeOnboarding } = useStore()
 
   const [step, setStep] = useState<Step>(1)
   const [name, setName] = useState('')
@@ -36,7 +35,7 @@ export default function Onboarding() {
     if (birthYear === '' || isNaN(Number(birthYear))) return
     setCharacter({ name: name.trim(), class: resolvedCls.trim(), birthYear: Number(birthYear), region: region ?? undefined })
     setBaseline(useDefault ? { ...DEFAULT_BASELINE } : baseline)
-    setOnboardingDone()
+    completeOnboarding()
     navigate('/')
   }
 
