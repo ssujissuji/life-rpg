@@ -1,31 +1,42 @@
 import { create } from 'zustand'
-import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills } from '../lib/storage'
+import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills, loadBaseline, saveBaseline } from '../lib/storage'
 import { calcStats, calcSkills, getStatusTags } from '../lib/stats'
 import { isHoliday } from '../lib/holidays'
-import type { Character, PatchEntry, PatchFormData, PatchRecord, Skills } from '../types'
+import type { Character, PatchEntry, PatchFormData, PatchRecord, Skills, PersonalBaseline } from '../types'
 
 interface StoreState {
   character: Character
   patches: PatchRecord
   skills: Skills
+  baseline: PersonalBaseline
   setCharacter: (data: Character) => void
   savePatchEntry: (date: string, formData: PatchFormData) => void
   getPatch: (date: string) => PatchEntry | null
   getMaxedSkills: () => string[]
   markSkillsMaxed: (keys: string[]) => void
+  setBaseline: (data: PersonalBaseline) => void
 }
+
+const initialPatches = loadAllPatches()
 
 const useStore = create<StoreState>((set, get) => ({
   character: loadCharacter(),
-  patches: loadAllPatches(),
-  skills: calcSkills(loadAllPatches()),
+  patches: initialPatches,
+  skills: calcSkills(initialPatches),
+  baseline: loadBaseline(),
 
   setCharacter(data) {
     saveCharacter(data)
     set({ character: data })
   },
 
+  setBaseline(data) {
+    saveBaseline(data)
+    set({ baseline: data })
+  },
+
   savePatchEntry(date, formData) {
+    const baseline = get().baseline
     const d = new Date(date + 'T00:00:00')
     const day = d.getDay()
     const isMonday = day === 1
@@ -37,11 +48,12 @@ const useStore = create<StoreState>((set, get) => ({
       deliveryCount: formData.delivery,
       isMonday,
       isWeekend,
+      baseline,
     })
     const entry: PatchEntry = {
       ...formData,
       date,
-      stats: calcStats({ ...formData, date }),
+      stats: calcStats({ ...formData, date }, baseline),
       tags,
     }
     savePatch(date, entry)

@@ -155,6 +155,14 @@ Lv. 25  ████████░░  다음 레벨까지 243일
 
 ```
 앱 진입
+├── 온보딩 (/onboarding) — 최초 진입 시에만 (onboarding_done 키 없으면 리다이렉트)
+│   ├── Step 1: 캐릭터명 입력
+│   ├── Step 2: 클래스 선택 (탭 6종 + 직접 입력)
+│   ├── Step 3: 출생연도 입력
+│   └── Step 4: 개인 기준값 설정 (선택, 건너뛰기 가능)
+│       ├── 수면 목표시간 슬라이더 (4~10h, step 0.5, 기본 7h)
+│       ├── 카페인 max 잔수 카운터 (1~5, 기본 2잔)
+│       └── 통장출혈 기준 금액 칩 선택 (1만/2만/3만/5만/10만, 기본 3만)
 ├── 캐릭터 시트 (홈)
 │   ├── 오늘 패치노트 작성 버튼
 │   └── 스킬 상세 모달 (클릭)
@@ -166,6 +174,7 @@ Lv. 25  ████████░░  다음 레벨까지 243일
 └── 설정
     ├── 캐릭터명 / 클래스명 설정
     ├── 나이(레벨) 설정
+    ├── 개인 기준값 설정 (sleepGoal / cafeMax / spendThreshold)
     └── 데이터 초기화
 ```
 
@@ -190,24 +199,42 @@ Lv. 25  ████████░░  다음 레벨까지 243일
 
 ## 5. 핵심 로직 — 능력치 계산
 
-```javascript
-// 체력 계산
-function calcHP(sleep, meal, isWeekend) {
+능력치 계산 함수(`calcHP`, `calcFocus`, `calcSleepQ`, `getStatusTags`)는 `baseline` 인자를 받아 개인 기준값 기반으로 계산합니다. `baseline`이 없으면 `DEFAULT_BASELINE`으로 fallback합니다.
+
+```typescript
+// 개인 기준값 타입
+interface Baseline {
+  sleepGoal: number;      // 수면 목표시간 (4~10h, step 0.5, 기본 7h)
+  cafeMax: number;        // 카페인 max 잔수 (1~5, 기본 2)
+  spendThreshold: number; // 통장출혈 기준 금액 (원, 기본 30000)
+}
+
+const DEFAULT_BASELINE: Baseline = {
+  sleepGoal: 7,
+  cafeMax: 2,
+  spendThreshold: 30000,
+};
+
+// 꿀잠 기준 = sleepGoal + 1h (UI 미노출, 내부 계산에만 사용)
+const HONEY_SLEEP_THRESHOLD = baseline.sleepGoal + 1;
+
+// 체력 계산 (baseline.sleepGoal 기준 수면 부족 판정)
+function calcHP(sleep, meal, isWeekend, baseline = DEFAULT_BASELINE) {
   let hp = 100;
-  if (sleep < 5) hp -= 30;
-  else if (sleep < 6) hp -= 20;
-  else if (sleep < 7) hp -= 10;
+  if (sleep < baseline.sleepGoal - 2) hp -= 30;
+  else if (sleep < baseline.sleepGoal - 1) hp -= 20;
+  else if (sleep < baseline.sleepGoal) hp -= 10;
   if (meal === 0) hp -= 15;
   if (isWeekend) hp += 15;
   return Math.max(0, Math.min(100, hp));
 }
 
-// 집중력 계산
-function calcFocus(sleep, cafeCount, isMonday) {
+// 집중력 계산 (baseline.cafeMax 기준 커피버프 판정)
+function calcFocus(sleep, cafeCount, isMonday, baseline = DEFAULT_BASELINE) {
   let focus = 100;
-  if (sleep < 5) focus -= 35;
-  else if (sleep < 7) focus -= 20;
-  if (cafeCount >= 2) focus += 10;
+  if (sleep < baseline.sleepGoal - 2) focus -= 35;
+  else if (sleep < baseline.sleepGoal) focus -= 20;
+  if (cafeCount >= baseline.cafeMax) focus += 10;
   if (isMonday) focus -= 10;
   return Math.max(0, Math.min(100, focus));
 }
@@ -225,7 +252,7 @@ function calcWallet(spend, cafeCount, deliveryCount) {
   return Math.max(0, Math.min(100, wallet));
 }
 
-// 상태 태그 계산 (spend = 실제 금액, 원 단위)
+// 상태 태그 계산 (baseline 기준값 반영)
 function getStatusTags({
   sleep,
   cafeCount,
@@ -233,14 +260,15 @@ function getStatusTags({
   deliveryCount,
   isMonday,
   isWeekend,
+  baseline = DEFAULT_BASELINE,
 }) {
   const tags = [];
   if (isMonday) tags.push('월요병');
-  if (sleep < 6) tags.push('수면부족');
-  if (cafeCount >= 2) tags.push('커피버프');
-  if (spend >= 30000) tags.push('통장출혈');   // 3만원 이상
+  if (sleep < baseline.sleepGoal - 1) tags.push('수면부족');
+  if (cafeCount >= baseline.cafeMax) tags.push('커피버프');
+  if (spend >= baseline.spendThreshold) tags.push('통장출혈');
   if (deliveryCount >= 1) tags.push('배달의민족');
-  if (sleep >= 8) tags.push('꿀잠달성');
+  if (sleep >= baseline.sleepGoal + 1) tags.push('꿀잠달성');
   if (spend === 0 && cafeCount === 0) tags.push('무지출');
   return tags;
 }
@@ -273,7 +301,19 @@ function getStatusTags({
   class: "취준생",
   birthYear: 2001   // 나이 = 레벨 계산용
 }
+
+// 개인 기준값 키: "baseline"
+{
+  sleepGoal: 7,          // 수면 목표시간 (h), 기본 7
+  cafeMax: 2,            // 카페인 max 잔수, 기본 2
+  spendThreshold: 30000  // 통장출혈 기준 금액 (원), 기본 30000
+}
+
+// 온보딩 완료 플래그 키: "onboarding_done"
+// 값: "1" (존재 여부로만 판단)
 ```
+
+> 개인 기준값 변경은 이후 기록부터만 적용됩니다. 기존 PatchEntry를 소급 재계산하지 않습니다.
 
 ---
 
@@ -287,6 +327,19 @@ function getStatusTags({
 - [ ] 결과 카드 렌더링
 - [ ] localStorage 저장/불러오기
 - [ ] 캘린더 뷰 (기록 표시)
+
+### Phase 1.5 — 온보딩 + 개인 기준값
+
+- [ ] 온보딩 화면 (`/onboarding`) 신규 구현
+  - Step 1: 캐릭터명 입력
+  - Step 2: 클래스 선택 (탭 6종 + 직접 입력)
+  - Step 3: 출생연도 입력
+  - Step 4: 개인 기준값 설정 (건너뛰기 가능 → DEFAULT_BASELINE 저장)
+- [ ] `App.tsx` — `onboarding_done` 키 없으면 `/onboarding` 리다이렉트
+- [ ] `src/types.ts` — `Baseline` 인터페이스 추가
+- [ ] `src/lib/storage.ts` — `loadBaseline()`, `saveBaseline()` 추가
+- [ ] `src/lib/stats.ts` — `calcHP`, `calcFocus`, `calcSleepQ`, `getStatusTags` baseline 인자 추가
+- [ ] `src/pages/Settings.tsx` — 개인 기준값 설정 섹션 추가
 
 ### Phase 2 — 캐릭터 시스템 (1~2주)
 

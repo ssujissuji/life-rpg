@@ -6,6 +6,32 @@
 
 ## [Unreleased]
 
+---
+
+## [0.4.0] 2026-05-26 — 온보딩 + 개인 기준값
+
+### Added
+- `src/pages/Onboarding.tsx` (신규) — 앱 최초 진입 시 표시되는 4단계 온보딩 화면
+  - Step 1~3 필수: 캐릭터명 / 클래스 (탭 6종 + 직접 입력) / 출생연도
+  - Step 4 선택: 개인 기준값 설정 (sleepGoal 슬라이더, cafeMax 카운터, spendThreshold 칩). 건너뛰기 가능, 건너뛰면 DEFAULT_BASELINE 저장
+  - 완료 시 `character` + `baseline` 저장, `onboarding_done` 플래그 저장 → `/` 이동
+- `src/components/BaselineForm.tsx` (신규) — 개인 기준값 입력 폼 재사용 컴포넌트. Onboarding Step 4와 Settings에서 공용 사용
+- `src/types.ts` — `PersonalBaseline` 인터페이스, `DEFAULT_BASELINE` 상수 추가 (`sleepGoal: 7`, `cafeMax: 2`, `spendThreshold: 30000`)
+- `src/lib/storage.ts` — `saveBaseline`, `loadBaseline`, `isOnboardingDone`, `setOnboardingDone` 추가
+
+### Changed
+- `src/lib/stats.ts` — `calcHP`, `calcFocus`, `calcSleepQ`, `getStatusTags`, `calcStats`에 `baseline?: PersonalBaseline` 인자 추가. 미전달 시 DEFAULT_BASELINE fallback. 꿀잠 기준은 `sleepGoal + 1h` 자동 계산
+- `src/store/useStore.ts` — `baseline` 상태 및 `setBaseline` 액션 추가
+- `src/pages/Settings.tsx` — 개인 기준값 섹션 추가 (sleepGoal / cafeMax / spendThreshold). `CLASS_OPTIONS` export
+- `src/App.tsx` — `onboarding_done` 키 없으면 `/onboarding` 리다이렉트하는 라우트 가드 추가. BottomNav 온보딩 화면에서 조건부 숨김
+
+### Fixed
+- `src/App.tsx` — 온보딩 완료 후 재리다이렉트 위험 (`isOnboardingDone()` 매 렌더 호출) → React state로 전환
+- `src/lib/stats.ts` `calcWallet` — 음수 spend 입력이 패널티 없이 통과하던 문제. `spend > 0` 조건으로 수정
+- `src/pages/Onboarding.tsx` — `birthYear === ''` 상태에서 `Number('')`=0이 저장되던 문제. guard 추가
+
+---
+
 ### Fixed
 - `api/airkorea.ts` — `getCtprvnRltmMesureDnsty`(시도별) endpoint에 측정소별 파라미터(`stationName`, `dataTerm`)를 사용해 실제 API 호출이 깨지던 버그 수정. `sidoName` 파라미터로 교체
 - `api/airkorea.ts` — `getStationName()` → `getSidoName()` 리네임, 반환값을 측정소명 → 시도명(서울/부산/대구/광주/대전)으로 변경

@@ -1,3 +1,15 @@
+export interface PersonalBaseline {
+  sleepGoal: number
+  cafeMax: number
+  spendThreshold: number
+}
+
+export const DEFAULT_BASELINE: PersonalBaseline = {
+  sleepGoal: 7,
+  cafeMax: 2,
+  spendThreshold: 30000,
+}
+
 export interface Stats {
   hp: number
   focus: number

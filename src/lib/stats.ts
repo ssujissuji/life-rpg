@@ -1,21 +1,24 @@
-import type { PatchFormData, Stats, Skills, PatchRecord, WeeklyReport, WeeklyVerdict, MonthlyReport, StatChartPoint, DayStat } from '../types'
+import type { PatchFormData, Stats, Skills, PatchRecord, WeeklyReport, WeeklyVerdict, MonthlyReport, StatChartPoint, DayStat, PersonalBaseline } from '../types'
+import { DEFAULT_BASELINE } from '../types'
 import { isHoliday } from './holidays'
 
-export function calcHP(sleep: number, meal: number, isWeekend: boolean): number {
+export function calcHP(sleep: number, meal: number, isWeekend: boolean, baseline?: PersonalBaseline): number {
+  const bl = baseline ?? DEFAULT_BASELINE
   let hp = 100
-  if (sleep < 5) hp -= 30
-  else if (sleep < 6) hp -= 20
-  else if (sleep < 7) hp -= 10
+  if (sleep < bl.sleepGoal - 2) hp -= 30
+  else if (sleep < bl.sleepGoal - 1) hp -= 20
+  else if (sleep < bl.sleepGoal) hp -= 10
   if (meal === 0) hp -= 15
   if (isWeekend) hp += 15
   return Math.max(0, Math.min(100, hp))
 }
 
-export function calcFocus(sleep: number, cafeCount: number, isMonday: boolean): number {
+export function calcFocus(sleep: number, cafeCount: number, isMonday: boolean, baseline?: PersonalBaseline): number {
+  const bl = baseline ?? DEFAULT_BASELINE
   let focus = 100
-  if (sleep < 5) focus -= 35
-  else if (sleep < 7) focus -= 20
-  if (cafeCount >= 2) focus += 10
+  if (sleep < bl.sleepGoal - 2) focus -= 35
+  else if (sleep < bl.sleepGoal) focus -= 20
+  if (cafeCount >= bl.cafeMax) focus += 10
   if (isMonday) focus -= 10
   return Math.max(0, Math.min(100, focus))
 }
@@ -29,9 +32,8 @@ export function calcSocial(meal: number, isWeekend: boolean): number {
 
 export function calcWallet(spend: number, cafeCount: number, deliveryCount: number): number {
   let wallet = 100
-  if (spend <= 0) wallet -= 0
-  else if (spend < 10000) wallet -= 10
-  else if (spend < 30000) wallet -= 20
+  if (spend > 0 && spend < 10000) wallet -= 10
+  else if (spend >= 10000 && spend < 30000) wallet -= 20
   else if (spend < 50000) wallet -= 45
   else if (spend < 100000) wallet -= 60
   else wallet -= 80
@@ -47,11 +49,12 @@ export function calcOutdoor(deliveryCount: number, cafeCount: number): number {
   return Math.max(0, Math.min(100, outdoor))
 }
 
-export function calcSleepQ(sleep: number): number {
-  if (sleep >= 8) return Math.min(100, 60 + (sleep - 8) * 10)
-  if (sleep >= 7) return 55
-  if (sleep >= 6) return 40
-  if (sleep >= 5) return 25
+export function calcSleepQ(sleep: number, baseline?: PersonalBaseline): number {
+  const bl = baseline ?? DEFAULT_BASELINE
+  if (sleep >= bl.sleepGoal + 1) return Math.min(100, 60 + (sleep - (bl.sleepGoal + 1)) * 10)
+  if (sleep >= bl.sleepGoal) return 55
+  if (sleep >= bl.sleepGoal - 1) return 40
+  if (sleep >= bl.sleepGoal - 2) return 25
   return 10
 }
 
@@ -62,6 +65,7 @@ interface StatusTagsParams {
   deliveryCount: number
   isMonday: boolean
   isWeekend: boolean
+  baseline?: PersonalBaseline
 }
 
 export function getStatusTags({
@@ -71,32 +75,34 @@ export function getStatusTags({
   deliveryCount,
   isMonday,
   isWeekend,
+  baseline,
 }: StatusTagsParams): string[] {
+  const bl = baseline ?? DEFAULT_BASELINE
   const tags: string[] = []
   if (isMonday) tags.push('월요병')
-  if (sleep < 6) tags.push('수면부족')
-  if (cafeCount >= 2) tags.push('커피버프')
-  if (spend >= 30000) tags.push('통장출혈')
+  if (sleep < bl.sleepGoal - 1) tags.push('수면부족')
+  if (cafeCount >= bl.cafeMax) tags.push('커피버프')
+  if (spend >= bl.spendThreshold) tags.push('통장출혈')
   if (deliveryCount >= 1) tags.push('배달의민족')
-  if (sleep >= 8) tags.push('꿀잠달성')
+  if (sleep >= bl.sleepGoal + 1) tags.push('꿀잠달성')
   if (spend === 0 && cafeCount === 0) tags.push('무지출')
   if (isWeekend) tags.push('주말달성')
   return tags
 }
 
-export function calcStats(entry: PatchFormData & { date: string }): Stats {
+export function calcStats(entry: PatchFormData & { date: string }, baseline?: PersonalBaseline): Stats {
   const date = new Date(entry.date)
   const day = date.getDay()
   const isMonday = day === 1
   const isWeekend = day === 0 || day === 6 || isHoliday(entry.date)
 
   return {
-    hp: calcHP(entry.sleep, entry.meal, isWeekend),
-    focus: calcFocus(entry.sleep, entry.cafe, isMonday),
+    hp: calcHP(entry.sleep, entry.meal, isWeekend, baseline),
+    focus: calcFocus(entry.sleep, entry.cafe, isMonday, baseline),
     social: calcSocial(entry.meal, isWeekend),
     wallet: calcWallet(entry.spend, entry.cafe, entry.delivery),
     outdoor: calcOutdoor(entry.delivery, entry.cafe),
-    sleepQ: calcSleepQ(entry.sleep),
+    sleepQ: calcSleepQ(entry.sleep, baseline),
   }
 }
 
