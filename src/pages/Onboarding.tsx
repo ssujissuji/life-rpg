@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { TypeAnimation } from 'react-type-animation'
 import useStore from '../store/useStore'
 import { DEFAULT_BASELINE } from '../types'
 import type { PersonalBaseline, SidoName } from '../types'
@@ -7,13 +8,13 @@ import BaselineForm from '../components/BaselineForm'
 import SidoPicker from '../components/SidoPicker'
 import { CLASS_OPTIONS } from './Settings'
 
-type Step = 1 | 2 | 3 | 4 | 5
+type Step = 0 | 1 | 2 | 3 | 4 | 5
 
 export default function Onboarding() {
   const navigate = useNavigate()
   const { setCharacter, setBaseline, completeOnboarding } = useStore()
 
-  const [step, setStep] = useState<Step>(1)
+  const [step, setStep] = useState<Step>(0)
   const [name, setName] = useState('')
   const [cls, setCls] = useState('')
   const [customCls, setCustomCls] = useState('')
@@ -42,24 +43,57 @@ export default function Onboarding() {
   }
 
   function goPrev() {
-    if (step > 1) setStep((s) => (s - 1) as Step)
+    if (step > 0) setStep((s) => (s - 1) as Step)
   }
 
   return (
     <div className="min-h-svh bg-bg-root flex flex-col font-mono">
       <div className="flex-1 flex flex-col w-full max-w-[430px] mx-auto px-4 pt-10 pb-8">
-        <div className="flex justify-center gap-2 mb-10">
-          {([1, 2, 3, 4, 5] as Step[]).map((s) => (
-            <div
-              key={s}
-              className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                s === step ? 'bg-purple-primary' : 'bg-border'
-              }`}
-            />
-          ))}
-        </div>
+        {step > 0 && (
+          <div className="flex justify-center gap-2 mb-10">
+            {([1, 2, 3, 4, 5] as Step[]).map((s) => (
+              <div
+                key={s}
+                className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                  s === step ? 'bg-purple-primary' : 'bg-border'
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="flex-1 flex flex-col">
+          {step === 0 && (
+            <div className="flex-1 flex flex-col items-center justify-center gap-8">
+              <div className="w-full bg-bg-card border border-border rounded-lg p-6">
+                <TypeAnimation
+                  sequence={[
+                    '> SYSTEM v1.0.0 LOADED',
+                    800,
+                    '> SYSTEM v1.0.0 LOADED\n> PLAYER DATA NOT FOUND',
+                    800,
+                    '> SYSTEM v1.0.0 LOADED\n> PLAYER DATA NOT FOUND\n> CREATE NEW CHARACTER? [Y/N]',
+                    500,
+                  ]}
+                  wrapper="div"
+                  speed={60}
+                  cursor={true}
+                  repeat={0}
+                  className="text-purple-light text-[13px] font-mono min-h-20 whitespace-pre-wrap"
+                />
+              </div>
+              <div className="w-full space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
+                >
+                  [Y] 캐릭터 만들기
+                </button>
+              </div>
+            </div>
+          )}
+
           {step === 1 && (
             <div className="space-y-6">
               <div className="space-y-1.5">
@@ -174,7 +208,7 @@ export default function Onboarding() {
           )}
         </div>
 
-        <div className="mt-10 space-y-2">
+        {step > 0 && <div className="mt-10 space-y-2">
           {step === 5 ? (
             <>
               <button
@@ -207,7 +241,7 @@ export default function Onboarding() {
               다음
             </button>
           )}
-          {step > 1 && (
+          {step > 0 && (
             <button
               type="button"
               onClick={goPrev}
@@ -216,7 +250,7 @@ export default function Onboarding() {
               이전
             </button>
           )}
-        </div>
+        </div>}
       </div>
     </div>
   )
