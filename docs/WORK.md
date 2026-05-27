@@ -489,6 +489,26 @@
 
 ---
 
+---
+
+## 현재 작업 (feat/phase5-landing 코드 리뷰 수정)
+
+> Phase 5 Landing 페이지 구현 코드 리뷰에서 식별된 항목. 구현 시작 전 상태.
+
+### [BLOCK] 뒤로가기 버그 수정
+
+- [ ] `src/pages/Onboarding.tsx:38` — `navigate('/')` → `navigate('/', { replace: true })` 변경
+  - 온보딩 완료 후 히스토리 스택에 /onboarding이 남아 뒤로가기로 랜딩 재진입이 가능했던 문제
+- [ ] `src/lib/storage.ts` — `HAS_LANDED_KEY` 상수 + `setHasLanded()` / `isHasLanded()` 헬퍼 추가
+- [ ] `src/App.tsx` — `sessionStorage.getItem('has_landed')` → storage.ts 헬퍼로 교체
+- [ ] `src/pages/Landing.tsx` — `sessionStorage.setItem('has_landed', '1')` → storage.ts 헬퍼로 교체
+
+### [WARN] 스타일 일관성 수정
+
+- [ ] `src/pages/Settings.tsx:126` — `text-[#6b7280]` → `text-text-sub`
+
+---
+
 ### 중기 (보류 중)
 
 - [ ] Phase 6: 캐릭터 비주얼 & 아이템 시스템 — **캐릭터 비주얼 방향 확정 후 착수** (픽셀아트 vs 이모지 미결정)

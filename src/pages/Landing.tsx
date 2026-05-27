@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { TypeAnimation } from 'react-type-animation'
 import useStore from '../store/useStore'
+import { setHasLanded } from '../lib/storage'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -11,7 +12,7 @@ export default function Landing() {
   const patchCount = Object.keys(patches).length
 
   function handleLogin() {
-    sessionStorage.setItem('has_landed', '1')
+    setHasLanded()
     navigate('/', { replace: true })
   }
 

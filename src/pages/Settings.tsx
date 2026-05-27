@@ -123,7 +123,7 @@ export default function Settings() {
             개인 기준값
           </div>
           <BaselineForm value={baselineForm} onChange={setBaselineForm} />
-          <div className="text-[#6b7280] text-[11px] font-mono">
+          <div className="text-text-sub text-[11px] font-mono">
             이후 기록부터 적용됩니다
           </div>
         </div>

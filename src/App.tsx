@@ -9,6 +9,7 @@ import Settings from './pages/Settings'
 import Onboarding from './pages/Onboarding'
 import Landing from './pages/Landing'
 import useStore from './store/useStore'
+import { isHasLanded } from './lib/storage'
 
 function AppShell() {
   const location = useLocation()
@@ -16,14 +17,22 @@ function AppShell() {
   const onboardingPath = pathname === '/onboarding'
   const landingPath = pathname === '/landing'
   const onboarded = useStore(s => s.onboardingDone)
-  const hasLanded = sessionStorage.getItem('has_landed') === '1'
+  const hasLanded = isHasLanded()
 
   if (!onboarded && !onboardingPath) {
     return <Navigate to="/onboarding" replace />
   }
 
+  if (onboarded && onboardingPath) {
+    return <Navigate to="/" replace />
+  }
+
   if (onboarded && !hasLanded && pathname === '/') {
     return <Navigate to="/landing" replace />
+  }
+
+  if (onboarded && hasLanded && landingPath) {
+    return <Navigate to="/" replace />
   }
 
   const hideBottomNav = onboardingPath || landingPath

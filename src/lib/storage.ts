@@ -8,6 +8,7 @@ const CHARACTER_KEY = 'character'
 const SKILL_MAXED_KEY = 'skill_maxed'
 const BASELINE_KEY = 'baseline'
 const ONBOARDING_KEY = 'onboarding_done'
+const HAS_LANDED_KEY = 'has_landed'
 
 export function savePatch(date: string, data: PatchEntry): void {
   localStorage.setItem(`${PATCH_PREFIX}${date}`, JSON.stringify(data))
@@ -94,6 +95,14 @@ export function isOnboardingDone(): boolean {
 
 export function setOnboardingDone(): void {
   localStorage.setItem(ONBOARDING_KEY, '1')
+}
+
+export function isHasLanded(): boolean {
+  return sessionStorage.getItem(HAS_LANDED_KEY) !== null
+}
+
+export function setHasLanded(): void {
+  sessionStorage.setItem(HAS_LANDED_KEY, '1')
 }
 
 export function clearAll(): void {
