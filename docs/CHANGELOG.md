@@ -4,6 +4,30 @@
 
 ---
 
+## [Unreleased] — 캘린더 게임 터미널 스타일 재작성
+
+### Changed
+- `src/styles/calendar.css` — 캘린더 전체 스타일을 게임 터미널 격자 UI로 재작성
+  - 요일 헤더(`.react-calendar__month-view__weekdays`)와 날짜 그리드(`.react-calendar__month-view__days`)에 `border-left + border-top` (컨테이너) / `border-right + border-bottom` (각 셀) 조합으로 터미널 테이블 격자 구현
+  - 오늘 날짜(`.react-calendar__tile--now`): `box-shadow: inset 0 0 0 1px #5dcaa5` 초록 테두리
+  - 선택된 날짜(`.react-calendar__tile--active`): `box-shadow: inset 0 0 0 1px #534ab7` + 퍼플 반투명 배경 (`rgba(83, 74, 183, 0.12)`)
+  - 패치 기록 있는 날(`.has-patch`): 퍼플 tint 배경(`rgba(83, 74, 183, 0.06)`) + `::after` 하단 2px 퍼플 바
+  - 네비게이션: `#0f0f13` 배경, 버튼 hover 시 `#1e1e2e` 하이라이트
+  - 이웃 달 날짜(`.--neighboringMonth`): `#2a2a3a` dim 처리, `has-patch::after` 바 숨김
+
+---
+
+## [Unreleased] — 온보딩 게임 스타일 랜딩 화면 추가
+
+### Added
+- `react-type-animation` 패키지 설치 (gzip 4KB, React 19 호환)
+- `src/pages/Onboarding.tsx` — step 0 랜딩 화면 추가. 게임 터미널 스타일로 3줄 타이핑 애니메이션 순차 출력 (`> SYSTEM v1.0.0 LOADED` / `> PLAYER DATA NOT FOUND` / `> CREATE NEW CHARACTER? [Y/N]`). "[Y] 캐릭터 만들기" 버튼 클릭 시 step 1 진입
+
+### Changed
+- `src/pages/Onboarding.tsx` — `Step` 타입 `1|2|3|4|5` → `0|1|2|3|4|5`로 확장. `useState<Step>` 초기값 `1` → `0`으로 변경. step 1의 "이전" 버튼이 step 0(랜딩)으로 복귀하도록 변경. 스텝 인디케이터(dot) 표시 조건 `step > 0`으로 변경
+
+---
+
 ## [0.5.0] 2026-05-26 — 온보딩 지역 선택 및 날씨 정확도 개선
 
 ### Added

@@ -425,6 +425,33 @@
 
 ---
 
+### [2026-05-26] 온보딩 게임 스타일 랜딩 화면 추가
+
+**브랜치:** `feat/onboarding-landing-screen`
+
+**작업 범위:**
+- [x] `react-type-animation` 패키지 설치
+- [x] `src/pages/Onboarding.tsx` — `Step` 타입 `0 | 1 | 2 | 3 | 4 | 5`로 확장, `useState<Step>(0)` 초기값 변경
+- [x] step === 0: 게임 터미널 스타일 랜딩 화면 (타이핑 애니메이션 3줄 + "[Y] 캐릭터 만들기" 버튼)
+- [x] step 1 이전 버튼 클릭 → step 0 복귀 (`goPrev` 조건 `step > 0`으로 변경)
+- [x] 스텝 인디케이터(dot)는 `step > 0`일 때만 표시
+
+---
+
+### [2026-05-27] 캘린더 게임 터미널 스타일 재작성
+
+**브랜치:** `feat/calendar-terminal-style`
+
+**완료된 항목:**
+- [x] `src/styles/calendar.css` — 요일 헤더 및 날짜 그리드에 border-left+top(컨테이너) / border-right+bottom(셀) 조합으로 터미널 테이블 격자 구현
+- [x] 오늘 날짜: `box-shadow: inset 0 0 0 1px #5dcaa5` 초록 테두리
+- [x] 선택된 날짜: `box-shadow: inset 0 0 0 1px #534ab7` + 퍼플 반투명 배경
+- [x] 패치 기록 있는 날(`.has-patch`): 퍼플 tint 배경 + `::after` 하단 2px 퍼플 바
+- [x] 네비게이션: `#0f0f13` 배경, hover 시 `#1e1e2e` 하이라이트
+- [x] 이웃 달 날짜: `#2a2a3a` dim 처리, `has-patch::after` 바 숨김
+
+---
+
 ### [2026-05-26] maxedSkills Zustand 반응형 상태 통합
 
 **완료된 항목:**
