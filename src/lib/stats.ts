@@ -34,9 +34,9 @@ export function calcWallet(spend: number, cafeCount: number, deliveryCount: numb
   let wallet = 100
   if (spend > 0 && spend < 10000) wallet -= 10
   else if (spend >= 10000 && spend < 30000) wallet -= 20
-  else if (spend < 50000) wallet -= 45
-  else if (spend < 100000) wallet -= 60
-  else wallet -= 80
+  else if (spend >= 30000 && spend < 50000) wallet -= 45
+  else if (spend >= 50000 && spend < 100000) wallet -= 60
+  else if (spend >= 100000) wallet -= 80
   wallet -= cafeCount * 8
   wallet -= deliveryCount * 10
   return Math.max(0, Math.min(100, wallet))

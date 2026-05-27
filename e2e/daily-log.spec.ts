@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.clear())
+  await page.addInitScript(() => {
+    localStorage.clear()
+    localStorage.setItem('onboarding_done', '1')
+    sessionStorage.setItem('has_landed', '1')
+  })
   await page.goto('/daily')
 })
 
@@ -25,8 +29,9 @@ test.describe('DailyLog — 기본 렌더링', () => {
     await expect(btn).toHaveClass(/bg-purple-primary/)
   })
 
-  test('"패치노트 저장 →" 제출 버튼이 표시된다', async ({ page }) => {
-    await expect(page.getByRole('button', { name: '패치노트 저장 →' })).toBeVisible()
+  test('"패치노트 저장" 제출 버튼이 표시된다', async ({ page }) => {
+    // 저장 버튼 텍스트가 "패치노트 저장 →"에서 "패치노트 저장" + Save 아이콘으로 변경됨
+    await expect(page.getByRole('button', { name: /패치노트 저장/ })).toBeVisible()
   })
 })
 
@@ -57,7 +62,7 @@ test.describe('DailyLog — 인터랙션', () => {
   })
 
   test('폼 제출 시 /result/:date 로 이동한다', async ({ page }) => {
-    await page.getByRole('button', { name: '패치노트 저장 →' }).click()
+    await page.getByRole('button', { name: /패치노트 저장/ }).click()
 
     const d = new Date()
     const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

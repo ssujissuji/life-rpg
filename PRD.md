@@ -378,4 +378,81 @@ function getStatusTags({
 
 ---
 
-_다음 단계: Phase 1 MVP 개발 착수 — Vite 프로젝트 생성 후 패치노트 입력 화면부터 시작_
+## 9. 확장 기능 로드맵 (Phase 5+)
+
+### 핵심 결정 사항
+
+- 로그인 없이도 앱이 완전히 작동하는 **게스트 모드 영구 지원**
+- 진입 화면은 **별도 `/landing` 라우트**로 분리
+- **로그인 + DB + 랭킹은 세트로 묶어 추후 결정** — 로그인만 따로 도입하지 않음
+
+---
+
+### Phase 5 — 진입 화면 개선 & 설정 강화 (단기)
+
+#### 5-1. Landing Page 분리
+
+- 목적: 기존 사용자에게 "게임 재개" 느낌의 진입 경험 제공
+- `/landing` 라우트 신규 생성 (Onboarding은 신규 사용자 전용 유지)
+- `App.tsx` 라우트 가드: `onboarding_done` 있으면 `/landing`, 없으면 `/onboarding`
+- 기존 사용자 화면 구성:
+  - localStorage에서 캐릭터명, 레벨(나이), 기록 수를 읽어 터미널 스타일 메시지 출력
+  - 예: `> PLAYER FOUND: {이름} (LV.{나이}) — 기록 {N}개 확인`
+  - "현생 로그인" 버튼으로 메인 화면(`/`) 진입
+- 데이터 소스: `loadCharacter()`, `loadAllPatches()`, `isOnboardingDone()` — 모두 `src/lib/storage.ts`에 기존 존재
+
+#### 5-2. 설정 About 섹션
+
+- Settings 페이지 하단에 About 섹션 추가
+- 내용: 앱 버전, 창작자 정보 (정적 텍스트)
+- `src/pages/Settings.tsx` 수정만으로 완료
+
+---
+
+### Phase 6 — 캐릭터 비주얼 & 아이템 시스템 (중기, localStorage 기반)
+
+- 목적: 캐릭터 페이지에 시각적 정체성 부여, 업적 달성의 보상감 강화
+- **전제 조건: 캐릭터 비주얼 방향(픽셀아트 vs 이모지 조합) 확정 필요 — 미확정 상태로 구현 보류 중**
+
+확정 후 구현할 내용:
+
+- 캐릭터 시트 상단에 캐릭터 비주얼 영역 추가
+- 아이템 획득 조건: 특수스킬 만렙 달성, 연속 기록 N일 달성 등
+- 아이템 슬롯: head / body / accessory 3종
+- 새 localStorage 키: `owned_items` (string[]), `equipped_items` ({ head, body, accessory })
+- 새 파일: `src/lib/items.ts` — 아이템 메타데이터 상수 정의
+- 설정 페이지에 캐릭터 옷장 섹션 추가
+
+데이터 구조 (확정 후 적용):
+
+```javascript
+// 보유 아이템 키: "owned_items"
+["item_001", "item_002"]
+
+// 장착 아이템 키: "equipped_items"
+{ "head": "item_001", "body": null, "accessory": null }
+```
+
+---
+
+### Phase 7 — 로그인 + DB + 랭킹 (장기, 추후 결정)
+
+> 현재 localStorage 기반으로 앱이 완전히 작동하며, 로그인/DB/랭킹은 세트로 묶어 추후 함께 결정한다.
+> 로그인만 따로 도입하는 것은 의미 없음 (localStorage 데이터를 서버에서 가져올 수 없으므로).
+
+검토 중인 방향 (미확정):
+
+- DB: Neon (PostgreSQL 서버리스, pause 없음, DBeaver 연결 가능)
+- Auth: Clerk (카카오/네이버 OAuth 지원)
+- 프레임워크 전환: Next.js 마이그레이션 검토 (API 라우트 내장으로 별도 백엔드 불필요)
+- 게스트 모드: 로그인 없이도 앱 전체 기능 사용 가능 유지 전제
+
+랭킹 기능 (Phase 7 완료 후):
+
+- 주간/월간 잠만보 랭킹, 수면 꾸준왕, 무지출 챌린저
+- 캐릭터명 + 클래스만 노출 (개인정보 보호)
+- 랭킹 참여 여부 설정에서 개인 제어
+
+---
+
+_다음 단계: Phase 5-1 Landing Page 분리_

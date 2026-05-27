@@ -133,6 +133,7 @@ test.describe('Analysis — 날짜 네비게이션', () => {
     await page.addInitScript((dateStr) => {
       localStorage.clear()
       localStorage.setItem('onboarding_done', '1')
+      sessionStorage.setItem('has_landed', '1')
       const entry = {
         date: dateStr,
         sleep: 7,
@@ -151,78 +152,85 @@ test.describe('Analysis — 날짜 네비게이션', () => {
     await page.goto('/analysis')
   })
 
-  test('주간 탭: "< 이전 주" 버튼 클릭 시 레이블이 이전 주로 변경된다', async ({ page }) => {
-    // 초기 레이블을 읽어둠
+  // PeriodNavigator의 이전/다음 버튼은 ChevronLeft/ChevronRight 아이콘(lucide-react)으로
+  // 텍스트 없이 SVG만 렌더됨. flex items-center justify-between 컨테이너 내 위치로 찾음.
+  // 컨테이너 내 첫 번째 버튼 = 이전, 마지막 버튼 = 다음
+
+  test('주간 탭: 이전 버튼 클릭 시 레이블이 이전 주로 변경된다', async ({ page }) => {
     const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
 
-    // 이전 주 버튼 클릭
-    await page.getByRole('button', { name: /이전 주/ }).click()
+    // PeriodNavigator의 이전 버튼 (컨테이너 내 첫 번째 버튼)
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
+    await navigator.locator('button').first().click()
 
-    // 레이블이 변경되었는지 확인
     const updatedLabel = await page.locator('span.font-mono.text-center').first().textContent()
     expect(updatedLabel).not.toBe(initialLabel)
-    // MM/DD ~ MM/DD 형식 유지 확인
     expect(updatedLabel).toMatch(/\d{2}\/\d{2} ~ \d{2}\/\d{2}/)
   })
 
-  test('주간 탭: "다음 주 >" 버튼이 현재 주일 때 disabled 상태이다', async ({ page }) => {
-    const nextBtn = page.getByRole('button', { name: /다음 주/ })
+  test('주간 탭: 다음 버튼이 현재 주일 때 disabled 상태이다', async ({ page }) => {
+    // PeriodNavigator의 다음 버튼 (컨테이너 내 마지막 버튼)
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
+    const nextBtn = navigator.locator('button').last()
     await expect(nextBtn).toBeDisabled()
   })
 
-  test('주간 탭: 이전 주로 이동하면 "다음 주 >" 버튼이 활성화된다', async ({ page }) => {
-    await page.getByRole('button', { name: /이전 주/ }).click()
+  test('주간 탭: 이전 주로 이동하면 다음 버튼이 활성화된다', async ({ page }) => {
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
+    await navigator.locator('button').first().click()
 
-    const nextBtn = page.getByRole('button', { name: /다음 주/ })
+    const nextBtn = navigator.locator('button').last()
     await expect(nextBtn).not.toBeDisabled()
   })
 
-  test('주간 탭: 이전 주 → 다음 주 클릭 시 레이블이 원래 주로 돌아온다', async ({ page }) => {
+  test('주간 탭: 이전 → 다음 클릭 시 레이블이 원래 주로 돌아온다', async ({ page }) => {
     const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
 
-    await page.getByRole('button', { name: /이전 주/ }).click()
-    await page.getByRole('button', { name: /다음 주/ }).click()
+    await navigator.locator('button').first().click()
+    await navigator.locator('button').last().click()
 
     const restoredLabel = await page.locator('span.font-mono.text-center').first().textContent()
     expect(restoredLabel).toBe(initialLabel)
   })
 
-  test('월간 탭: "< 이전 달" 클릭 시 레이블이 이전 달로 변경된다', async ({ page }) => {
+  test('월간 탭: 이전 버튼 클릭 시 레이블이 이전 달로 변경된다', async ({ page }) => {
     await page.getByRole('button', { name: '월간' }).click()
 
-    // 초기 레이블
     const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
 
-    // 이전 달 버튼 클릭
-    await page.getByRole('button', { name: /이전 달/ }).click()
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
+    await navigator.locator('button').first().click()
 
     const updatedLabel = await page.locator('span.font-mono.text-center').first().textContent()
     expect(updatedLabel).not.toBe(initialLabel)
-    // YYYY년 M월 형식 확인
     expect(updatedLabel).toMatch(/\d{4}년 \d{1,2}월/)
   })
 
-  test('월간 탭: "다음 달 >" 버튼이 현재 달일 때 disabled 상태이다', async ({ page }) => {
+  test('월간 탭: 다음 버튼이 현재 달일 때 disabled 상태이다', async ({ page }) => {
     await page.getByRole('button', { name: '월간' }).click()
 
-    const nextBtn = page.getByRole('button', { name: /다음 달/ })
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
+    const nextBtn = navigator.locator('button').last()
     await expect(nextBtn).toBeDisabled()
   })
 
-  test('월간 탭: 이전 달로 이동하면 "다음 달 >" 버튼이 활성화된다', async ({ page }) => {
+  test('월간 탭: 이전 달로 이동하면 다음 버튼이 활성화된다', async ({ page }) => {
     await page.getByRole('button', { name: '월간' }).click()
-    await page.getByRole('button', { name: /이전 달/ }).click()
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
+    await navigator.locator('button').first().click()
 
-    const nextBtn = page.getByRole('button', { name: /다음 달/ })
+    const nextBtn = navigator.locator('button').last()
     await expect(nextBtn).not.toBeDisabled()
   })
 
-  test('월간 탭: 이전 달 → 다음 달 클릭 시 레이블이 원래 달로 돌아온다', async ({ page }) => {
+  test('월간 탭: 이전 → 다음 클릭 시 레이블이 원래 달로 돌아온다', async ({ page }) => {
     await page.getByRole('button', { name: '월간' }).click()
     const initialLabel = await page.locator('span.font-mono.text-center').first().textContent()
+    const navigator = page.locator('.flex.items-center.justify-between.w-full.gap-2').first()
 
-    await page.getByRole('button', { name: /이전 달/ }).click()
-    await page.getByRole('button', { name: /다음 달/ }).click()
+    await navigator.locator('button').first().click()
+    await navigator.locator('button').last().click()
 
     const restoredLabel = await page.locator('span.font-mono.text-center').first().textContent()
     expect(restoredLabel).toBe(initialLabel)

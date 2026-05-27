@@ -134,6 +134,16 @@ export default function Settings() {
           {saved ? '✓ 저장됨' : '저장하기'}
         </button>
       </form>
+
+      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+        <div className="text-purple-light text-xs font-mono font-bold">ABOUT</div>
+        <div className="space-y-1.5">
+          <div className="text-text-sub text-[13px] font-mono">현생 RPG v1.0.0</div>
+          <div className="text-text-sub text-[13px] font-mono">하루를 패치노트로 기록하고,</div>
+          <div className="text-text-sub text-[13px] font-mono">인생을 RPG 캐릭터 시트로 보는 앱</div>
+        </div>
+        <div className="text-text-sub text-[13px] font-mono">Made by Suji</div>
+      </div>
     </div>
   );
 }
