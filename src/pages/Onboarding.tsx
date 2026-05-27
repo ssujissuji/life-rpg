@@ -35,7 +35,7 @@ export default function Onboarding() {
     setCharacter({ name: name.trim(), class: resolvedCls.trim(), birthYear: Number(birthYear), region: region ?? undefined })
     setBaseline(useDefault ? { ...DEFAULT_BASELINE } : baseline)
     completeOnboarding()
-    navigate('/')
+    navigate('/', { replace: true })
   }
 
   function goNext() {

@@ -7,22 +7,42 @@ import CalendarView from './pages/CalendarView'
 import Analysis from './pages/Analysis'
 import Settings from './pages/Settings'
 import Onboarding from './pages/Onboarding'
+import Landing from './pages/Landing'
 import useStore from './store/useStore'
+import { isHasLanded } from './lib/storage'
 
 function AppShell() {
   const location = useLocation()
-  const onboardingPath = location.pathname === '/onboarding'
+  const { pathname } = location
+  const onboardingPath = pathname === '/onboarding'
+  const landingPath = pathname === '/landing'
   const onboarded = useStore(s => s.onboardingDone)
+  const hasLanded = isHasLanded()
 
   if (!onboarded && !onboardingPath) {
     return <Navigate to="/onboarding" replace />
   }
+
+  if (onboarded && onboardingPath) {
+    return <Navigate to="/" replace />
+  }
+
+  if (onboarded && !hasLanded && pathname === '/') {
+    return <Navigate to="/landing" replace />
+  }
+
+  if (onboarded && hasLanded && landingPath) {
+    return <Navigate to="/" replace />
+  }
+
+  const hideBottomNav = onboardingPath || landingPath
 
   return (
     <div className="min-h-svh bg-bg-root sm:py-6">
       <div className="max-w-[430px] mx-auto min-h-svh sm:min-h-0 bg-bg-root relative">
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/landing" element={<Landing />} />
           <Route path="/" element={<CharacterSheet />} />
           <Route path="/daily" element={<DailyLog />} />
           <Route path="/daily/:date" element={<DailyLog />} />
@@ -32,7 +52,7 @@ function AppShell() {
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-        {!onboardingPath && <BottomNav />}
+        {!hideBottomNav && <BottomNav />}
       </div>
     </div>
   )

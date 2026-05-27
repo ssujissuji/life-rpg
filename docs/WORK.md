@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 4 완료
+## 현재 Phase: Phase 4 완료 / Phase 5 대기
 
 ---
 
@@ -457,3 +457,62 @@
 **완료된 항목:**
 - [x] `src/store/useStore.ts` — `StoreState` 인터페이스에 `maxedSkills: string[]` 필드 추가. 초기값 `loadMaxedSkills()`. `getMaxedSkills()` 액션 제거. `markSkillsMaxed` 액션에 `set({ maxedSkills: merged })` 반응형 갱신 추가
 - [x] `src/pages/PatchResult.tsx` — `getMaxedSkills()` 함수 호출 → `useStore(s => s.maxedSkills)` 셀렉터 구독으로 교체. `useMemo` 의존성 배열에서 `getMaxedSkills` 제거, `maxedSkills` 추가
+
+---
+
+## 다음 작업 (Phase 5)
+
+### Phase 5-1: Landing Page 분리
+
+**결정 사항:**
+- 앱을 열 때마다 `/landing`을 거침 (매번 거침, 옵션 A)
+- "현생 로그인" 버튼 클릭 후 `navigate('/', { replace: true })` — 히스토리 스택에서 /landing 제거
+- /에서 /landing으로 리다이렉트 루프 방지: 세션 내 `hasLanded` 플래그(`sessionStorage`) 사용
+
+**변경 파일:**
+- [x] `src/pages/Landing.tsx` (신규) — `useStore(s => s.character)`, `useStore(s => s.patches)` 구독. `level = new Date().getFullYear() - character.birthYear`, `patchCount = Object.keys(patches).length`. TypeAnimation 시퀀스: `> LOADING SAVE DATA...` → `> PLAYER FOUND: {이름} (LV.{레벨}) — 기록 {N}개 확인` → `> PRESS [Y] TO CONTINUE`. "현생 로그인" 버튼: `navigate('/', { replace: true })` + `sessionStorage.setItem('has_landed', '1')`. BottomNav 없음. Onboarding step 0 레이아웃 패턴 참고 (`min-h-svh bg-bg-root flex flex-col items-center justify-center font-mono`, 최대 430px)
+- [x] `src/App.tsx` — `Landing` import 추가. `<Route path="/landing" element={<Landing />} />` 추가. BottomNav 숨김 조건에 `/landing` 추가. 가드 분기 수정: `onboarded && !hasLanded && pathname === '/'` → `/landing`으로 리다이렉트. `hasLanded = sessionStorage.getItem('has_landed') === '1'`
+
+### Phase 5-2: 설정 About 섹션
+
+**변경 파일:**
+- [x] `src/pages/Settings.tsx` — return 블록 내 최하단에 About 섹션 카드 추가. 기존 섹션 패턴 동일: `bg-bg-card border border-border rounded-lg p-4`. 섹션 레이블: `text-purple-light text-xs font-mono font-bold` + "ABOUT". 내용: 앱 버전 `v1.0.0`, 창작자 정보 정적 텍스트. `text-text-sub text-[13px] font-mono` 스타일
+
+---
+
+### [2026-05-27] Phase 5 — Landing 페이지 + Settings About 섹션
+
+**완료된 항목:**
+- [x] `src/pages/Landing.tsx` (신규) — 터미널 스타일 로그인 화면. TypeAnimation 3단계 시퀀스 (LOADING → PLAYER FOUND → PRESS [Y]). 캐릭터명/레벨/기록 수 동적 표시. "현생 로그인" 버튼 클릭 시 `sessionStorage` 플래그 설정 후 `/` 이동
+- [x] `src/App.tsx` — Landing 라우트(`/landing`) 추가. `hasLanded` sessionStorage 기반 가드 분기. BottomNav 숨김 조건에 `/landing` 추가. `onboarded && !hasLanded && pathname === '/'` → `/landing` 리다이렉트
+- [x] `src/pages/Settings.tsx` — About 섹션 카드 최하단 추가. 앱 버전 `v1.0.0`, 앱 설명, 창작자 정보 정적 텍스트
+
+---
+
+---
+
+## 현재 작업 (feat/phase5-landing 코드 리뷰 수정)
+
+> Phase 5 Landing 페이지 구현 코드 리뷰에서 식별된 항목. 구현 시작 전 상태.
+
+### [BLOCK] 뒤로가기 버그 수정
+
+- [ ] `src/pages/Onboarding.tsx:38` — `navigate('/')` → `navigate('/', { replace: true })` 변경
+  - 온보딩 완료 후 히스토리 스택에 /onboarding이 남아 뒤로가기로 랜딩 재진입이 가능했던 문제
+- [ ] `src/lib/storage.ts` — `HAS_LANDED_KEY` 상수 + `setHasLanded()` / `isHasLanded()` 헬퍼 추가
+- [ ] `src/App.tsx` — `sessionStorage.getItem('has_landed')` → storage.ts 헬퍼로 교체
+- [ ] `src/pages/Landing.tsx` — `sessionStorage.setItem('has_landed', '1')` → storage.ts 헬퍼로 교체
+
+### [WARN] 스타일 일관성 수정
+
+- [ ] `src/pages/Settings.tsx:126` — `text-[#6b7280]` → `text-text-sub`
+
+---
+
+### 중기 (보류 중)
+
+- [ ] Phase 6: 캐릭터 비주얼 & 아이템 시스템 — **캐릭터 비주얼 방향 확정 후 착수** (픽셀아트 vs 이모지 미결정)
+
+### 장기 (추후 결정)
+
+- [ ] Phase 7: 로그인 + DB + 랭킹 세트 — 현재 localStorage로 충분, 유저 규모 커지면 재검토

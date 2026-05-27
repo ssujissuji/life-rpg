@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.clear())
+  await page.addInitScript(() => {
+    localStorage.clear()
+    localStorage.setItem('onboarding_done', '1')
+    sessionStorage.setItem('has_landed', '1')
+  })
   await page.goto('/')
 })
 
@@ -31,8 +35,10 @@ test.describe('CharacterSheet — 네비게이션', () => {
     await expect(page).toHaveURL('/daily')
   })
 
-  test('"설정 →" 클릭 시 /settings로 이동한다', async ({ page }) => {
-    await page.getByText('설정 →').click()
+  test('설정 아이콘 버튼 클릭 시 /settings로 이동한다', async ({ page }) => {
+    // Settings 아이콘 버튼 (lucide-react로 교체됨, 텍스트 없음)
+    // 캐릭터 프로필 카드의 우상단 버튼 클릭
+    await page.locator('.bg-bg-card').first().locator('button').click()
     await expect(page).toHaveURL('/settings')
   })
 })

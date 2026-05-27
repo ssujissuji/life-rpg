@@ -22,7 +22,11 @@ const SAMPLE_ENTRY = {
 
 test.describe('PatchResult — 기록 없을 때', () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => localStorage.clear())
+    await page.addInitScript(() => {
+      localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+      sessionStorage.setItem('has_landed', '1')
+    })
     await page.goto(`/result/2000-01-01`)
   })
 
@@ -40,6 +44,8 @@ test.describe('PatchResult — 기록 있을 때', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript((entry) => {
       localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+      sessionStorage.setItem('has_landed', '1')
       localStorage.setItem(`patch_${entry.date}`, JSON.stringify(entry))
     }, SAMPLE_ENTRY)
     await page.goto(`/result/${TODAY}`)
@@ -69,13 +75,16 @@ test.describe('PatchResult — 기록 있을 때', () => {
     await expect(page.getByText('"좋은 하루"')).toBeVisible()
   })
 
-  test('"수정하기" 버튼 클릭 시 /daily로 이동한다', async ({ page }) => {
+  test('"수정하기" 버튼 클릭 시 /daily/:date로 이동한다', async ({ page }) => {
+    // 수정하기 버튼이 /daily/${date} 형식으로 이동하도록 변경됨
     await page.getByRole('button', { name: '수정하기' }).click()
-    await expect(page).toHaveURL('/daily')
+    await expect(page).toHaveURL(new RegExp(`/daily/${TODAY}`))
   })
 
-  test('"← 홈으로" 클릭 시 / 로 이동한다', async ({ page }) => {
-    await page.getByText('← 홈으로').click()
+  test('홈으로 아이콘 버튼 클릭 시 / 로 이동한다', async ({ page }) => {
+    // "← 홈으로" 텍스트가 House 아이콘(lucide-react)으로 교체됨
+    // PatchResult 상단의 첫 번째 버튼(House 아이콘)을 클릭
+    await page.locator('div.space-y-1').first().locator('button').click()
     await expect(page).toHaveURL('/')
   })
 })
@@ -88,6 +97,8 @@ test.describe('PatchResult — BLOCK-2: 만렙 스킬 토스트 (fromSave 경유
     // 과거 29개 기록 심어두고 오늘 폼 저장 시 30번째로 만렙 달성
     await page.addInitScript((today) => {
       localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+      sessionStorage.setItem('has_landed', '1')
       // 과거 29일치 spend=0, cafe=0 기록 주입
       for (let i = 1; i <= 29; i++) {
         const d = new Date(today)
@@ -113,7 +124,7 @@ test.describe('PatchResult — BLOCK-2: 만렙 스킬 토스트 (fromSave 경유
 
     // 카페, 배달, 지출 모두 0인 상태로 저장 (무지출 조건 충족)
     // 기본값: sleep=7, meal=2, cafe=0, delivery=0, spend=0
-    await page.getByRole('button', { name: '패치노트 저장 →' }).click()
+    await page.getByRole('button', { name: /패치노트 저장/ }).click()
 
     // fromSave=true state로 /result/:date 에 이동했으므로 토스트 확인
     await expect(page).toHaveURL(`/result/${TODAY}`)
@@ -125,6 +136,8 @@ test.describe('PatchResult — BLOCK-2: 만렙 스킬 토스트 (fromSave 경유
     // 이미 만렙인 스킬이 있고 skill_maxed에도 기록되지 않은 상태
     await page.addInitScript((today) => {
       localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+      sessionStorage.setItem('has_landed', '1')
       // poor 스킬 만렙 조건: 30일치 spend=0, cafe=0 기록
       for (let i = 1; i <= 30; i++) {
         const d = new Date(today)
@@ -173,6 +186,8 @@ test.describe('PatchResult — BLOCK-2: 만렙 스킬 토스트 (fromSave 경유
     // pig 만렙을 위해 과거 기록에 cafe+delivery 대량 주입, poor는 today 기록으로 트리거
     await page.addInitScript((today) => {
       localStorage.clear()
+      localStorage.setItem('onboarding_done', '1')
+      sessionStorage.setItem('has_landed', '1')
       // pig 스킬: cafe+delivery 합산 50회 이상 (25일 × 각 1회씩)
       // poor 스킬: spend=0, cafe=0 30일
       // 두 조건이 겹치지 않으므로 pig는 별도 날짜에 설정
@@ -199,7 +214,7 @@ test.describe('PatchResult — BLOCK-2: 만렙 스킬 토스트 (fromSave 경유
 
     await page.goto('/daily')
     // 기본 저장 (spend=0, cafe=0 → poor 카운트 +1 → 만렙은 아직 안 됨)
-    await page.getByRole('button', { name: '패치노트 저장 →' }).click()
+    await page.getByRole('button', { name: /패치노트 저장/ }).click()
 
     await expect(page).toHaveURL(`/result/${TODAY}`)
     // 토스트 없음 확인 (pig는 30×2=60으로 만렙 but skill_maxed에 없으므로 토스트 뜸)
