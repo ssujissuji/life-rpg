@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { House } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
@@ -136,7 +137,7 @@ export default function PatchResult() {
           onClick={() => navigate('/')}
           className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors"
         >
-          ← 홈으로
+          <House size={16} />
         </button>
       </div>
 

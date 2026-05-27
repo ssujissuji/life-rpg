@@ -4,7 +4,44 @@
 
 ---
 
+## 2026-05-27
+
+### 캘린더 게임 터미널 스타일 재작성
+
+**src/styles/calendar.css**
+- 캘린더 전체 스타일을 게임 터미널 격자 UI로 재작성
+- 요일 헤더 컨테이너(`.react-calendar__month-view__weekdays`)에 `border-left: 1px solid #2a2a3a`, `border-top: 1px solid #2a2a3a` 추가
+- 각 요일 셀(`.react-calendar__month-view__weekdays__weekday`)에 `border-right`, `border-bottom` 추가 — 컨테이너와 셀 조합으로 외곽 포함한 격자 완성
+- 날짜 그리드 컨테이너(`.react-calendar__month-view__days`)에 `border-left: 1px solid #2a2a3a` 추가
+- 각 날짜 타일(`.react-calendar__tile`)에 `border-right`, `border-bottom` 추가
+- 오늘 날짜(`.react-calendar__tile--now`): `box-shadow: inset 0 0 0 1px #5dcaa5` (초록 테두리)
+- 선택된 날짜(`.react-calendar__tile--active`): `box-shadow: inset 0 0 0 1px #534ab7` + `rgba(83, 74, 183, 0.12)` 배경
+- 패치 기록 있는 날(`.has-patch`): `rgba(83, 74, 183, 0.06)` 배경 + `::after` 하단 2px `#534ab7` 바
+- 이웃 달 날짜(`.--neighboringMonth`): `color: #2a2a3a !important` dim 처리. `.--neighboringMonth.has-patch::after`: `display: none`으로 바 숨김
+- 네비게이션 배경: `#0f0f13`, 버튼 hover: `background: #1e1e2e`, `color: #afa9ec`
+
+---
+
 ## 2026-05-26
+
+### 온보딩 게임 스타일 랜딩 화면 추가
+
+**패키지**
+- `react-type-animation` 설치 (gzip 4KB, React 19 호환). 타이핑 애니메이션 구현에 사용
+
+**src/pages/Onboarding.tsx**
+- `Step` 타입 `1|2|3|4|5` → `0|1|2|3|4|5`로 확장
+- `useState<Step>` 초기값 `1` → `0`으로 변경
+- step === 0일 때 게임 터미널 스타일 랜딩 화면 렌더링
+- `TypeAnimation` 컴포넌트로 다음 3줄 순차 타이핑 출력:
+  - `> SYSTEM v1.0.0 LOADED`
+  - `> PLAYER DATA NOT FOUND`
+  - `> CREATE NEW CHARACTER? [Y/N]`
+- "[Y] 캐릭터 만들기" 버튼 클릭 시 step 1(이름 입력)로 진입
+- step 1의 "이전" 버튼 클릭 시 step 0(랜딩)으로 복귀
+- 스텝 인디케이터(dot) 표시 조건을 `step > 0`일 때만으로 변경
+
+---
 
 ### maxedSkills Zustand 반응형 상태 통합
 
