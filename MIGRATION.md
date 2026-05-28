@@ -2,6 +2,18 @@
 
 A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 폴더의 파일들은 그대로 `life-rpg/` 의 동일 경로에 덮어쓰거나 추가하면 됩니다.
 
+> **v2.1 업데이트 (2026-05-28)** — 컴포넌트·토큰은 다 적용됐는데 **페이지 레벨 디테일이 누락**되어 있던 부분을 보강했습니다. 아래 5개 파일을 덮어쓰면 디자인 시스템과 실제 화면이 1:1로 매칭됩니다.
+>
+> | 덮어쓸 파일                    | 추가된 디테일                                                                                                                                         |
+> | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | `src/index.css`                | `.t-panel-label` (패널 상단 골드 플로팅 라벨) + `.t-divider` 헬퍼                                                                                     |
+> | `src/pages/PatchResult.tsx`    | 골드 `[ PATCH NOTE · v… ]` 라벨, Orbitron 타이틀(`수요일`), `◢` 섹션 마커, `>>> 생존 +N <<<` 글로우 푸터, `[ ESC ] 수정하기` 고스트 버튼, 지출 글로우 |
+> | `src/pages/CharacterSheet.tsx` | `[ CHARACTER ]` 퍼플 라벨, Orbitron 캐릭터명·레벨 숫자, 프로그레스 바 글로우, `◢` 섹션 마커, 메인 버튼 `t-btn-primary`                                |
+> | `src/pages/DailyLog.tsx`       | `◢` 섹션 마커, 활성 칩/이모지 글로우(`box-shadow`), `t-h1` 타이틀, `t-btn-primary` 저장 버튼                                                          |
+> | `src/components/Toast.tsx`     | `rounded-lg` 제거(각진 엣지), `>>> SYSTEM <<<` / `>>> RARE UNLOCK <<<` 헤더, 골드/퍼플 글로우, `kind="rare"` prop                                     |
+>
+> **호출부 변경 (작은 한 줄)** — `PatchResult.tsx` 의 `<Toast … kind={currentToast.kind} />` prop 추가 (만렙 토스트가 골드로 뜨도록). 새 PatchResult 파일에 이미 반영되어 있음.
+
 ---
 
 ## 1. 폰트 추가 — `index.html`
@@ -11,13 +23,15 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet"
+<link
+  rel="stylesheet"
   href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@500;600;700&display=swap" />
 ```
 
 ## 2. 토큰 + 효과 클래스 — `src/index.css`
 
 `apply-to-project/src/index.css` 로 덮어쓰기. 주요 변경:
+
 - `--color-gold`, `--color-purple-glow` 토큰 신규
 - `--font-display` (Orbitron) 신규
 - 전역 CRT 스캔라인 오버레이 (body::before)
@@ -25,12 +39,12 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 
 ## 3. 컴포넌트 교체 / 신규
 
-| 파일 | 작업 | 비고 |
-| --- | --- | --- |
-| `src/components/StatBar.tsx` | **덮어쓰기** | `delta` prop 추가, 10-블록 + 글로우 + 티커 박스 |
-| `src/components/SkillBar.tsx` | **신규** | 100-세그먼트 포스퍼 게이지 (CharacterSheet 인라인 코드 대체) |
-| `src/components/Panel.tsx` | **신규** | ASCII 코너 브래킷 패널 래퍼 |
-| `src/components/BuffTag.tsx` | **신규** | 버프/디버프/레어 3종 태그 |
+| 파일                          | 작업         | 비고                                                         |
+| ----------------------------- | ------------ | ------------------------------------------------------------ |
+| `src/components/StatBar.tsx`  | **덮어쓰기** | `delta` prop 추가, 10-블록 + 글로우 + 티커 박스              |
+| `src/components/SkillBar.tsx` | **신규**     | 100-세그먼트 포스퍼 게이지 (CharacterSheet 인라인 코드 대체) |
+| `src/components/Panel.tsx`    | **신규**     | ASCII 코너 브래킷 패널 래퍼                                  |
+| `src/components/BuffTag.tsx`  | **신규**     | 버프/디버프/레어 3종 태그                                    |
 
 ## 4. CharacterSheet.tsx · DailyLog.tsx · PatchResult.tsx — 작은 치환
 
@@ -51,6 +65,7 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ### CharacterSheet — 스킬 행 (Before → After)
 
 **Before** (CharacterSheet.tsx, 인라인):
+
 ```tsx
 <button className="w-full text-left space-y-1 ...">
   <div className="flex items-center justify-between text-xs font-mono">
@@ -65,6 +80,7 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ```
 
 **After**:
+
 ```tsx
 <button onClick={() => setSelectedSkill(sk)} className="w-full text-left">
   <SkillBar
@@ -81,6 +97,7 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ### 상태 태그 (Before → After)
 
 **Before**:
+
 ```tsx
 <span className="text-xs px-2 py-0.5 rounded-full bg-bg-input text-purple-light border border-border font-mono">
   {tag}
@@ -88,6 +105,7 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ```
 
 **After**:
+
 ```tsx
 <BuffTag label={tag} type={isPositive(tag) ? 'buff' : 'debuff'} />
 ```
@@ -97,6 +115,7 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ### 카드 (Before → After)
 
 **Before**:
+
 ```tsx
 <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
   ...
@@ -104,10 +123,9 @@ A안(TERMINAL.SYS)을 실제 프로젝트에 옮기는 단계별 가이드. 이 
 ```
 
 **After**:
+
 ```tsx
-<Panel className="space-y-3">
-  ...
-</Panel>
+<Panel className="space-y-3">...</Panel>
 ```
 
 `Panel` 의 `bracket={false}` 로 코너 브래킷 끄기 가능.
