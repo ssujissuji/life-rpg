@@ -29,3 +29,8 @@ dist-ssr
 test-results/
 playwright-report/
 .vercel
+
+# Claude Code workflow
+.claude/agents/
+docs/WORK.md
+docs/HISTORY.md
