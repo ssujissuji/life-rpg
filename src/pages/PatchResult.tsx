@@ -5,8 +5,11 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import Toast from '../components/Toast'
+import Panel from '../components/Panel'
+import BuffTag, { classifyTag } from '../components/BuffTag'
 import { formatSpend } from '../lib/stats'
 import { formatDateLabel } from '../lib/date'
+import { loadPatch } from '../lib/storage'
 import type { Skills, StatConfig } from '../types'
 
 const STATS: StatConfig[] = [
@@ -58,7 +61,7 @@ export default function PatchResult() {
     if (!cardRef.current || isCapturing) return
     setIsCapturing(true)
     try {
-      const dataUrl = await toPng(cardRef.current, { backgroundColor: '#12121a' })
+      const dataUrl = await toPng(cardRef.current, { backgroundColor: '#0e0e16' })
       const blob = await (await fetch(dataUrl)).blob()
       const file = new File([blob], `patch-${date}.png`, { type: 'image/png' })
 
@@ -102,13 +105,21 @@ export default function PatchResult() {
 
   const patch = date ? getPatch(date) : null
 
+  const prevPatch = useMemo(() => {
+    if (!date) return null
+    const d = new Date(date + 'T00:00:00')
+    d.setDate(d.getDate() - 1)
+    const prevDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return loadPatch(prevDate)
+  }, [date])
+
   if (!patch || !date) {
     return (
       <div className="px-4 pt-6 pb-28 text-center space-y-4">
         <div className="text-text-sub font-mono text-sm">해당 날짜의 기록이 없습니다.</div>
         <button
           onClick={() => navigate('/daily')}
-          className="bg-purple-primary text-white font-mono text-sm px-4 py-2 rounded-lg"
+          className="bg-purple-primary text-white font-mono text-sm px-4 py-2"
         >
           패치노트 작성하기
         </button>
@@ -142,7 +153,8 @@ export default function PatchResult() {
       </div>
 
       {/* 결과 카드 */}
-      <div ref={cardRef} className="bg-bg-card border border-border rounded-lg p-4 space-y-4">
+      <div ref={cardRef}>
+      <Panel className="p-4 space-y-4">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -169,7 +181,13 @@ export default function PatchResult() {
         <div className="space-y-2">
           <div className="text-purple-light text-xs font-mono font-bold">[능력치 변화]</div>
           {STATS.map((s) => (
-            <StatBar key={s.key} icon={s.icon} label={s.label} value={patch.stats[s.key]} />
+            <StatBar
+              key={s.key}
+              icon={s.icon}
+              label={s.label}
+              value={patch.stats[s.key]}
+              delta={prevPatch ? patch.stats[s.key] - prevPatch.stats[s.key] : undefined}
+            />
           ))}
         </div>
 
@@ -179,12 +197,7 @@ export default function PatchResult() {
             <div className="border-t border-border" />
             <div className="flex flex-wrap gap-1.5">
               {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-xs px-2 py-0.5 rounded-full bg-bg-input text-purple-light border border-border font-mono"
-                >
-                  {tag}
-                </span>
+                <BuffTag key={tag} label={tag} type={classifyTag(tag)} />
               ))}
             </div>
           </>
@@ -203,10 +216,11 @@ export default function PatchResult() {
         <div className="text-success text-xs font-mono text-center py-1">
           "{encouragement}"
         </div>
+      </Panel>
       </div>
 
       {/* 기록 요약 */}
-      <div className="bg-bg-card border border-border rounded-lg p-4">
+      <Panel className="p-4">
         <div className="text-purple-light text-xs font-mono font-bold mb-3">[오늘의 기록]</div>
         <div className="grid grid-cols-2 gap-y-2 text-xs font-mono">
           <span className="text-text-sub">수면</span>
@@ -220,11 +234,11 @@ export default function PatchResult() {
           <span className="text-text-sub">지출</span>
           <span className="text-white">{formatSpend(patch.spend)}</span>
         </div>
-      </div>
+      </Panel>
 
       <button
         onClick={() => navigate(`/daily/${date}`)}
-        className="w-full border border-border text-purple-light font-mono text-sm py-3 rounded-lg hover:bg-bg-card transition-colors"
+        className="w-full border border-border text-purple-light font-mono text-sm py-3 hover:bg-bg-card transition-colors"
       >
         수정하기
       </button>

@@ -4,6 +4,31 @@
 
 ---
 
+## [Unreleased] — Terminal.sys v2 디자인 마이그레이션
+
+### Added
+- `Panel` 컴포넌트 — ASCII 코너 브래킷 터미널 패널 래퍼
+- `SkillBar` 컴포넌트 — 100세그먼트 포스퍼 게이지
+- `BuffTag` 컴포넌트 — buff / debuff / rare 3종 상태 태그 (`classifyTag` 헬퍼 포함)
+- CRT 스캔라인 + 포스퍼 비네팅 전역 오버레이 (`body::before`, `body::after`)
+- JetBrains Mono + Orbitron 폰트 페어 적용
+- CSS 토큰 신규: `--color-gold`, `--color-gold-glow`, `--color-purple-glow`, `--color-text-dim`, `--color-bg-elev`, `--color-border-strong`
+- 헬퍼 클래스 신규: `.t-panel`, `.t-panel--bracket`, `.t-glow`, `.t-glow-soft`, `.t-glow-gold`, `.t-label`, `.t-h1`, `.t-btn-primary`, `.t-btn-ghost`
+
+### Changed
+- `StatBar` — 10블록 + `delta` prop + ▲/▼ 티커 박스로 교체
+- `CharacterSheet` — `Panel` + `SkillBar` + `BuffTag` 적용, `rounded-*` 제거
+- `PatchResult` — `Panel` + `BuffTag` + 전일 대비 delta 계산 적용
+- `DailyLog` — `Panel` 적용, `rounded-*` 전면 제거
+- `Landing` — `Panel` + 골드 타이틀 액센트 + `.t-btn-primary` 적용
+- `BottomNav` — 활성 탭 글로우 + 상단 2px 퍼플 글로우 라인 추가
+
+### Fixed
+- `src/components/BuffTag.tsx` — `BUFF_LIST`에 `'주말달성'` 누락으로 주말달성이 debuff로 오분류되던 버그 수정
+- `src/pages/PatchResult.tsx` — 공유 이미지 배경색 `#12121a`(팔레트 외 임의 HEX) → `#0e0e16`(`--color-bg-card`)으로 교체
+
+---
+
 ## [Unreleased] — 캘린더 게임 터미널 스타일 재작성
 
 ### Changed

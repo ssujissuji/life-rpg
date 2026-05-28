@@ -4,6 +4,9 @@ import { Settings } from 'lucide-react'
 import useStore from '../store/useStore'
 import StatBar from '../components/StatBar'
 import SkillModal from '../components/SkillModal'
+import Panel from '../components/Panel'
+import SkillBar from '../components/SkillBar'
+import BuffTag, { classifyTag } from '../components/BuffTag'
 import { today } from '../lib/date'
 import type { SkillConfig, StatConfig, Stats } from '../types'
 
@@ -69,7 +72,7 @@ export default function CharacterSheet() {
       </div>
 
       {/* 캐릭터 프로필 */}
-      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+      <Panel className="p-4 space-y-3">
         <div className="flex items-start justify-between">
           <div>
             <div className="text-white font-mono font-bold text-base">{character.name}</div>
@@ -89,31 +92,26 @@ export default function CharacterSheet() {
             <span className="text-white font-bold">{age}</span>
             <span className="text-text-sub text-xs">다음 레벨까지 {daysLeft}일</span>
           </div>
-          <div className="w-full bg-bg-input rounded-full h-1.5">
+          <div className="w-full bg-bg-input h-1.5">
             <div
-              className="bg-purple-primary h-1.5 rounded-full transition-all"
+              className="bg-purple-primary h-1.5 transition-all"
               style={{ width: `${((365 - daysLeft) / 365) * 100}%` }}
             />
           </div>
         </div>
-      </div>
+      </Panel>
 
       {/* 오늘의 상태 태그 */}
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs px-2 py-0.5 rounded-full bg-bg-input text-purple-light border border-border font-mono"
-            >
-              {tag}
-            </span>
+            <BuffTag key={tag} label={tag} type={classifyTag(tag)} />
           ))}
         </div>
       )}
 
       {/* 기본 스탯 */}
-      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+      <Panel className="p-4 space-y-3">
         <div className="text-purple-light text-xs font-mono font-bold">
           기본 스탯
           <span className="text-text-sub font-normal ml-2">
@@ -131,52 +129,33 @@ export default function CharacterSheet() {
             패치노트를 작성하면 스탯이 쌓입니다.
           </div>
         )}
-      </div>
+      </Panel>
 
       {/* 특수스킬 */}
-      <div className="bg-bg-card border border-border rounded-lg p-4 space-y-3">
+      <Panel className="p-4 space-y-3">
         <div className="text-purple-light text-xs font-mono font-bold">특수스킬</div>
         <div className="space-y-3">
           {SKILLS.map((sk) => {
             const data = skills[sk.key]
-            const pct = Math.min(data.count / sk.max, 1)
-            const filled = Math.round(pct * 10)
-            const toMax = Math.max(0, sk.max - data.count)
-            const isMaxed = data.level >= 10
-            const isNearMax = !isMaxed && pct >= 0.9
             return (
               <button
                 key={sk.key}
-                className="w-full text-left space-y-1 -mx-1 px-1 py-1 rounded-lg hover:bg-bg-input/50 transition-colors cursor-pointer"
+                className="w-full text-left"
                 onClick={() => setSelectedSkill(sk)}
               >
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <div className="flex items-center gap-1.5">
-                    <span>{sk.icon}</span>
-                    <span className={isMaxed ? 'text-success' : 'text-purple-light'}>{sk.label}</span>
-                    <span className="text-white">Lv.{data.level}</span>
-                  </div>
-                  {isMaxed ? (
-                    <span className="text-success">MAX ✓</span>
-                  ) : (
-                    <span className="text-text-sub">
-                      {`만렙까지 ${toMax}${sk.unit}`}{isNearMax ? ' ⚠️' : ''}
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-px">
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`flex-1 h-2 rounded-sm ${i < filled ? (isMaxed ? 'bg-success' : 'bg-purple-primary') : 'bg-bg-input'}`}
-                    />
-                  ))}
-                </div>
+                <SkillBar
+                  icon={sk.icon}
+                  label={sk.label}
+                  level={data.level}
+                  count={data.count}
+                  max={sk.max}
+                  unit={sk.unit}
+                />
               </button>
             )
           })}
         </div>
-      </div>
+      </Panel>
 
       {selectedSkill && (
         <SkillModal
@@ -189,7 +168,7 @@ export default function CharacterSheet() {
       {/* 패치노트 작성 버튼 */}
       <button
         onClick={() => navigate('/daily')}
-        className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
+        className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 transition-colors"
       >
         {todayPatch ? '오늘 패치노트 수정하기' : '📋 오늘의 패치노트 작성'}
       </button>

@@ -1,6 +1,6 @@
 # WORK.md — 현재 작업 현황
 
-## 현재 Phase: Phase 4 완료 / Phase 5 대기
+## 현재 Phase: Phase 5 완료 / Terminal.sys v2 디자인 마이그레이션 진행 중 (브랜치: `style/design-migration`)
 
 ---
 
@@ -491,21 +491,21 @@
 
 ---
 
-## 현재 작업 (feat/phase5-landing 코드 리뷰 수정)
+### [2026-05-27] feat/phase5-landing 코드 리뷰 수정
 
-> Phase 5 Landing 페이지 구현 코드 리뷰에서 식별된 항목. 구현 시작 전 상태.
+> Phase 5 Landing 페이지 구현 코드 리뷰에서 식별된 항목.
 
 ### [BLOCK] 뒤로가기 버그 수정
 
-- [ ] `src/pages/Onboarding.tsx:38` — `navigate('/')` → `navigate('/', { replace: true })` 변경
+- [x] `src/pages/Onboarding.tsx:38` — `navigate('/')` → `navigate('/', { replace: true })` 변경
   - 온보딩 완료 후 히스토리 스택에 /onboarding이 남아 뒤로가기로 랜딩 재진입이 가능했던 문제
-- [ ] `src/lib/storage.ts` — `HAS_LANDED_KEY` 상수 + `setHasLanded()` / `isHasLanded()` 헬퍼 추가
-- [ ] `src/App.tsx` — `sessionStorage.getItem('has_landed')` → storage.ts 헬퍼로 교체
-- [ ] `src/pages/Landing.tsx` — `sessionStorage.setItem('has_landed', '1')` → storage.ts 헬퍼로 교체
+- [x] `src/lib/storage.ts` — `HAS_LANDED_KEY` 상수 + `setHasLanded()` / `isHasLanded()` 헬퍼 추가
+- [x] `src/App.tsx` — `sessionStorage.getItem('has_landed')` → storage.ts 헬퍼로 교체
+- [x] `src/pages/Landing.tsx` — `sessionStorage.setItem('has_landed', '1')` → storage.ts 헬퍼로 교체
 
 ### [WARN] 스타일 일관성 수정
 
-- [ ] `src/pages/Settings.tsx:126` — `text-[#6b7280]` → `text-text-sub`
+- [x] `src/pages/Settings.tsx:126` — `text-[#6b7280]` → `text-text-sub`
 
 ---
 
@@ -516,3 +516,43 @@
 ### 장기 (추후 결정)
 
 - [ ] Phase 7: 로그인 + DB + 랭킹 세트 — 현재 localStorage로 충분, 유저 규모 커지면 재검토
+
+---
+
+## Terminal.sys v2 디자인 마이그레이션 (브랜치: `style/design-migration`)
+
+> 기존 디자인을 Terminal.sys v2 스타일로 전환하는 작업. `MIGRATION.md` (루트) 및 `docs/DESIGN.md` (v2) 참고.
+
+### 완료된 항목
+
+- [x] `docs/DESIGN.md` — v2 스펙으로 교체 (CRT 스캔라인, 포스퍼 글로우, ASCII 브래킷 패널, 골드 토큰)
+- [x] `src/index.css` — CSS 토큰(`--color-gold`, `--color-purple-glow`, `--font-display`) + `.t-panel`, `.t-glow`, `.t-btn-*` 헬퍼 클래스 + `body::before` CRT 스캔라인/비네트 오버레이 추가
+- [x] `src/components/StatBar.tsx` — 10블록 + `delta` prop + 등락 티커 박스로 교체
+- [x] `src/components/Panel.tsx` (신규) — ASCII 코너 브래킷 패널 래퍼 컴포넌트
+- [x] `src/components/SkillBar.tsx` (신규) — 100세그먼트 포스퍼 게이지 컴포넌트
+- [x] `src/components/BuffTag.tsx` (신규) — buff / debuff / rare 3종 태그 + `classifyTag` 헬퍼
+- [x] `MIGRATION.md` (신규, 루트) — 단계별 마이그레이션 가이드 및 치환 패턴 문서
+
+### 완료 항목
+
+[2026-05-28]
+
+- [x] `index.html` — `<head>`에 JetBrains Mono + Orbitron Google Fonts `<link>` 추가 (폰트 미로드 시 `--font-display` 미적용)
+- [x] `src/components/Panel.tsx` 11-14번 줄, `src/components/StatBar.tsx` 4-7번 줄 — 멀티라인 JSDoc 주석 삭제 (CLAUDE.md 주석 금지 규칙 위반)
+- [x] `src/pages/CharacterSheet.tsx` — `bg-bg-card border border-border rounded-lg p-4` 카드 → `<Panel>` 교체, 인라인 10블록 스킬바 → `<SkillBar>` 교체, `rounded-*` 클래스 제거
+- [x] `src/pages/PatchResult.tsx` — 카드 → `<Panel>` 교체, 상태 태그 `<span>` → `<BuffTag>` 교체, `classifyTag` 헬퍼 연결, 전일 대비 delta 계산 후 `<StatBar delta={...} />` 전달
+- [x] `src/pages/DailyLog.tsx` — 카드 → `<Panel>` 교체
+- [x] `src/pages/Landing.tsx` — 카드 → `<Panel>` 교체 + 골드 액센트 적용
+- [x] `src/components/BottomNav.tsx` — 활성 탭 글로우 + 상단 2px 퍼플 글로우 라인 추가
+
+### [2026-05-28] 마이그레이션 코드 리뷰 수정
+
+**[BLOCK] 수정 완료:**
+- [x] `src/components/BuffTag.tsx` — `BUFF_LIST`에 `'주말달성'` 추가 (주말달성 debuff 오분류 버그)
+- [x] `src/pages/PatchResult.tsx` — 공유 이미지 배경색 `#12121a` → `#0e0e16`(--color-bg-card) 교체
+
+**[WARN] 수정 완료:**
+- [x] `src/components/Panel.tsx` — `bracket` prop JSDoc 주석 제거
+- [x] `src/components/BuffTag.tsx` — `RARE_LIST` 인라인 주석 제거
+- [x] `src/pages/CharacterSheet.tsx` — 상태 태그 `<span>` → `<BuffTag>` 교체, `classifyTag` 연결
+- [x] `src/pages/Landing.tsx` — `text-gold` → `style={{ color: 'var(--color-gold)' }}` 통일

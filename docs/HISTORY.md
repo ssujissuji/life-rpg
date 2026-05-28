@@ -4,6 +4,55 @@
 
 ---
 
+## 2026-05-28
+
+### Terminal.sys v2 디자인 마이그레이션 완료
+
+**신규 컴포넌트**
+- `src/components/Panel.tsx` — ASCII 코너 브래킷 패널 래퍼 컴포넌트 신설
+- `src/components/SkillBar.tsx` — 100세그먼트 포스퍼 게이지 컴포넌트 신설
+- `src/components/BuffTag.tsx` — buff / debuff / rare 3종 상태 태그 + `classifyTag` 헬퍼 신설
+
+**전역 스타일**
+- `src/index.css` — CSS 토큰 6종 신규 (`--color-gold`, `--color-gold-glow`, `--color-purple-glow`, `--color-text-dim`, `--color-bg-elev`, `--color-border-strong`)
+- `src/index.css` — 헬퍼 클래스 8종 신규 (`.t-panel`, `.t-panel--bracket`, `.t-glow`, `.t-glow-soft`, `.t-glow-gold`, `.t-label`, `.t-h1`, `.t-btn-primary`, `.t-btn-ghost`)
+- `src/index.css` — `body::before` CRT 스캔라인, `body::after` 포스퍼 비네팅 전역 오버레이 추가
+- `index.html` — JetBrains Mono + Orbitron Google Fonts `<link>` 추가
+
+**페이지 마이그레이션**
+- `src/components/StatBar.tsx` — 10블록 + `delta` prop + ▲/▼ 티커 박스로 교체
+- `src/pages/CharacterSheet.tsx` — `Panel` + `SkillBar` 적용, `rounded-*` 제거
+- `src/pages/PatchResult.tsx` — `Panel` + `BuffTag` + 전일 대비 delta 계산 적용
+- `src/pages/DailyLog.tsx` — `Panel` 적용, `rounded-*` 전면 제거
+- `src/pages/Landing.tsx` — `Panel` + 골드 타이틀 액센트 적용
+- `src/components/BottomNav.tsx` — 활성 탭 글로우 + 상단 2px 퍼플 글로우 라인 추가
+
+### 마이그레이션 코드 리뷰 수정
+
+**[BLOCK] 즉시 수정**
+
+`src/components/BuffTag.tsx`
+- `BUFF_LIST`에 `'주말달성'` 누락 확인. 해당 태그가 debuff로 잘못 분류되던 버그. `BUFF_LIST` 배열에 `'주말달성'` 추가로 수정
+
+`src/pages/PatchResult.tsx`
+- 공유 이미지 배경색으로 사용한 `#12121a`가 팔레트 외 임의 HEX임을 확인. `#0e0e16`(`--color-bg-card`) 토큰값으로 교체
+
+**[WARN] 수정 권장**
+
+`src/components/Panel.tsx`
+- `bracket?: boolean` prop 위에 작성된 JSDoc 주석 제거 (CLAUDE.md 주석 금지 규칙 위반)
+
+`src/components/BuffTag.tsx`
+- `RARE_LIST` 옆 인라인 주석 제거 (CLAUDE.md 주석 금지 규칙 위반)
+
+`src/pages/CharacterSheet.tsx`
+- 오늘의 상태 태그를 `<span>`으로 렌더링하던 부분을 `<BuffTag type={classifyTag(tag)}>` 교체. PatchResult와 시각적 일관성 확보
+
+`src/pages/Landing.tsx`
+- `text-gold` Tailwind 클래스를 `style={{ color: 'var(--color-gold)' }}`로 교체. SkillBar/BuffTag의 인라인 스타일 패턴과 일치시킴
+
+---
+
 ## 2026-05-27
 
 ### 캘린더 게임 터미널 스타일 재작성
