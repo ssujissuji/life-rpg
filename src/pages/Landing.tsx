@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { TypeAnimation } from 'react-type-animation'
 import useStore from '../store/useStore'
 import { setHasLanded } from '../lib/storage'
+import Panel from '../components/Panel'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -19,7 +20,8 @@ export default function Landing() {
   return (
     <div className="min-h-svh bg-bg-root flex flex-col items-center justify-center font-mono">
       <div className="w-full max-w-[430px] px-4 flex flex-col items-center gap-8">
-        <div className="w-full bg-bg-card border border-border rounded-lg p-6">
+        <p className="t-h1 t-glow-gold text-[22px] tracking-widest" style={{ color: 'var(--color-gold)' }}>현생 RPG</p>
+        <Panel className="w-full p-6">
           <TypeAnimation
             sequence={[
               '> LOADING SAVE DATA...',
@@ -35,12 +37,12 @@ export default function Landing() {
             repeat={0}
             className="text-purple-light text-[13px] font-mono min-h-[72px] whitespace-pre-wrap"
           />
-        </div>
+        </Panel>
         <div className="w-full">
           <button
             type="button"
             onClick={handleLogin}
-            className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors"
+            className="t-btn-primary"
           >
             [Y] 현생 로그인
           </button>

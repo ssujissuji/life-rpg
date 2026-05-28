@@ -32,9 +32,14 @@ src/
 > 상세 스펙은 `docs/DESIGN.md` 를 항상 먼저 확인할 것
 
 - **테마:** 다크모드 전용 (라이트모드 절대 추가하지 않음)
-- **폰트:** 모노스페이스 전용 (`font-mono`)
-- **컬러:** DESIGN.md 팔레트만 사용, 임의 컬러 추가 금지
-- **UI 스타일:** 게임 터미널 느낌, 각진 엣지, 픽셀감 있는 프로그레스바
+- **폰트:** JetBrains Mono (`font-mono`) 기본 + Orbitron (`font-display`) 디스플레이 전용 (캐릭터명·레벨 숫자·페이지 타이틀에만 허용)
+- **컬러:** DESIGN.md 팔레트 토큰만 사용, 임의 hex 하드코딩 금지
+- **UI 스타일:** 사이버펑크 터미널 · 포스퍼 CRT 감성, **`rounded-*` 클래스 사용 금지** (각진 엣지 유지)
+- **카드:** `<Panel>` 컴포넌트 사용 (`bg-bg-card border border-border` 직접 작성 금지)
+- **태그:** `<BuffTag>` 컴포넌트 + `classifyTag()` 헬퍼 사용
+- **버튼:** `.t-btn-primary`, `.t-btn-ghost` 헬퍼 클래스 사용
+- **글로우:** `.t-glow`, `.t-glow-gold` 헬퍼 클래스 사용 (강조 텍스트·만렙 전용, 남용 금지)
+- **gold 컬러:** 만렙·칭호·희귀 전용 — 일반 강조에 사용 금지
 - Tailwind 클래스는 인라인으로 작성 (별도 CSS 파일 최소화)
 
 ---
@@ -77,6 +82,6 @@ src/
 
 ## 현재 Phase
 
-**Phase 1 — MVP 완료**
+**Phase 5 완료 / Terminal.sys v2 디자인 마이그레이션 진행 중 (브랜치: `style/design-migration`)**
 
 세부 진행 상황은 `docs/WORK.md` 참고
