@@ -108,3 +108,25 @@ export function setHasLanded(): void {
 export function clearAll(): void {
   localStorage.clear()
 }
+
+const UNLOCKED_TITLES_KEY = 'unlocked_titles'
+const ACTIVE_TITLE_KEY = 'active_title'
+
+export function loadUnlockedTitles(): string[] {
+  const raw = localStorage.getItem(UNLOCKED_TITLES_KEY)
+  if (!raw) return []
+  try { return JSON.parse(raw) as string[] } catch { return [] }
+}
+
+export function saveUnlockedTitles(ids: string[]): void {
+  localStorage.setItem(UNLOCKED_TITLES_KEY, JSON.stringify(ids))
+}
+
+export function loadActiveTitle(): string | null {
+  return localStorage.getItem(ACTIVE_TITLE_KEY)
+}
+
+export function saveActiveTitle(id: string | null): void {
+  if (id === null) localStorage.removeItem(ACTIVE_TITLE_KEY)
+  else localStorage.setItem(ACTIVE_TITLE_KEY, id)
+}

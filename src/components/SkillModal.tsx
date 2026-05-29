@@ -4,9 +4,11 @@ interface SkillModalProps {
   skill: SkillConfig
   data: SkillData
   onClose: () => void
+  color?: string
+  dimColor?: string
 }
 
-export default function SkillModal({ skill, data, onClose }: SkillModalProps) {
+export default function SkillModal({ skill, data, onClose, color, dimColor }: SkillModalProps) {
   const pct = Math.min(data.count / skill.max, 1)
   const filled = Math.round(pct * 10)
   const isMaxed = data.level >= 10
@@ -28,7 +30,10 @@ export default function SkillModal({ skill, data, onClose }: SkillModalProps) {
           <div className="flex items-center gap-3">
             <span className="text-3xl">{skill.icon}</span>
             <div>
-              <div className={`font-mono font-bold text-base ${isMaxed ? 'text-success' : 'text-white'}`}>
+              <div
+                className="font-mono font-bold text-base"
+                style={{ color: isMaxed ? (color ?? 'var(--color-white)') : (dimColor ?? color ?? 'var(--color-white)') }}
+              >
                 {skill.label}
               </div>
               <div className="text-text-sub text-xs font-mono">{skill.description}</div>
@@ -44,11 +49,14 @@ export default function SkillModal({ skill, data, onClose }: SkillModalProps) {
 
         <div className="flex items-baseline gap-2">
           <span className="text-purple-light font-mono text-sm">Lv.</span>
-          <span className={`font-mono font-bold text-2xl ${isMaxed ? 'text-success' : 'text-white'}`}>
+          <span
+            className="font-mono font-bold text-2xl"
+            style={{ color: isMaxed ? (color ?? 'var(--color-white)') : (dimColor ?? color ?? 'var(--color-white)') }}
+          >
             {data.level}
           </span>
           <span className="text-text-sub font-mono text-sm">/ 10</span>
-          {isMaxed && <span className="text-success text-xs font-mono ml-1">MAX ✓</span>}
+          {isMaxed && <span className="text-xs font-mono ml-1" style={{ color: 'var(--color-gold)' }}>MAX ✓</span>}
           {isNearMax && <span className="text-warning text-xs font-mono ml-1">⚠ 만렙 근접</span>}
         </div>
 
@@ -56,13 +64,8 @@ export default function SkillModal({ skill, data, onClose }: SkillModalProps) {
           {Array.from({ length: 10 }).map((_, i) => (
             <div
               key={i}
-              className={`flex-1 h-3 rounded-sm ${
-                i < filled
-                  ? isMaxed
-                    ? 'bg-success'
-                    : 'bg-purple-primary'
-                  : 'bg-bg-input'
-              }`}
+              className={`flex-1 h-3 rounded-sm ${i < filled ? '' : 'bg-bg-input'}`}
+              style={i < filled ? { background: isMaxed ? (color ?? 'var(--color-purple-primary)') : (dimColor ?? color ?? 'var(--color-purple-primary)') } : undefined}
             />
           ))}
         </div>
@@ -82,7 +85,7 @@ export default function SkillModal({ skill, data, onClose }: SkillModalProps) {
         <div className="text-center pb-1">
           {isMaxed ? (
             <div className="space-y-1">
-              <div className="text-success font-mono text-sm font-bold">🎉 만렙 달성!</div>
+              <div className="font-mono text-sm font-bold" style={{ color: 'var(--color-gold)' }}>🎉 만렙 달성!</div>
               <div className="text-text-sub text-xs font-mono">이미 마스터한 스킬입니다.</div>
             </div>
           ) : (

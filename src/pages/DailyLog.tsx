@@ -33,14 +33,16 @@ function Counter({ value, onChange, min = 0, max = 10 }: CounterProps) {
       <button
         type="button"
         onClick={() => onChange(Math.max(min, value - 1))}
-        className="min-w-11 min-h-11 bg-bg-input text-white font-mono text-lg leading-none hover:bg-border transition-colors">
+        className="min-w-11 min-h-11 bg-bg-input border border-border text-white font-mono text-lg leading-none hover:border-purple-light hover:text-purple-light transition-colors">
         −
       </button>
-      <span className="text-white w-6 text-center font-mono">{value}</span>
+      <span className="text-white w-6 text-center font-mono text-base">
+        {value}
+      </span>
       <button
         type="button"
         onClick={() => onChange(Math.min(max, value + 1))}
-        className="min-w-11 min-h-11 bg-bg-input text-white font-mono text-lg leading-none hover:bg-border transition-colors">
+        className="min-w-11 min-h-11 bg-bg-input border border-border text-white font-mono text-lg leading-none hover:border-purple-light hover:text-purple-light transition-colors">
         +
       </button>
     </div>
@@ -56,19 +58,26 @@ interface TabButtonsProps {
 function TabButtons({ options, value, onChange }: TabButtonsProps) {
   return (
     <div className="flex gap-1.5 flex-wrap">
-      {options.map((opt, i) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(i)}
-          className={`px-3 py-1.5 text-xs font-mono transition-colors ${
-            value === i
-              ? 'bg-purple-primary text-white'
-              : 'bg-bg-input text-text-sub hover:text-white'
-          }`}>
-          {opt}
-        </button>
-      ))}
+      {options.map((opt, i) => {
+        const active = value === i;
+        return (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => onChange(i)}
+            className="px-3 py-1.5 text-xs font-mono transition-all"
+            style={{
+              background: active
+                ? 'var(--color-purple-primary)'
+                : 'var(--color-bg-input)',
+              color: active ? '#fff' : 'var(--color-text-sub)',
+              border: `1px solid ${active ? 'var(--color-purple-primary)' : 'var(--color-border)'}`,
+              boxShadow: active ? '0 0 12px rgba(122, 111, 255, 0.45)' : 'none',
+            }}>
+            {opt}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -81,9 +90,7 @@ interface SectionProps {
 function Section({ label, children }: SectionProps) {
   return (
     <div className="space-y-2">
-      <div className="text-purple-light text-xs font-mono font-bold">
-        {label}
-      </div>
+      <div className="t-label">◢ {label}</div>
       {children}
     </div>
   );
@@ -130,16 +137,22 @@ export default function DailyLog() {
   }
 
   return (
-    <div className="px-4 pt-6 pb-28 space-y-6">
+    <div className="px-4 pt-6 pb-28 space-y-5">
       {/* 헤더 */}
-      <div className="space-y-1">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-text-sub text-xs font-mono hover:text-purple-light transition-colors">
-          <ArrowLeft size={16} />
-        </button>
-        <div className="text-white font-mono font-bold text-base">
-          {isToday ? '오늘의 패치노트' : `${date} 패치노트`}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-text-sub hover:text-purple-light transition-colors"
+            aria-label="뒤로">
+            <ArrowLeft size={16} />
+          </button>
+          <div className="text-text-sub text-[10px] font-mono tracking-[0.18em] uppercase">
+            {'> 패치노트 작성 중'}
+          </div>
+        </div>
+        <div className="t-h1 t-glow-soft text-white text-[18px]">
+          {isToday ? '오늘의 패치노트' : '패치노트'}
         </div>
         <div className="text-purple-light text-xs font-mono">
           {formatDateLabel(date)}
@@ -175,10 +188,10 @@ export default function DailyLog() {
           )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* 수면 시간 */}
         <Panel className="p-4 space-y-4">
-          <Section label={`😴 수면 시간 — ${form.sleep}시간`}>
+          <Section label={`수면 시간 — ${form.sleep}시간`}>
             <input
               type="range"
               min={0}
@@ -186,8 +199,10 @@ export default function DailyLog() {
               step={0.5}
               value={form.sleep}
               onChange={(e) => set('sleep')(parseFloat(e.target.value))}
-              className="w-full accent-purple-primary cursor-pointer"
+              className="t-range"
+              style={{ ['--pct' as string]: `${(form.sleep / 12) * 100}%` }}
             />
+
             <div className="flex justify-between text-text-sub text-[11px] font-mono">
               <span>0h</span>
               <span>6h</span>
@@ -195,9 +210,10 @@ export default function DailyLog() {
             </div>
           </Section>
         </Panel>
+
         {/* 식사 + 카페 + 배달 */}
         <Panel className="p-4 space-y-4">
-          <Section label="🍚 식사 횟수">
+          <Section label="식사 횟수">
             <TabButtons
               options={MEAL_OPTIONS}
               value={form.meal}
@@ -205,46 +221,53 @@ export default function DailyLog() {
             />
           </Section>
 
-          <div className="border-t border-border" />
+          <hr className="t-divider" />
 
-          <Section label="☕ 카페 방문">
+          <Section label="카페 방문">
             <Counter value={form.cafe} onChange={set('cafe')} />
           </Section>
 
-          <div className="border-t border-border" />
+          <hr className="t-divider" />
 
-          <Section label="🛵 배달 주문">
+          <Section label="배달 주문">
             <Counter value={form.delivery} onChange={set('delivery')} />
           </Section>
         </Panel>
+
         {/* 지출 규모 */}
         <Panel className="p-4 space-y-4">
-          <Section label={`💸 지출 규모 — 합계: ${formatSpend(form.spend)}`}>
+          <Section label={`지출 규모 — 합계: ${formatSpend(form.spend)}`}>
             <div className="flex gap-1.5 flex-wrap">
               {SPEND_CHIPS.map((chip) => (
                 <button
                   key={chip.label}
                   type="button"
                   onClick={() => set('spend')(form.spend + chip.value)}
-                  className="px-3 py-1.5 text-xs font-mono bg-bg-input text-text-sub hover:text-white hover:bg-border transition-colors">
+                  className="px-3 py-1.5 text-xs font-mono bg-bg-input border border-border text-text-sub hover:text-white hover:border-purple-light transition-colors">
                   +{chip.label}
                 </button>
               ))}
               <button
                 type="button"
                 onClick={() => setShowCustom((v) => !v)}
-                className={`px-3 py-1.5 text-xs font-mono transition-colors ${
-                  showCustom
-                    ? 'bg-purple-primary text-white'
-                    : 'bg-bg-input text-text-sub hover:text-white'
-                }`}>
+                className="px-3 py-1.5 text-xs font-mono transition-all"
+                style={{
+                  background: showCustom
+                    ? 'var(--color-purple-primary)'
+                    : 'var(--color-bg-input)',
+                  color: showCustom ? '#fff' : 'var(--color-text-sub)',
+                  border: `1px solid ${showCustom ? 'var(--color-purple-primary)' : 'var(--color-border)'}`,
+                  boxShadow: showCustom
+                    ? '0 0 12px rgba(122,111,255,0.45)'
+                    : 'none',
+                }}>
                 +직접입력
               </button>
               {form.spend > 0 && (
                 <button
                   type="button"
                   onClick={() => set('spend')(0)}
-                  className="px-3 py-1.5 text-xs font-mono bg-bg-input text-danger hover:bg-border transition-colors">
+                  className="px-3 py-1.5 text-xs font-mono bg-bg-input border border-border text-danger hover:border-danger transition-colors">
                   초기화
                 </button>
               )}
@@ -258,7 +281,7 @@ export default function DailyLog() {
                   value={customInput}
                   onChange={(e) => setCustomInput(e.target.value)}
                   placeholder="금액 (원)"
-                  className="flex-1 bg-bg-input text-white text-sm font-mono px-3 py-2 placeholder-text-sub outline-none focus:ring-1 focus:ring-purple-primary transition-all"
+                  className="flex-1 bg-bg-input border border-border text-white text-sm font-mono px-3 py-2 placeholder-text-sub outline-none focus:border-purple-primary transition-all"
                 />
                 <button
                   type="button"
@@ -270,57 +293,67 @@ export default function DailyLog() {
                     setCustomInput('');
                     setShowCustom(false);
                   }}
-                  className="px-3 py-2 bg-purple-primary text-white text-xs font-mono hover:bg-purple-dark transition-colors">
+                  className="px-3 py-2 bg-purple-primary text-white text-xs font-mono hover:bg-purple-dark transition-colors"
+                  style={{ boxShadow: '0 0 12px rgba(122,111,255,0.45)' }}>
                   추가
                 </button>
               </div>
             )}
           </Section>
         </Panel>
+
         {/* 오늘의 감정 */}
         <Panel className="p-4 space-y-4">
           <Section label="오늘의 감정">
             <div className="grid grid-cols-4 gap-2">
-              {EMOJIS.map((em) => (
-                <button
-                  key={em}
-                  type="button"
-                  onClick={() => set('emoji')(em)}
-                  className={`text-2xl py-2 transition-all ${
-                    form.emoji === em
-                      ? 'bg-bg-input ring-2 ring-purple-primary'
-                      : 'bg-bg-input opacity-40 hover:opacity-70'
-                  }`}>
-                  {em}
-                </button>
-              ))}
+              {EMOJIS.map((em) => {
+                const active = form.emoji === em;
+                return (
+                  <button
+                    key={em}
+                    type="button"
+                    onClick={() => set('emoji')(em)}
+                    className="text-2xl py-2 transition-all"
+                    style={{
+                      background: 'var(--color-bg-input)',
+                      border: `1px solid ${active ? 'var(--color-purple-glow)' : 'var(--color-border)'}`,
+                      opacity: active ? 1 : 0.45,
+                      boxShadow: active
+                        ? '0 0 0 1px var(--color-purple-glow) inset, 0 0 12px rgba(122,111,255,0.4)'
+                        : 'none',
+                    }}>
+                    {em}
+                  </button>
+                );
+              })}
             </div>
           </Section>
         </Panel>
+
         {/* 한 줄 메모 */}
         <Panel className="p-4 space-y-4">
-          <Section label="📝 한 줄 메모 (선택)">
+          <Section label="한 줄 메모 (선택)">
             <input
               type="text"
               value={form.memo}
               onChange={(e) => set('memo')(e.target.value)}
               placeholder="오늘의 특이사항..."
               maxLength={60}
-              className="w-full bg-bg-input text-white text-sm font-mono px-3 py-2.5 placeholder-text-sub outline-none focus:ring-1 focus:ring-purple-primary transition-all"
+              className="w-full bg-bg-input border border-border text-white text-sm font-mono px-3 py-2.5 placeholder-text-sub outline-none focus:border-purple-primary transition-all"
             />
           </Section>
         </Panel>
+
         {/* 제출 버튼 */}
         {isFuture && (
           <div className="text-danger text-xs font-mono text-center">
             미래 날짜는 기록할 수 없습니다
           </div>
         )}
-        <button
-          type="submit"
-          disabled={isFuture}
-          className={`w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 transition-colors ${isFuture ? 'opacity-40 cursor-not-allowed' : ''}`}>
-          <span className="flex items-center justify-center gap-2">패치노트 저장 <Save size={14} /></span>
+        <button type="submit" disabled={isFuture} className="t-btn-primary">
+          <span className="flex items-center justify-center gap-2">
+            ▶ 패치노트 저장 <Save size={14} />
+          </span>
         </button>
       </form>
     </div>
