@@ -4,6 +4,13 @@
 
 ---
 
+## [Unreleased] — 2026-05-29 메타 수정
+
+### Fixed
+- `index.html` — `<title>` 값 `life-rpg-temp` → `life-rpg` 수정
+
+---
+
 ## [Unreleased] — Terminal.sys v2 디자인 마이그레이션
 
 ### Added
@@ -22,6 +29,10 @@
 - `DailyLog` — `Panel` 적용, `rounded-*` 전면 제거
 - `Landing` — `Panel` + 골드 타이틀 액센트 + `.t-btn-primary` 적용
 - `BottomNav` — 활성 탭 글로우 + 상단 2px 퍼플 글로우 라인 추가
+- `Toast` — `kind` prop 추가(`'system' | 'rare'`), 각 kind별 헤더/글로우 스타일 분기. `rounded-lg` 제거
+- `PatchResult` — 골드 플로팅 라벨, Orbitron 타이틀, `◢` 섹션 마커, 글로우 푸터, `t-btn-ghost` 수정 버튼, 지출 골드 글로우 추가
+- `CharacterSheet` — 퍼플 라벨, Orbitron 캐릭터명·레벨, `◢` 섹션 마커, `t-btn-primary` 버튼 적용
+- `DailyLog` — `◢` 섹션 마커, 활성 칩 글로우 피드백, `t-h1` 타이틀, `t-btn-primary` 저장 버튼 적용
 
 ### Fixed
 - `src/components/BuffTag.tsx` — `BUFF_LIST`에 `'주말달성'` 누락으로 주말달성이 debuff로 오분류되던 버그 수정
