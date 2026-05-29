@@ -34,4 +34,5 @@ playwright-report/
 .claude/agents/
 docs/WORK.md
 docs/HISTORY.md
+docs/CHANGELOG.md
 
