@@ -121,6 +121,7 @@ export interface TitleDef {
   icon: string
   description: string
   rarity: TitleRarity
+  accentColor?: string
 }
 
 export type SidoName =
