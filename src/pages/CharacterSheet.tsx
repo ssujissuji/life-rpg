@@ -135,7 +135,7 @@ export default function CharacterSheet() {
               <button
                 onClick={() => setShowTitleModal(true)}
                 className="flex items-center gap-1 text-[11px] font-mono"
-                style={{ color: 'var(--color-gold)' }}
+                style={{ color: activeDef.accentColor ?? 'var(--color-gold)' }}
               >
                 <span>★</span>
                 <span>{activeDef.label}</span>
@@ -274,20 +274,20 @@ export default function CharacterSheet() {
         {activeDef ? (
           <div className="flex items-center gap-3 p-3 font-mono"
             style={{
-              border: `1px solid ${activeDef.rarity === 'legendary' ? 'var(--color-gold)' : activeDef.rarity === 'rare' ? 'var(--color-purple-glow)' : 'var(--color-border-strong)'}`,
+              border: `1px solid ${activeDef.accentColor ?? (activeDef.rarity === 'legendary' ? 'var(--color-gold)' : activeDef.rarity === 'rare' ? 'var(--color-purple-glow)' : 'var(--color-border-strong)')}`,
               background: activeDef.rarity === 'legendary' ? 'var(--color-gold-tint)' : activeDef.rarity === 'rare' ? 'var(--color-purple-tint)' : 'var(--color-bg-input)',
-              boxShadow: activeDef.rarity === 'legendary' ? '0 0 8px var(--color-gold-glow-soft)' : activeDef.rarity === 'rare' ? '0 0 8px var(--color-purple-glow-soft)' : 'none',
+              boxShadow: activeDef.accentColor ? `0 0 8px ${activeDef.accentColor}66` : activeDef.rarity === 'legendary' ? '0 0 8px var(--color-gold-glow-soft)' : activeDef.rarity === 'rare' ? '0 0 8px var(--color-purple-glow-soft)' : 'none',
             }}
           >
             <span className="text-base w-6 text-center flex-shrink-0">{activeDef.icon}</span>
             <span
-              className={`text-[13px] font-mono${activeDef.rarity === 'legendary' ? ' t-glow-gold' : ''}`}
+              className="text-[13px] font-mono"
               style={{
-                color: activeDef.rarity === 'legendary'
+                color: activeDef.accentColor ?? (activeDef.rarity === 'legendary'
                   ? 'var(--color-gold)'
                   : activeDef.rarity === 'rare'
                   ? 'var(--color-purple-light)'
-                  : 'var(--color-text-base)',
+                  : 'var(--color-text-base)'),
               }}
             >
               {activeDef.label}
@@ -295,11 +295,11 @@ export default function CharacterSheet() {
             <span
               className="ml-auto text-[10px] tracking-wider uppercase flex-shrink-0"
               style={{
-                color: activeDef.rarity === 'legendary'
+                color: activeDef.accentColor ?? (activeDef.rarity === 'legendary'
                   ? 'var(--color-gold)'
                   : activeDef.rarity === 'rare'
                   ? 'var(--color-purple-glow)'
-                  : 'var(--color-text-sub)',
+                  : 'var(--color-text-sub)'),
               }}
             >
               {activeDef.rarity.toUpperCase()}

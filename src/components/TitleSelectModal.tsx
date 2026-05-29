@@ -1,6 +1,6 @@
 import { TITLE_DEFS } from '../lib/titles'
 import TitleBadge from './TitleBadge'
-import type { TitleRarity } from '../types'
+import type { TitleDef, TitleRarity } from '../types'
 
 interface TitleSelectModalProps {
   unlockedTitles: string[]
@@ -13,6 +13,10 @@ const RARITY_COLOR: Record<TitleRarity, string> = {
   legendary: 'var(--color-gold)',
   rare: 'var(--color-purple-glow)',
   common: 'var(--color-text-sub)',
+}
+
+function defColor(def: TitleDef): string {
+  return def.accentColor ?? RARITY_COLOR[def.rarity]
 }
 
 const RARITY_LABEL: Record<TitleRarity, string> = {
@@ -82,7 +86,7 @@ export default function TitleSelectModal({
                 style={{
                   color:
                     activeDef.rarity === 'legendary'
-                      ? 'var(--color-gold)'
+                      ? defColor(activeDef)
                       : 'var(--color-text-base)',
                 }}
               >
@@ -108,7 +112,7 @@ export default function TitleSelectModal({
                   key={def.id}
                   className="flex items-center gap-3 p-3 font-mono transition-colors"
                   style={{
-                    border: `1px solid ${isActive ? RARITY_COLOR[def.rarity] : 'var(--color-border)'}`,
+                    border: `1px solid ${isActive ? defColor(def) : 'var(--color-border)'}`,
                     background: isActive ? RARITY_ACTIVE_BG[def.rarity] : 'var(--color-bg-input)',
                     boxShadow: isActive ? RARITY_ACTIVE_SHADOW[def.rarity] : 'none',
                   }}
@@ -121,7 +125,7 @@ export default function TitleSelectModal({
                       style={{
                         color:
                           def.rarity === 'legendary'
-                            ? 'var(--color-gold)'
+                            ? defColor(def)
                             : 'var(--color-text-base)',
                       }}
                     >
@@ -135,7 +139,7 @@ export default function TitleSelectModal({
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
                     <span
                       className="text-[10px] tracking-wider uppercase"
-                      style={{ color: RARITY_COLOR[def.rarity] }}
+                      style={{ color: defColor(def) }}
                     >
                       {RARITY_LABEL[def.rarity]}
                     </span>
