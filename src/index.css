@@ -1,19 +1,46 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-bg-root: #0f0f13;
-  --color-bg-card: #12121a;
-  --color-bg-input: #1e1e2e;
+  /* === Surfaces === */
+  --color-bg-root: #08080c;
+  --color-bg-card: #0e0e16;
+  --color-bg-input: #1a1a26;
+  --color-bg-elev: #20203a;
+  --color-border: #2a2a3a;
+  --color-border-strong: #3a3a55;
+
+  /* === Brand === */
   --color-purple-primary: #534ab7;
   --color-purple-dark: #4340a0;
   --color-purple-light: #afa9ec;
+  --color-purple-glow: #7a6fff; /* NEW — glow / level-up accents */
+
+  /* === Rare (만렙 / 칭호 / 희귀) === */
+  --color-gold: #00d26a;
+  --color-gold-glow: #5fffa8;
+  --color-gold-tint: rgba(0, 210, 106, 0.06);
+  --color-gold-glow-soft: rgba(0, 210, 106, 0.3);
+  --color-gold-dim: rgba(0, 210, 106, 0.25);
+  --color-purple-tint: rgba(122, 111, 255, 0.06);
+  --color-purple-glow-soft: rgba(122, 111, 255, 0.3);
+  --color-purple-dim: rgba(122, 111, 255, 0.25);
+
+  /* === Status === */
   --color-danger: #f0997b;
   --color-warning: #ef9f27;
   --color-success: #5dcaa5;
+
+  /* === Text === */
   --color-text-base: #e2e8f0;
   --color-text-sub: #6b7280;
-  --color-border: #2a2a3a;
-  --font-mono: ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
+  --color-text-dim: #4a4a5a; /* NEW — for very low-emphasis */
+  --color-white: #ffffff;
+
+  /* === Type === */
+  --font-mono:
+    'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, 'Courier New',
+    monospace;
+  --font-display: 'Orbitron', 'JetBrains Mono', ui-monospace, monospace;
 }
 
 * {
@@ -24,10 +51,262 @@ body {
   margin: 0;
   background-color: var(--color-bg-root);
   color: var(--color-text-base);
-  font-family: ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
+  font-family: var(--font-mono);
   -webkit-font-smoothing: antialiased;
+  position: relative;
+  min-height: 100svh;
+}
+
+/* CRT scanline overlay — global, behind interactive content but above bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(175, 169, 236, 0.035) 0px,
+    rgba(175, 169, 236, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+}
+
+/* Phosphor vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
 }
 
 #root {
+  position: relative;
+  z-index: 2;
   min-height: 100svh;
+}
+
+/* ============================================================
+   Terminal helper classes
+   ============================================================ */
+
+/* ASCII corner bracket panel */
+.t-panel {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  position: relative;
+}
+.t-panel--bracket::before,
+.t-panel--bracket::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-style: solid;
+  border-color: var(--color-purple-light);
+  pointer-events: none;
+}
+/* .t-panel--bracket::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+  box-shadow:
+    10px 0 0 -1px var(--color-purple-light) inset,
+    0 10px 0 -1px var(--color-purple-light) inset;
+}
+.t-panel--bracket::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+  box-shadow:
+    -10px 0 0 -1px var(--color-purple-light) inset,
+    0 -10px 0 -1px var(--color-purple-light) inset;
+} */
+
+/* Phosphor text glow */
+.t-glow {
+  text-shadow:
+    0 0 8px currentColor,
+    0 0 14px currentColor;
+}
+.t-glow-soft {
+  text-shadow: 0 0 6px rgba(175, 169, 236, 0.55);
+}
+.t-glow-gold {
+  text-shadow:
+    0 0 8px var(--color-gold-glow),
+    0 0 16px var(--color-gold-glow);
+}
+
+/* Bracketed label — sectional headings */
+.t-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-purple-light);
+}
+
+/* Display heading (Orbitron) */
+.t-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* Primary button — purple with phosphor glow */
+.t-btn-primary {
+  background: var(--color-purple-primary);
+  border: 1px solid var(--color-purple-primary);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  padding: 0.875rem 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 140ms;
+  box-shadow:
+    0 0 0 1px var(--color-purple-primary) inset,
+    0 0 14px rgba(122, 111, 255, 0.4);
+}
+.t-btn-primary:hover {
+  background: var(--color-purple-dark);
+  box-shadow:
+    0 0 0 1px var(--color-purple-glow) inset,
+    0 0 20px rgba(122, 111, 255, 0.6);
+}
+.t-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Ghost / secondary button */
+.t-btn-ghost {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-base);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 140ms;
+}
+.t-btn-ghost:hover {
+  border-color: var(--color-purple-light);
+  color: var(--color-purple-light);
+}
+
+/* ============================================================
+   Terminal slider — append to src/index.css
+   네이티브 <input type="range"> 를 터미널 톤으로 스타일링.
+   채움 트랙은 인라인 --pct 변수로 (0~100%) 제어.
+   ============================================================ */
+
+.t-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px; /* 다이아몬드 thumb 가 잘리지 않게 여유 높이 */
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ---- WebKit (Chrome / Safari / Edge) ---- */
+.t-range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--color-purple-glow) 0,
+    var(--color-purple-glow) var(--pct, 0%),
+    var(--color-bg-input) var(--pct, 0%),
+    var(--color-bg-input) 100%
+  );
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 8px rgba(122, 111, 255, 0.35);
+}
+.t-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6.5px; /* (track높이/2) - (thumb높이/2) 보정 */
+  background: var(--color-purple-light);
+  transform: rotate(45deg); /* ◆ 다이아몬드 */
+  border: none;
+  box-shadow: 0 0 12px var(--color-purple-glow);
+}
+
+/* ---- Firefox ---- */
+.t-range::-moz-range-track {
+  height: 4px;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+}
+.t-range::-moz-range-progress {
+  height: 4px;
+  background: var(--color-purple-glow);
+  box-shadow: 0 0 8px rgba(122, 111, 255, 0.35);
+}
+.t-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--color-purple-light);
+  transform: rotate(45deg);
+  border: none;
+  box-shadow: 0 0 12px var(--color-purple-glow);
+}
+
+/* 만렙/특수 자리에서 골드로 쓰고 싶으면 .t-range--gold 추가 */
+.t-range--gold::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--color-gold) 0,
+    var(--color-gold) var(--pct, 0%),
+    var(--color-bg-input) var(--pct, 0%),
+    var(--color-bg-input) 100%
+  );
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.35);
+}
+.t-range--gold::-webkit-slider-thumb {
+  background: var(--color-gold-glow);
+  box-shadow: 0 0 12px var(--color-gold);
+}
+.t-range--gold::-moz-range-progress {
+  background: var(--color-gold);
+}
+.t-range--gold::-moz-range-thumb {
+  background: var(--color-gold-glow);
+  box-shadow: 0 0 12px var(--color-gold);
+}
+
+/* Legendary title pulse glow */
+@keyframes legendary-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px var(--pulse-color, var(--color-gold)),
+      0 0 12px var(--pulse-color, var(--color-gold));
+  }
+  50% {
+    box-shadow:
+      0 0 14px var(--pulse-color, var(--color-gold)),
+      0 0 28px var(--pulse-color, var(--color-gold));
+  }
+}
+.t-legendary-pulse {
+  animation: legendary-pulse 2.4s ease-in-out infinite;
 }

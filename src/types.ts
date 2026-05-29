@@ -113,6 +113,17 @@ export interface StatChartPoint {
   sleepQ: number
 }
 
+export type TitleRarity = 'common' | 'rare' | 'legendary'
+
+export interface TitleDef {
+  id: string
+  label: string
+  icon: string
+  description: string
+  rarity: TitleRarity
+  accentColor?: string
+}
+
 export type SidoName =
   | '서울' | '부산' | '대구' | '인천' | '광주' | '대전' | '울산'
   | '경기' | '강원' | '충북' | '충남' | '전북' | '전남' | '경북' | '경남'

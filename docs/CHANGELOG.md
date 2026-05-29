@@ -4,6 +4,105 @@
 
 ---
 
+## [Unreleased] — CharacterSheet 캐릭터 프로필 리디자인
+
+### Added
+- `src/index.css` — `@keyframes legendary-pulse` + `.t-legendary-pulse` 헬퍼 클래스 추가. legendary rarity 칭호 카드에 2.4초 주기 box-shadow 글로우 펄스 적용. `--pulse-color` CSS 변수로 스킬 칭호 accentColor 연동 지원
+
+### Changed
+- `src/pages/CharacterSheet.tsx` — CHARACTER Panel을 좌우 2분할 레이아웃으로 변경
+  - 좌측: 72px 고정 너비 캐릭터 이미지 플레이스홀더 (`◈ no img`)
+  - 우측: 이름 → Lv.숫자+클래스 → 레벨 게이지 → 칭호 카드 순서로 `flex-col` 배치
+  - `◢ 캐릭터` 레이블: 좌우 분할 영역 위 최상단으로 이동
+  - 설정 버튼: Panel 우상단 absolute 배치로 변경
+  - 기존 하단 `[ TITLE ]` Panel 전체 제거, 칭호 카드를 레벨 게이지 바로 아래(`mt-4`)로 이동
+  - rarity 색상 로직 개선: legendary는 accentColor 우선 사용, rare는 purple, common은 dim
+
+---
+
+## [Unreleased] — 특수 스킬 색상 분리 + Gold 색상 교체
+
+### Changed
+- Legendary/Gold 색상 `#f5c542` → `#00d26a` (사이버 그린)으로 변경 — warning(노랑)과 시각적 혼동 방지
+- 특수 스킬 4종(돼지력/거지력/각성력/숙면력) 개별 색상 분리: 게이지 채우는 중(dim) / 만렙(vivid) 2단계
+
+### Added
+- `src/lib/skills.ts` (신규) — `SKILL_COLORS`(vivid), `SKILL_COLORS_DIM`(dim) 상수 신규
+
+---
+
+## [Unreleased] — web 환경 fixed 레이아웃 컨테이너 제한
+
+### Fixed
+- `src/components/TitleSelectModal.tsx` — `fixed bottom-0 left-0 right-0` → `fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px]` 변경. web(데스크탑) 환경에서 모달이 뷰포트 전체 너비를 차지하던 문제 수정
+- `src/components/Toast.tsx` — `fixed bottom-24 left-4 right-4` → `fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[430px] px-4` 변경. web 환경에서 토스트가 430px 컨테이너를 벗어나던 문제 수정
+
+---
+
+## [Unreleased] — 칭호 섹션 리디자인 + CSS 토큰 추가
+
+### Added
+- `src/index.css` — CSS 토큰 6개 추가: `--color-gold-tint`, `--color-gold-glow-soft`, `--color-gold-dim`, `--color-purple-tint`, `--color-purple-glow-soft`, `--color-purple-dim`
+
+### Changed
+- `src/pages/CharacterSheet.tsx` — 칭호 섹션을 대표 칭호 1개 표시 Panel로 교체. 우측 상단 `List` 아이콘 버튼 → TitleSelectModal 오픈. 활성 칭호 없으면 `-- 대표 칭호 미설정` 플레이스홀더 표시. rarity별 카드 스타일 분기 적용
+- `src/components/TitleSelectModal.tsx` — 보유 섹션 + LOCKED 섹션(미보유 칭호) 분리 표시. 보유/미보유 모두 rarity 순(Legendary → Rare → Common) 정렬. `RARITY_ORDER` 상수 모듈 레벨로 이동. 모달 높이 `max-h-[55vh]` → `max-h-[70vh]` 확장
+- `src/components/TitleBadge.tsx` — `onSelect` prop optional로 변경. 미전달 시 "선택" 버튼 미렌더링
+
+---
+
+## [Unreleased] — 칭호(Title) 시스템
+
+### Added
+- `src/lib/titles.ts` (신규) — `TITLE_DEFS` 10개 칭호 상수 + `checkTitleUnlocks` / `calcMaxStreak` / `calcMaxZeroSpendStreak` / `calcMaxSleepTagStreak` 순수 함수
+- `src/components/TitleBadge.tsx` (신규) — 단일 칭호 배지. 획득/잠금/대표 상태 표시, 희귀도(legendary/rare/common)별 border·glow 스타일 분기
+- `src/components/TitleSelectModal.tsx` (신규) — 대표 칭호 선택 바텀시트 모달
+- `src/types.ts` — `TitleRarity` 유니온 타입, `TitleDef` 인터페이스 추가
+- `src/lib/storage.ts` — `loadUnlockedTitles` / `saveUnlockedTitles` / `loadActiveTitle` / `saveActiveTitle` 추가 (`unlocked_titles`, `active_title` localStorage 키)
+- `src/store/useStore.ts` — `unlockedTitles: string[]`, `activeTitle: string | null` 상태 추가. `markTitlesUnlocked`, `setActiveTitle` 액션 추가. 앱 초기화 시 전체 패치 기록 기반 retroactive unlock 실행
+
+### Changed
+- `src/pages/CharacterSheet.tsx` — 프로필 캐릭터명 아래 대표 칭호 표시 영역 추가. 칭호 컬렉션 `<Panel>` 섹션 추가 (전체 10개, 획득/잠금 상태 구분)
+- `src/pages/PatchResult.tsx` — 저장 직후 칭호 달성 감지 + 만렙 토스트 큐와 병합해 순차 표시
+
+---
+
+## [Unreleased] — 2026-05-29 메타 수정
+
+### Fixed
+- `index.html` — `<title>` 값 `life-rpg-temp` → `life-rpg` 수정
+
+---
+
+## [Unreleased] — Terminal.sys v2 디자인 마이그레이션
+
+### Added
+- `Panel` 컴포넌트 — ASCII 코너 브래킷 터미널 패널 래퍼
+- `SkillBar` 컴포넌트 — 100세그먼트 포스퍼 게이지
+- `BuffTag` 컴포넌트 — buff / debuff / rare 3종 상태 태그 (`classifyTag` 헬퍼 포함)
+- CRT 스캔라인 + 포스퍼 비네팅 전역 오버레이 (`body::before`, `body::after`)
+- JetBrains Mono + Orbitron 폰트 페어 적용
+- CSS 토큰 신규: `--color-gold`, `--color-gold-glow`, `--color-purple-glow`, `--color-text-dim`, `--color-bg-elev`, `--color-border-strong`
+- 헬퍼 클래스 신규: `.t-panel`, `.t-panel--bracket`, `.t-glow`, `.t-glow-soft`, `.t-glow-gold`, `.t-label`, `.t-h1`, `.t-btn-primary`, `.t-btn-ghost`
+
+### Changed
+- `StatBar` — 10블록 + `delta` prop + ▲/▼ 티커 박스로 교체
+- `CharacterSheet` — `Panel` + `SkillBar` + `BuffTag` 적용, `rounded-*` 제거
+- `PatchResult` — `Panel` + `BuffTag` + 전일 대비 delta 계산 적용
+- `DailyLog` — `Panel` 적용, `rounded-*` 전면 제거
+- `Landing` — `Panel` + 골드 타이틀 액센트 + `.t-btn-primary` 적용
+- `BottomNav` — 활성 탭 글로우 + 상단 2px 퍼플 글로우 라인 추가
+- `Toast` — `kind` prop 추가(`'system' | 'rare'`), 각 kind별 헤더/글로우 스타일 분기. `rounded-lg` 제거
+- `PatchResult` — 골드 플로팅 라벨, Orbitron 타이틀, `◢` 섹션 마커, 글로우 푸터, `t-btn-ghost` 수정 버튼, 지출 골드 글로우 추가
+- `CharacterSheet` — 퍼플 라벨, Orbitron 캐릭터명·레벨, `◢` 섹션 마커, `t-btn-primary` 버튼 적용
+- `DailyLog` — `◢` 섹션 마커, 활성 칩 글로우 피드백, `t-h1` 타이틀, `t-btn-primary` 저장 버튼 적용
+
+### Fixed
+- `src/components/BuffTag.tsx` — `BUFF_LIST`에 `'주말달성'` 누락으로 주말달성이 debuff로 오분류되던 버그 수정
+- `src/pages/PatchResult.tsx` — 공유 이미지 배경색 `#12121a`(팔레트 외 임의 HEX) → `#0e0e16`(`--color-bg-card`)으로 교체
+
+---
+
 ## [Unreleased] — 캘린더 게임 터미널 스타일 재작성
 
 ### Changed
