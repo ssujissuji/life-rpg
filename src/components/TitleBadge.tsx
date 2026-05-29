@@ -46,8 +46,20 @@ const RARITY_ACTIVE_BG: Record<TitleRarity, string> = {
   common: 'rgba(42,42,58,0.4)',
 }
 
+function accentStyle(def: TitleDef): { border: string; shadow: string } {
+  if (def.accentColor) {
+    return { border: def.accentColor, shadow: `0 0 8px ${def.accentColor}66` }
+  }
+  return RARITY_STYLE[def.rarity]
+}
+
+function accentColor(def: TitleDef): string {
+  return def.accentColor ?? RARITY_COLOR[def.rarity]
+}
+
 export default function TitleBadge({ def, unlocked, isActive, onSelect }: TitleBadgeProps) {
-  const style = RARITY_STYLE[def.rarity]
+  const style = accentStyle(def)
+  const color = accentColor(def)
 
   if (!unlocked) {
     return (
@@ -69,7 +81,7 @@ export default function TitleBadge({ def, unlocked, isActive, onSelect }: TitleB
         <div className="flex-shrink-0">
           <span
             className="text-[10px] tracking-wider uppercase"
-            style={{ color: RARITY_COLOR[def.rarity], opacity: 0.6 }}
+            style={{ color, opacity: 0.6 }}
           >
             {RARITY_LABEL[def.rarity]}
           </span>
@@ -94,7 +106,7 @@ export default function TitleBadge({ def, unlocked, isActive, onSelect }: TitleB
           <span
             className="text-[12px] font-mono"
             style={{
-              color: def.rarity === 'legendary' ? 'var(--color-gold)' : 'var(--color-text-base)',
+              color: def.rarity === 'legendary' ? color : 'var(--color-text-base)',
             }}
           >
             {def.label}
@@ -108,7 +120,7 @@ export default function TitleBadge({ def, unlocked, isActive, onSelect }: TitleB
       <div className="flex flex-col items-end gap-1 flex-shrink-0">
         <span
           className="text-[10px] tracking-wider uppercase"
-          style={{ color: RARITY_COLOR[def.rarity] }}
+          style={{ color }}
         >
           {RARITY_LABEL[def.rarity]}
         </span>

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import useStore from '../store/useStore';
 import { formatSpend } from '../lib/stats';
 import { today, formatDateLabel } from '../lib/date';
@@ -352,7 +352,7 @@ export default function DailyLog() {
         )}
         <button type="submit" disabled={isFuture} className="t-btn-primary">
           <span className="flex items-center justify-center gap-2">
-            ▶ 패치노트 저장 <Save size={14} />
+            ▶ 패치노트 저장
           </span>
         </button>
       </form>

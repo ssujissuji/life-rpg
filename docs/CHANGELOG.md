@@ -4,6 +4,22 @@
 
 ---
 
+## [Unreleased] — CharacterSheet 캐릭터 프로필 리디자인
+
+### Added
+- `src/index.css` — `@keyframes legendary-pulse` + `.t-legendary-pulse` 헬퍼 클래스 추가. legendary rarity 칭호 카드에 2.4초 주기 box-shadow 글로우 펄스 적용. `--pulse-color` CSS 변수로 스킬 칭호 accentColor 연동 지원
+
+### Changed
+- `src/pages/CharacterSheet.tsx` — CHARACTER Panel을 좌우 2분할 레이아웃으로 변경
+  - 좌측: 72px 고정 너비 캐릭터 이미지 플레이스홀더 (`◈ no img`)
+  - 우측: 이름 → Lv.숫자+클래스 → 레벨 게이지 → 칭호 카드 순서로 `flex-col` 배치
+  - `◢ 캐릭터` 레이블: 좌우 분할 영역 위 최상단으로 이동
+  - 설정 버튼: Panel 우상단 absolute 배치로 변경
+  - 기존 하단 `[ TITLE ]` Panel 전체 제거, 칭호 카드를 레벨 게이지 바로 아래(`mt-4`)로 이동
+  - rarity 색상 로직 개선: legendary는 accentColor 우선 사용, rare는 purple, common은 dim
+
+---
+
 ## [Unreleased] — 특수 스킬 색상 분리 + Gold 색상 교체
 
 ### Changed

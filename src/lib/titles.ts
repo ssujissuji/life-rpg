@@ -1,10 +1,11 @@
 import type { PatchRecord, TitleDef } from '../types'
+import { SKILL_COLORS } from './skills'
 
 export const TITLE_DEFS: TitleDef[] = [
-  { id: 'pig_max',        label: '진정한 돼지왕',   icon: '🐷', description: '돼지력 만렙 달성',           rarity: 'legendary' },
-  { id: 'poor_max',       label: '절약의 신',        icon: '🪙', description: '거지력 만렙 달성',           rarity: 'legendary' },
-  { id: 'cafe_max',       label: '카페인 마스터',    icon: '☕', description: '각성력 만렙 달성',           rarity: 'legendary' },
-  { id: 'sleep_max',      label: '꿀잠의 전설',      icon: '🛌', description: '숙면력 만렙 달성',           rarity: 'legendary' },
+  { id: 'pig_max',        label: '진정한 돼지왕',   icon: '🐷', description: '돼지력 만렙 달성',           rarity: 'legendary', accentColor: SKILL_COLORS.pig  },
+  { id: 'poor_max',       label: '절약의 신',        icon: '🪙', description: '거지력 만렙 달성',           rarity: 'legendary', accentColor: SKILL_COLORS.poor },
+  { id: 'cafe_max',       label: '카페인 마스터',    icon: '☕', description: '각성력 만렙 달성',           rarity: 'legendary', accentColor: SKILL_COLORS.cafe },
+  { id: 'sleep_max',      label: '꿀잠의 전설',      icon: '🛌', description: '숙면력 만렙 달성',           rarity: 'legendary', accentColor: SKILL_COLORS.sleep },
   { id: 'survivor_30',    label: '한 달 생존자',     icon: '🗓', description: '패치노트 30일 누적',         rarity: 'rare' },
   { id: 'survivor_100',   label: '백일의 전사',      icon: '🏆', description: '패치노트 100일 누적',        rarity: 'legendary' },
   { id: 'streak_7',       label: '주간 완주자',      icon: '🔥', description: '7일 연속 기록',              rarity: 'common' },
