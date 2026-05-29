@@ -31,7 +31,7 @@ const KIND_STYLE: Record<
   rare: {
     header: '>>> RARE UNLOCK <<<',
     border: 'var(--color-gold)',
-    glow: 'rgba(245, 197, 66, 0.45)',
+    glow: 'rgba(0, 210, 106, 0.45)',
     msgColor: 'var(--color-gold)',
     msgGlow: '0 0 8px var(--color-gold-glow), 0 0 16px var(--color-gold-glow)',
   },

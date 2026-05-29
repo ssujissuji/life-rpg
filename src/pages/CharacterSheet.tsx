@@ -9,6 +9,7 @@ import SkillBar from '../components/SkillBar';
 import BuffTag, { classifyTag } from '../components/BuffTag';
 import TitleSelectModal from '../components/TitleSelectModal';
 import { TITLE_DEFS } from '../lib/titles';
+import { SKILL_COLORS, SKILL_COLORS_DIM } from '../lib/skills';
 import { today } from '../lib/date';
 import type { SkillConfig, StatConfig, Stats } from '../types';
 
@@ -239,6 +240,8 @@ export default function CharacterSheet() {
                   count={data.count}
                   max={sk.max}
                   unit={sk.unit}
+                  color={SKILL_COLORS[sk.key]}
+                  dimColor={SKILL_COLORS_DIM[sk.key]}
                 />
               </button>
             );
@@ -251,6 +254,8 @@ export default function CharacterSheet() {
           skill={selectedSkill}
           data={skills[selectedSkill.key]}
           onClose={() => setSelectedSkill(null)}
+          color={SKILL_COLORS[selectedSkill.key]}
+          dimColor={SKILL_COLORS_DIM[selectedSkill.key]}
         />
       )}
 

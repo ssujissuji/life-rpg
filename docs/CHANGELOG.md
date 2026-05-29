@@ -4,6 +4,17 @@
 
 ---
 
+## [Unreleased] — 특수 스킬 색상 분리 + Gold 색상 교체
+
+### Changed
+- Legendary/Gold 색상 `#f5c542` → `#00d26a` (사이버 그린)으로 변경 — warning(노랑)과 시각적 혼동 방지
+- 특수 스킬 4종(돼지력/거지력/각성력/숙면력) 개별 색상 분리: 게이지 채우는 중(dim) / 만렙(vivid) 2단계
+
+### Added
+- `src/lib/skills.ts` (신규) — `SKILL_COLORS`(vivid), `SKILL_COLORS_DIM`(dim) 상수 신규
+
+---
+
 ## [Unreleased] — web 환경 fixed 레이아웃 컨테이너 제한
 
 ### Fixed

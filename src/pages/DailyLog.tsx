@@ -199,8 +199,10 @@ export default function DailyLog() {
               step={0.5}
               value={form.sleep}
               onChange={(e) => set('sleep')(parseFloat(e.target.value))}
-              className="w-full accent-purple-primary cursor-pointer"
+              className="t-range"
+              style={{ ['--pct' as string]: `${(form.sleep / 12) * 100}%` }}
             />
+
             <div className="flex justify-between text-text-sub text-[11px] font-mono">
               <span>0h</span>
               <span>6h</span>
