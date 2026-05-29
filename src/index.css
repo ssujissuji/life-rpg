@@ -115,7 +115,7 @@ body::after {
   border-color: var(--color-purple-light);
   pointer-events: none;
 }
-.t-panel--bracket::before {
+/* .t-panel--bracket::before {
   top: -1px;
   left: -1px;
   border-width: 1px 0 0 1px;
@@ -130,7 +130,7 @@ body::after {
   box-shadow:
     -10px 0 0 -1px var(--color-purple-light) inset,
     0 -10px 0 -1px var(--color-purple-light) inset;
-}
+} */
 
 /* Phosphor text glow */
 .t-glow {
@@ -291,4 +291,22 @@ body::after {
 .t-range--gold::-moz-range-thumb {
   background: var(--color-gold-glow);
   box-shadow: 0 0 12px var(--color-gold);
+}
+
+/* Legendary title pulse glow */
+@keyframes legendary-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px var(--pulse-color, var(--color-gold)),
+      0 0 12px var(--pulse-color, var(--color-gold));
+  }
+  50% {
+    box-shadow:
+      0 0 14px var(--pulse-color, var(--color-gold)),
+      0 0 28px var(--pulse-color, var(--color-gold));
+  }
+}
+.t-legendary-pulse {
+  animation: legendary-pulse 2.4s ease-in-out infinite;
 }

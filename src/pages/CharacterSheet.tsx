@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, List } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import useStore from '../store/useStore';
 import StatBar from '../components/StatBar';
 import SkillModal from '../components/SkillModal';
@@ -121,66 +121,87 @@ export default function CharacterSheet() {
       </div>
 
       {/* 캐릭터 프로필 */}
-      <Panel className="p-4 pt-6 space-y-3 relative">
-        <span className="t-panel-label t-panel-label--purple">
-          [ CHARACTER ]
-        </span>
+      <Panel className="p-4 relative">
+        <button
+          onClick={() => navigate('/settings')}
+          className="absolute top-3 right-3 text-text-sub hover:text-purple-light transition-colors"
+          aria-label="설정">
+          <Settings size={16} />
+        </button>
 
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="t-h1 t-glow-soft text-white text-[18px]">
+        <div className="t-label text-[9px] mb-2">◢ 캐릭터</div>
+
+        <div className="flex gap-3">
+          {/* 캐릭터 이미지 자리 */}
+          <div
+            className="flex-none w-[72px] self-stretch flex flex-col items-center justify-center gap-1"
+            style={{ background: 'var(--color-bg-input)', border: '1px solid var(--color-border)' }}
+          >
+            <span className="text-[22px] leading-none">◈</span>
+            <span
+              className="text-[8px] font-mono tracking-wider uppercase"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              no img
+            </span>
+          </div>
+
+          {/* 캐릭터 정보 */}
+          <div className="flex-1 flex flex-col gap-1.5 min-w-0 pr-5">
+            <div className="t-h1 t-glow-soft text-white text-[18px] leading-tight truncate">
               {character.name}
             </div>
+
+            <div className="flex items-end justify-between font-mono">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-purple-light text-xs">Lv.</span>
+                <span
+                  className="text-white text-[22px] leading-none"
+                  style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.04em' }}>
+                  {age}
+                </span>
+                <span className="text-text-sub text-[10px] font-mono">{character.class}</span>
+              </div>
+              <span className="text-text-sub text-[10px]">+{daysLeft}일</span>
+            </div>
+
+            <div
+              className="w-full h-1.5 relative"
+              style={{ background: 'var(--color-bg-input)' }}>
+              <div
+                className="h-1.5 transition-all"
+                style={{
+                  width: `${progressPct}%`,
+                  background: 'var(--color-purple-glow)',
+                  boxShadow: '0 0 8px var(--color-purple-glow)',
+                }}
+              />
+            </div>
+
             {activeDef && (
               <button
                 onClick={() => setShowTitleModal(true)}
-                className="flex items-center gap-1 text-[11px] font-mono"
-                style={{ color: activeDef.accentColor ?? 'var(--color-gold)' }}
-              >
-                <span>★</span>
-                <span>{activeDef.label}</span>
+                className={`w-full flex items-center gap-2 p-2 font-mono${activeDef.rarity === 'legendary' ? ' t-legendary-pulse' : ''}`}
+                style={{
+                  border: `1px solid ${activeDef.accentColor ?? (activeDef.rarity === 'legendary' ? 'var(--color-gold)' : activeDef.rarity === 'rare' ? 'var(--color-purple-glow)' : 'var(--color-border-strong)')}`,
+                  background: activeDef.rarity === 'legendary' ? 'var(--color-gold-tint)' : activeDef.rarity === 'rare' ? 'var(--color-purple-tint)' : 'var(--color-bg-input)',
+                  ...(activeDef.rarity === 'legendary' && activeDef.accentColor
+                    ? ({ '--pulse-color': `${activeDef.accentColor}99` } as React.CSSProperties)
+                    : {}),
+                }}>
+                <span className="text-sm w-5 text-center flex-shrink-0">{activeDef.icon}</span>
+                <span
+                  className="text-[11px] font-mono truncate"
+                  style={{ color: activeDef.accentColor ?? (activeDef.rarity === 'legendary' ? 'var(--color-gold)' : activeDef.rarity === 'rare' ? 'var(--color-purple-light)' : 'var(--color-text-base)') }}>
+                  {activeDef.label}
+                </span>
+                <span
+                  className="ml-auto text-[9px] tracking-wider uppercase flex-shrink-0"
+                  style={{ color: activeDef.accentColor ?? (activeDef.rarity === 'legendary' ? 'var(--color-gold)' : activeDef.rarity === 'rare' ? 'var(--color-purple-glow)' : 'var(--color-text-sub)') }}>
+                  {activeDef.rarity}
+                </span>
               </button>
             )}
-            <div className="text-text-sub text-xs font-mono">
-              {character.class}
-            </div>
-          </div>
-          <button
-            onClick={() => navigate('/settings')}
-            className="text-text-sub hover:text-purple-light transition-colors"
-            aria-label="설정">
-            <Settings size={16} />
-          </button>
-        </div>
-
-        <div className="space-y-1.5">
-          <div className="flex items-end justify-between font-mono">
-            <div className="flex items-baseline gap-2">
-              <span className="text-purple-light text-xs">Lv.</span>
-              <span
-                className="text-white text-[26px] leading-none t-glow"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '0.04em',
-                }}>
-                {age}
-              </span>
-            </div>
-            <span className="text-text-sub text-[11px]">
-              다음 레벨까지 {daysLeft}일
-            </span>
-          </div>
-          <div
-            className="w-full h-1.5 relative"
-            style={{ background: 'var(--color-bg-input)' }}>
-            <div
-              className="h-1.5 transition-all"
-              style={{
-                width: `${progressPct}%`,
-                background: 'var(--color-purple-glow)',
-                boxShadow: '0 0 8px var(--color-purple-glow)',
-              }}
-            />
           </div>
         </div>
       </Panel>
@@ -259,66 +280,13 @@ export default function CharacterSheet() {
         />
       )}
 
-      {/* 칭호 */}
-      <Panel className="p-4 pt-6 space-y-3 relative">
-        <span className="t-panel-label t-panel-label--purple">[ TITLE ]</span>
-        <div className="flex items-center justify-between">
-          <div className="t-label">◢ 대표 칭호</div>
-          <button
-            onClick={() => setShowTitleModal(true)}
-            className="text-text-sub hover:text-purple-light transition-colors"
-            aria-label="칭호 목록">
-            <List size={15} />
-          </button>
-        </div>
-        {activeDef ? (
-          <div className="flex items-center gap-3 p-3 font-mono"
-            style={{
-              border: `1px solid ${activeDef.accentColor ?? (activeDef.rarity === 'legendary' ? 'var(--color-gold)' : activeDef.rarity === 'rare' ? 'var(--color-purple-glow)' : 'var(--color-border-strong)')}`,
-              background: activeDef.rarity === 'legendary' ? 'var(--color-gold-tint)' : activeDef.rarity === 'rare' ? 'var(--color-purple-tint)' : 'var(--color-bg-input)',
-              boxShadow: activeDef.accentColor ? `0 0 8px ${activeDef.accentColor}66` : activeDef.rarity === 'legendary' ? '0 0 8px var(--color-gold-glow-soft)' : activeDef.rarity === 'rare' ? '0 0 8px var(--color-purple-glow-soft)' : 'none',
-            }}
-          >
-            <span className="text-base w-6 text-center flex-shrink-0">{activeDef.icon}</span>
-            <span
-              className="text-[13px] font-mono"
-              style={{
-                color: activeDef.accentColor ?? (activeDef.rarity === 'legendary'
-                  ? 'var(--color-gold)'
-                  : activeDef.rarity === 'rare'
-                  ? 'var(--color-purple-light)'
-                  : 'var(--color-text-base)'),
-              }}
-            >
-              {activeDef.label}
-            </span>
-            <span
-              className="ml-auto text-[10px] tracking-wider uppercase flex-shrink-0"
-              style={{
-                color: activeDef.accentColor ?? (activeDef.rarity === 'legendary'
-                  ? 'var(--color-gold)'
-                  : activeDef.rarity === 'rare'
-                  ? 'var(--color-purple-glow)'
-                  : 'var(--color-text-sub)'),
-              }}
-            >
-              {activeDef.rarity.toUpperCase()}
-            </span>
-          </div>
-        ) : (
-          <div className="text-xs font-mono py-1" style={{ color: 'var(--color-text-dim)' }}>
-            -- 대표 칭호 미설정
-          </div>
-        )}
-      </Panel>
-
       {showTitleModal && (
         <TitleSelectModal
           unlockedTitles={unlockedTitles}
           activeTitle={activeTitle}
           onSelect={(id) => {
-            setActiveTitle(id)
-            setShowTitleModal(false)
+            setActiveTitle(id);
+            setShowTitleModal(false);
           }}
           onClose={() => setShowTitleModal(false)}
         />
