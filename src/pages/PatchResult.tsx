@@ -10,6 +10,7 @@ import BuffTag, { classifyTag } from '../components/BuffTag';
 import { formatSpend } from '../lib/stats';
 import { formatDateLabel } from '../lib/date';
 import { loadPatch } from '../lib/storage';
+import { TITLE_DEFS, checkTitleUnlocks } from '../lib/titles';
 import type { Skills, StatConfig } from '../types';
 
 const STATS: StatConfig[] = [
@@ -67,7 +68,8 @@ export default function PatchResult() {
   const maxedSkills = useStore((s) => s.maxedSkills);
   const skills = useStore((s) => s.skills);
   const patches = useStore((s) => s.patches);
-  const { getPatch, markSkillsMaxed } = useStore();
+  const unlockedTitles = useStore((s) => s.unlockedTitles);
+  const { getPatch, markSkillsMaxed, markTitlesUnlocked } = useStore();
 
   const fromSave = !!(location.state as { fromSave?: boolean } | null)
     ?.fromSave;
@@ -83,16 +85,44 @@ export default function PatchResult() {
     );
   }, [fromSave, skills, maxedSkills]);
 
-  const [toastQueue, setToastQueue] = useState<SkillToast[]>(() =>
-    newlyMaxed.map((key) => {
+  const updatedMaxedSkills = useMemo(
+    () => [...new Set([...maxedSkills, ...newlyMaxed])],
+    [maxedSkills, newlyMaxed],
+  );
+
+  const newlyUnlockedTitles = useMemo<string[]>(() => {
+    if (!fromSave) return [];
+    const allUnlocked = checkTitleUnlocks(patches, updatedMaxedSkills);
+    return allUnlocked.filter((id) => !unlockedTitles.includes(id));
+  }, [fromSave, patches, updatedMaxedSkills, unlockedTitles]);
+
+  const [toastQueue, setToastQueue] = useState<SkillToast[]>(() => {
+    const skillToasts = newlyMaxed.map((key) => {
       const meta = SKILL_META[key];
       return {
         message: `${meta.icon} ${meta.label} — 만렙 달성!`,
         subMessage: meta.title,
         kind: 'rare' as const,
       };
-    }),
-  );
+    });
+
+    if (!fromSave) return skillToasts;
+
+    const currentMaxed = [...new Set([...maxedSkills, ...newlyMaxed])];
+    const allUnlocked = checkTitleUnlocks(patches, currentMaxed);
+    const newTitleIds = allUnlocked.filter((id) => !unlockedTitles.includes(id));
+
+    const titleToasts = newTitleIds.map((id) => {
+      const def = TITLE_DEFS.find((t) => t.id === id)!;
+      return {
+        message: `${def.icon} 칭호 획득!`,
+        subMessage: def.label,
+        kind: 'rare' as const,
+      };
+    });
+
+    return [...skillToasts, ...titleToasts];
+  });
 
   const handleShare = useCallback(async () => {
     if (!cardRef.current || isCapturing) return;
@@ -126,6 +156,11 @@ export default function PatchResult() {
     if (newlyMaxed.length === 0) return;
     markSkillsMaxed(newlyMaxed);
   }, [newlyMaxed, markSkillsMaxed]);
+
+  useEffect(() => {
+    if (newlyUnlockedTitles.length === 0) return;
+    markTitlesUnlocked(newlyUnlockedTitles);
+  }, [newlyUnlockedTitles, markTitlesUnlocked]);
 
   const currentToast = toastQueue[0] ?? null;
   const handleToastClose = useCallback(

@@ -4,6 +4,34 @@
 
 ---
 
+## [Unreleased] — 칭호 섹션 리디자인 + CSS 토큰 추가
+
+### Added
+- `src/index.css` — CSS 토큰 6개 추가: `--color-gold-tint`, `--color-gold-glow-soft`, `--color-gold-dim`, `--color-purple-tint`, `--color-purple-glow-soft`, `--color-purple-dim`
+
+### Changed
+- `src/pages/CharacterSheet.tsx` — 칭호 섹션을 대표 칭호 1개 표시 Panel로 교체. 우측 상단 `List` 아이콘 버튼 → TitleSelectModal 오픈. 활성 칭호 없으면 `-- 대표 칭호 미설정` 플레이스홀더 표시. rarity별 카드 스타일 분기 적용
+- `src/components/TitleSelectModal.tsx` — 보유 섹션 + LOCKED 섹션(미보유 칭호) 분리 표시. 보유/미보유 모두 rarity 순(Legendary → Rare → Common) 정렬. `RARITY_ORDER` 상수 모듈 레벨로 이동. 모달 높이 `max-h-[55vh]` → `max-h-[70vh]` 확장
+- `src/components/TitleBadge.tsx` — `onSelect` prop optional로 변경. 미전달 시 "선택" 버튼 미렌더링
+
+---
+
+## [Unreleased] — 칭호(Title) 시스템
+
+### Added
+- `src/lib/titles.ts` (신규) — `TITLE_DEFS` 10개 칭호 상수 + `checkTitleUnlocks` / `calcMaxStreak` / `calcMaxZeroSpendStreak` / `calcMaxSleepTagStreak` 순수 함수
+- `src/components/TitleBadge.tsx` (신규) — 단일 칭호 배지. 획득/잠금/대표 상태 표시, 희귀도(legendary/rare/common)별 border·glow 스타일 분기
+- `src/components/TitleSelectModal.tsx` (신규) — 대표 칭호 선택 바텀시트 모달
+- `src/types.ts` — `TitleRarity` 유니온 타입, `TitleDef` 인터페이스 추가
+- `src/lib/storage.ts` — `loadUnlockedTitles` / `saveUnlockedTitles` / `loadActiveTitle` / `saveActiveTitle` 추가 (`unlocked_titles`, `active_title` localStorage 키)
+- `src/store/useStore.ts` — `unlockedTitles: string[]`, `activeTitle: string | null` 상태 추가. `markTitlesUnlocked`, `setActiveTitle` 액션 추가. 앱 초기화 시 전체 패치 기록 기반 retroactive unlock 실행
+
+### Changed
+- `src/pages/CharacterSheet.tsx` — 프로필 캐릭터명 아래 대표 칭호 표시 영역 추가. 칭호 컬렉션 `<Panel>` 섹션 추가 (전체 10개, 획득/잠금 상태 구분)
+- `src/pages/PatchResult.tsx` — 저장 직후 칭호 달성 감지 + 만렙 토스트 큐와 병합해 순차 표시
+
+---
+
 ## [Unreleased] — 2026-05-29 메타 수정
 
 ### Fixed

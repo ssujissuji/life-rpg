@@ -18,6 +18,12 @@
   /* === Rare (만렙 / 칭호 / 희귀) === */
   --color-gold: #f5c542;          /* NEW */
   --color-gold-glow: #ffd970;     /* NEW */
+  --color-gold-tint:        rgba(245, 197, 66, 0.06);
+  --color-gold-glow-soft:   rgba(245, 197, 66, 0.30);
+  --color-gold-dim:         rgba(245, 197, 66, 0.25);
+  --color-purple-tint:      rgba(122, 111, 255, 0.06);
+  --color-purple-glow-soft: rgba(122, 111, 255, 0.30);
+  --color-purple-dim:       rgba(122, 111, 255, 0.25);
 
   /* === Status === */
   --color-danger: #f0997b;

@@ -1,7 +1,8 @@
 import { create } from 'zustand'
-import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills, loadBaseline, saveBaseline, isOnboardingDone, setOnboardingDone } from '../lib/storage'
+import { loadCharacter, loadAllPatches, saveCharacter, savePatch, loadMaxedSkills, saveMaxedSkills, loadBaseline, saveBaseline, isOnboardingDone, setOnboardingDone, loadUnlockedTitles, saveUnlockedTitles, loadActiveTitle, saveActiveTitle } from '../lib/storage'
 import { calcStats, calcSkills, getStatusTags } from '../lib/stats'
 import { isHoliday } from '../lib/holidays'
+import { checkTitleUnlocks } from '../lib/titles'
 import type { Character, PatchEntry, PatchFormData, PatchRecord, Skills, PersonalBaseline } from '../types'
 
 interface StoreState {
@@ -11,23 +12,38 @@ interface StoreState {
   maxedSkills: string[]
   baseline: PersonalBaseline
   onboardingDone: boolean
+  unlockedTitles: string[]
+  activeTitle: string | null
   setCharacter: (data: Character) => void
   savePatchEntry: (date: string, formData: PatchFormData) => void
   getPatch: (date: string) => PatchEntry | null
   markSkillsMaxed: (keys: string[]) => void
   setBaseline: (data: PersonalBaseline) => void
   completeOnboarding: () => void
+  markTitlesUnlocked: (ids: string[]) => void
+  setActiveTitle: (id: string | null) => void
 }
 
 const initialPatches = loadAllPatches()
+const initialMaxedSkills = loadMaxedSkills()
+const initialUnlockedTitles = loadUnlockedTitles()
+const initialActiveTitle = loadActiveTitle()
+
+const retroUnlocked = checkTitleUnlocks(initialPatches, initialMaxedSkills)
+const mergedUnlocked = [...new Set([...initialUnlockedTitles, ...retroUnlocked])]
+if (mergedUnlocked.length > initialUnlockedTitles.length) {
+  saveUnlockedTitles(mergedUnlocked)
+}
 
 const useStore = create<StoreState>((set, get) => ({
   character: loadCharacter(),
   patches: initialPatches,
   skills: calcSkills(initialPatches),
-  maxedSkills: loadMaxedSkills(),
+  maxedSkills: initialMaxedSkills,
   baseline: loadBaseline(),
   onboardingDone: isOnboardingDone(),
+  unlockedTitles: mergedUnlocked,
+  activeTitle: initialActiveTitle,
 
   setCharacter(data) {
     saveCharacter(data)
@@ -78,6 +94,17 @@ const useStore = create<StoreState>((set, get) => ({
   completeOnboarding() {
     setOnboardingDone()
     set({ onboardingDone: true })
+  },
+
+  markTitlesUnlocked(ids) {
+    const merged = [...new Set([...get().unlockedTitles, ...ids])]
+    saveUnlockedTitles(merged)
+    set({ unlockedTitles: merged })
+  },
+
+  setActiveTitle(id) {
+    saveActiveTitle(id)
+    set({ activeTitle: id })
   },
 }))
 
