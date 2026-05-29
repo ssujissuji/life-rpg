@@ -4,6 +4,14 @@
 
 ---
 
+## [Unreleased] — web 환경 fixed 레이아웃 컨테이너 제한
+
+### Fixed
+- `src/components/TitleSelectModal.tsx` — `fixed bottom-0 left-0 right-0` → `fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px]` 변경. web(데스크탑) 환경에서 모달이 뷰포트 전체 너비를 차지하던 문제 수정
+- `src/components/Toast.tsx` — `fixed bottom-24 left-4 right-4` → `fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-[430px] px-4` 변경. web 환경에서 토스트가 430px 컨테이너를 벗어나던 문제 수정
+
+---
+
 ## [Unreleased] — 칭호 섹션 리디자인 + CSS 토큰 추가
 
 ### Added

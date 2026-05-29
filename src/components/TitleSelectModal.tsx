@@ -58,7 +58,7 @@ export default function TitleSelectModal({
       />
 
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-8 space-y-3"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 p-4 pb-8 space-y-3"
         style={{
           background: 'var(--color-bg-card)',
           borderTop: '1px solid var(--color-purple-glow)',
