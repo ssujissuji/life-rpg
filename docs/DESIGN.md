@@ -39,8 +39,20 @@ PRD 8장 기반. 이 파일이 디자인의 단일 진실 공급원(SSOT)입니�
 | 퍼플 다크       | `purple-dark`    | `#4340a0` | hover                            |
 | 퍼플 라이트     | `purple-light`   | `#afa9ec` | 레이블, 서브 텍스트, 코너 브래킷 |
 | **퍼플 글로우** | `purple-glow`    | `#7a6fff` | 스킬바 채움, 글로우 베이스       |
-| **골드**        | `gold`           | `#f5c542` | 만렙, 칭호, 희귀                 |
-| **골드 글로우** | `gold-glow`      | `#ffd970` | text-shadow                      |
+| **골드**        | `gold`           | `#00d26a` | 만렙, 칭호, 희귀                 |
+| **골드 글로우** | `gold-glow`      | `#5fffa8` | text-shadow                      |
+
+### 스킬 컬러
+
+| 스킬 | 토큰(TS 상수) | 값 | 용도 |
+| ---- | ------------ | --- | ---- |
+| 돼지력 | `SKILL_COLORS.pig` | `#e05fa0` | SkillBar 게이지, SkillModal, SkillBarChart |
+| 거지력 | `SKILL_COLORS.poor` | `#d4a017` | SkillBar 게이지, SkillModal, SkillBarChart |
+| 각성력 | `SKILL_COLORS.cafe` | `#ff6b35` | SkillBar 게이지, SkillModal, SkillBarChart |
+| 숙면력 | `SKILL_COLORS.sleep` | `#5ba3d9` | SkillBar 게이지, SkillModal, SkillBarChart |
+
+> 만렙(`level >= 10`) 시 모든 스킬 색상은 `--color-gold`(#00d26a)로 오버라이드됨.
+> 색상은 CSS 토큰이 아닌 `src/lib/skills.ts`의 `SKILL_COLORS` TS 상수로 관리.
 
 ### 상태
 

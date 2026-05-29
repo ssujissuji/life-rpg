@@ -151,6 +151,64 @@ Lv. 25  ████████░░  다음 레벨까지 243일
 
 ---
 
+### 2-6. 칭호 시스템 (Title System)
+
+캐릭터 시트에 칭호 컬렉션 섹션을 추가하고, 대표 칭호를 프로필에 표시하는 기능.
+
+#### 칭호 목록 (총 10개)
+
+| id | label | icon | rarity | 달성 조건 |
+|---|---|---|---|---|
+| pig_max | 진정한 돼지왕 | 🐷 | legendary | 돼지력 만렙 |
+| poor_max | 절약의 신 | 🪙 | legendary | 거지력 만렙 |
+| cafe_max | 카페인 마스터 | ☕ | legendary | 각성력 만렙 |
+| sleep_max | 꿀잠의 전설 | 🛌 | legendary | 숙면력 만렙 |
+| survivor_30 | 한 달 생존자 | 🗓 | rare | 패치노트 30일 누적 |
+| survivor_100 | 백일의 전사 | 🏆 | legendary | 패치노트 100일 누적 |
+| streak_7 | 주간 완주자 | 🔥 | common | 7일 연속 기록 |
+| zero_spend_7 | 이번 주 무일푼 | 💀 | rare | 7일 연속 무지출 |
+| sleep_master_5 | 숙면 연속 5일 | 😴 | common | 5일 연속 꿀잠달성 태그 |
+| all_max | 현생 완전정복 | 👑 | legendary | 스킬 4개 모두 만렙 |
+
+#### UX 규칙
+
+- 미획득 칭호: 잠금 상태로 전체 표시 (`???`, opacity 낮춤), 희귀도별 테두리 색상 구분
+  - legendary: `var(--color-gold)`
+  - rare: `var(--color-purple-glow)`
+  - common: `var(--color-border)`
+- 대표 칭호 선택: 각 획득 칭호 카드에 별도 "선택" 버튼
+- 프로필의 대표 칭호를 탭 → `TitleSelectModal` 열림 (보유 칭호 중 변경)
+- 대표 칭호 미선택 시 프로필 이름 아래 칭호 영역 미표시
+
+#### 데이터 구조 (localStorage)
+
+```javascript
+// 획득한 칭호 목록 키: "unlocked_titles"
+["pig_max", "streak_7"]
+
+// 대표 칭호 키: "active_title"
+"pig_max"   // 없으면 null
+```
+
+#### 타입 정의
+
+```typescript
+type TitleRarity = 'common' | 'rare' | 'legendary';
+
+interface TitleDef {
+  id: string;
+  label: string;
+  icon: string;
+  rarity: TitleRarity;
+}
+```
+
+#### 달성 감지 시점
+
+- `PatchResult.tsx` — 저장(`fromSave`) 직후, 기존 만렙 토스트 큐와 병합하여 순차 표시
+
+---
+
 ## 3. 화면 구조 (IA)
 
 ```

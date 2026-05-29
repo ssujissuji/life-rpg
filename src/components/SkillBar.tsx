@@ -5,13 +5,17 @@ interface SkillBarProps {
   count: number
   max: number
   unit: string
+  color?: string
+  dimColor?: string
 }
 
-export default function SkillBar({ icon, label, level, count, max, unit }: SkillBarProps) {
+export default function SkillBar({ icon, label, level, count, max, unit, color: skillColor, dimColor: skillDimColor }: SkillBarProps) {
   const pct = Math.min(count / max, 1)
   const filled = Math.round(pct * 100)
   const isMax = level >= 10
-  const color = isMax ? 'var(--color-gold)' : 'var(--color-purple-glow)'
+  const color = isMax
+    ? (skillColor ?? 'var(--color-purple-glow)')
+    : (skillDimColor ?? skillColor ?? 'var(--color-purple-glow)')
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -19,7 +23,7 @@ export default function SkillBar({ icon, label, level, count, max, unit }: Skill
         <span className="flex items-center gap-2">
           <span className="text-sm">{icon}</span>
           <span
-            className={isMax ? 't-glow-gold tracking-wide' : 'tracking-wide'}
+            className="tracking-wide"
             style={{ color }}
           >
             {label}

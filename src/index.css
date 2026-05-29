@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* === Surfaces === */
@@ -13,11 +13,17 @@
   --color-purple-primary: #534ab7;
   --color-purple-dark: #4340a0;
   --color-purple-light: #afa9ec;
-  --color-purple-glow: #7a6fff;   /* NEW — glow / level-up accents */
+  --color-purple-glow: #7a6fff; /* NEW — glow / level-up accents */
 
   /* === Rare (만렙 / 칭호 / 희귀) === */
-  --color-gold: #f5c542;          /* NEW */
-  --color-gold-glow: #ffd970;     /* NEW */
+  --color-gold: #00d26a;
+  --color-gold-glow: #5fffa8;
+  --color-gold-tint: rgba(0, 210, 106, 0.06);
+  --color-gold-glow-soft: rgba(0, 210, 106, 0.3);
+  --color-gold-dim: rgba(0, 210, 106, 0.25);
+  --color-purple-tint: rgba(122, 111, 255, 0.06);
+  --color-purple-glow-soft: rgba(122, 111, 255, 0.3);
+  --color-purple-dim: rgba(122, 111, 255, 0.25);
 
   /* === Status === */
   --color-danger: #f0997b;
@@ -27,15 +33,19 @@
   /* === Text === */
   --color-text-base: #e2e8f0;
   --color-text-sub: #6b7280;
-  --color-text-dim: #4a4a5a;     /* NEW — for very low-emphasis */
+  --color-text-dim: #4a4a5a; /* NEW — for very low-emphasis */
   --color-white: #ffffff;
 
   /* === Type === */
-  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, 'Courier New', monospace;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, 'Courier New',
+    monospace;
   --font-display: 'Orbitron', 'JetBrains Mono', ui-monospace, monospace;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -71,7 +81,11 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.5) 100%);
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
 }
 
 #root {
@@ -102,14 +116,16 @@ body::after {
   pointer-events: none;
 }
 .t-panel--bracket::before {
-  top: -1px; left: -1px;
+  top: -1px;
+  left: -1px;
   border-width: 1px 0 0 1px;
   box-shadow:
     10px 0 0 -1px var(--color-purple-light) inset,
     0 10px 0 -1px var(--color-purple-light) inset;
 }
 .t-panel--bracket::after {
-  bottom: -1px; right: -1px;
+  bottom: -1px;
+  right: -1px;
   border-width: 0 1px 1px 0;
   box-shadow:
     -10px 0 0 -1px var(--color-purple-light) inset,
@@ -118,13 +134,17 @@ body::after {
 
 /* Phosphor text glow */
 .t-glow {
-  text-shadow: 0 0 8px currentColor, 0 0 14px currentColor;
+  text-shadow:
+    0 0 8px currentColor,
+    0 0 14px currentColor;
 }
 .t-glow-soft {
   text-shadow: 0 0 6px rgba(175, 169, 236, 0.55);
 }
 .t-glow-gold {
-  text-shadow: 0 0 8px var(--color-gold-glow), 0 0 16px var(--color-gold-glow);
+  text-shadow:
+    0 0 8px var(--color-gold-glow),
+    0 0 16px var(--color-gold-glow);
 }
 
 /* Bracketed label — sectional headings */
@@ -187,4 +207,88 @@ body::after {
 .t-btn-ghost:hover {
   border-color: var(--color-purple-light);
   color: var(--color-purple-light);
+}
+
+/* ============================================================
+   Terminal slider — append to src/index.css
+   네이티브 <input type="range"> 를 터미널 톤으로 스타일링.
+   채움 트랙은 인라인 --pct 변수로 (0~100%) 제어.
+   ============================================================ */
+
+.t-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px; /* 다이아몬드 thumb 가 잘리지 않게 여유 높이 */
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ---- WebKit (Chrome / Safari / Edge) ---- */
+.t-range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--color-purple-glow) 0,
+    var(--color-purple-glow) var(--pct, 0%),
+    var(--color-bg-input) var(--pct, 0%),
+    var(--color-bg-input) 100%
+  );
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 8px rgba(122, 111, 255, 0.35);
+}
+.t-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6.5px; /* (track높이/2) - (thumb높이/2) 보정 */
+  background: var(--color-purple-light);
+  transform: rotate(45deg); /* ◆ 다이아몬드 */
+  border: none;
+  box-shadow: 0 0 12px var(--color-purple-glow);
+}
+
+/* ---- Firefox ---- */
+.t-range::-moz-range-track {
+  height: 4px;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+}
+.t-range::-moz-range-progress {
+  height: 4px;
+  background: var(--color-purple-glow);
+  box-shadow: 0 0 8px rgba(122, 111, 255, 0.35);
+}
+.t-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--color-purple-light);
+  transform: rotate(45deg);
+  border: none;
+  box-shadow: 0 0 12px var(--color-purple-glow);
+}
+
+/* 만렙/특수 자리에서 골드로 쓰고 싶으면 .t-range--gold 추가 */
+.t-range--gold::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--color-gold) 0,
+    var(--color-gold) var(--pct, 0%),
+    var(--color-bg-input) var(--pct, 0%),
+    var(--color-bg-input) 100%
+  );
+  box-shadow: 0 0 8px rgba(245, 197, 66, 0.35);
+}
+.t-range--gold::-webkit-slider-thumb {
+  background: var(--color-gold-glow);
+  box-shadow: 0 0 12px var(--color-gold);
+}
+.t-range--gold::-moz-range-progress {
+  background: var(--color-gold);
+}
+.t-range--gold::-moz-range-thumb {
+  background: var(--color-gold-glow);
+  box-shadow: 0 0 12px var(--color-gold);
 }
