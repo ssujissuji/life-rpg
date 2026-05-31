@@ -8,6 +8,7 @@ import Panel from '../components/Panel';
 import SkillBar from '../components/SkillBar';
 import BuffTag, { classifyTag } from '../components/BuffTag';
 import TitleSelectModal from '../components/TitleSelectModal';
+import Toast from '../components/Toast';
 import { TITLE_DEFS } from '../lib/titles';
 import { SKILL_COLORS, SKILL_COLORS_DIM } from '../lib/skills';
 import { today } from '../lib/date';
@@ -88,6 +89,7 @@ export default function CharacterSheet() {
   const { setActiveTitle } = useStore();
   const [selectedSkill, setSelectedSkill] = useState<SkillConfig | null>(null);
   const [showTitleModal, setShowTitleModal] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const activeDef = TITLE_DEFS.find((t) => t.id === activeTitle) ?? null;
 
@@ -287,8 +289,21 @@ export default function CharacterSheet() {
           onSelect={(id) => {
             setActiveTitle(id);
             setShowTitleModal(false);
+            const titleDef = TITLE_DEFS.find((t) => t.id === id);
+            if (titleDef) {
+              setToastMsg(`대표 칭호가 [${titleDef.label}]으로 변경되었습니다`);
+            }
           }}
           onClose={() => setShowTitleModal(false)}
+        />
+      )}
+
+      {toastMsg && (
+        <Toast
+          message={toastMsg}
+          subMessage=""
+          kind="system"
+          onClose={() => setToastMsg(null)}
         />
       )}
 

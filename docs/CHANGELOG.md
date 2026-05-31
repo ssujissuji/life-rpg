@@ -4,6 +4,16 @@
 
 ---
 
+## [Unreleased] — Toast 피드백 시스템 확장
+
+### Changed
+- `src/pages/Settings.tsx` — `saved` state + `setTimeout` 제거. `toastMsg` 로컬 state + `<Toast>` 컴포넌트로 교체. 저장 성공 시 "설정이 저장되었습니다" 토스트 표시. 버튼 텍스트 "저장하기"로 고정
+- `src/pages/DailyLog.tsx` — `handleSubmit`의 navigate state에 `isEdit: !!existing` 추가
+- `src/pages/PatchResult.tsx` — `isEdit` 수신. `fromSave && isEdit` 조건 시 "패치노트가 수정되었습니다" 토스트를 큐 맨 앞에 push (system kind)
+- `src/pages/CharacterSheet.tsx` — `Toast` import 및 `toastMsg` 로컬 state 추가. TitleSelectModal `onSelect` 콜백에서 칭호명 조회 후 "대표 칭호가 [칭호명]으로 변경되었습니다" 토스트 표시
+
+---
+
 ## [Unreleased] — CharacterSheet 캐릭터 프로필 리디자인
 
 ### Added

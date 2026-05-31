@@ -5,6 +5,7 @@ import useStore from '../store/useStore';
 import type { Character, PersonalBaseline, SidoName } from '../types';
 import BaselineForm from '../components/BaselineForm';
 import SidoPicker from '../components/SidoPicker';
+import Toast from '../components/Toast';
 
 export const CLASS_OPTIONS = [
   '취준생',
@@ -23,7 +24,7 @@ export default function Settings() {
   const [baselineForm, setBaselineForm] = useState<PersonalBaseline>({
     ...baseline,
   });
-  const [saved, setSaved] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const set = (key: keyof Character) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -32,8 +33,7 @@ export default function Settings() {
     e.preventDefault();
     setCharacter({ ...form, birthYear: Number(form.birthYear) });
     setBaseline(baselineForm);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
+    setToastMsg('설정이 저장되었습니다');
   }
 
   return (
@@ -131,7 +131,7 @@ export default function Settings() {
         <button
           type="submit"
           className="w-full bg-purple-primary hover:bg-purple-dark text-white font-mono text-sm py-3 rounded-lg transition-colors">
-          {saved ? '✓ 저장됨' : '저장하기'}
+          저장하기
         </button>
       </form>
 
@@ -151,9 +151,18 @@ export default function Settings() {
           </div>
         </div>
         <div className="text-text-sub text-[13px] font-mono">
-          Made by Buttonn_
+          Made by buttonn_
         </div>
       </div>
+
+      {toastMsg && (
+        <Toast
+          message={toastMsg}
+          subMessage=""
+          kind="system"
+          onClose={() => setToastMsg(null)}
+        />
+      )}
     </div>
   );
 }

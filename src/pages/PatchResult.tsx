@@ -71,8 +71,11 @@ export default function PatchResult() {
   const unlockedTitles = useStore((s) => s.unlockedTitles);
   const { getPatch, markSkillsMaxed, markTitlesUnlocked } = useStore();
 
-  const fromSave = !!(location.state as { fromSave?: boolean } | null)
-    ?.fromSave;
+  const locationState = location.state as
+    | { fromSave?: boolean; isEdit?: boolean }
+    | null;
+  const fromSave = !!locationState?.fromSave;
+  const isEdit = !!locationState?.isEdit;
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -121,7 +124,12 @@ export default function PatchResult() {
       };
     });
 
-    return [...skillToasts, ...titleToasts];
+    const editToast: SkillToast[] =
+      isEdit
+        ? [{ message: '패치노트가 수정되었습니다', subMessage: '', kind: 'system' }]
+        : [];
+
+    return [...editToast, ...skillToasts, ...titleToasts];
   });
 
   const handleShare = useCallback(async () => {

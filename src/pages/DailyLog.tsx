@@ -133,7 +133,7 @@ export default function DailyLog() {
       weather: isToday ? (weatherLabel ?? undefined) : undefined,
       aqi: isToday ? (aqiLabel ?? undefined) : undefined,
     });
-    navigate(`/result/${date}`, { state: { fromSave: true } });
+    navigate(`/result/${date}`, { state: { fromSave: true, isEdit: !!existing } });
   }
 
   return (
